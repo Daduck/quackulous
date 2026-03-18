@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -ExecutionPolicy Bypass -File ./scripts/bootstrap-windows.ps1 -Configuration Debug)",
+      "Bash(cmake --build build/windows-msvc --config Debug --target quackulous-client)",
+      "Bash(grep -rn \"typedef.*connstate\\\\|connstate_t\" c:/dev/quackulous/src/ --include=*.h)"
+    ]
+  }
+}

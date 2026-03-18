@@ -1386,24 +1386,34 @@ int FS_FindVM(void **startSearch, char *found, int foundlen, const char *name, i
 	else
 		search = lastSearch->next;
 
+	// When native DLL loading is enabled, scan all directories first.
+	// Pack files (pk3s) are higher priority in the search path but should
+	// not override a native DLL sitting in a game directory.
+	if(enableDll && !fs_numServerPaks)
+	{
+		searchpath_t *dllSearch = search;
+		while(dllSearch)
+		{
+			if(dllSearch->dir)
+			{
+				dir = dllSearch->dir;
+				netpath = FS_BuildOSPath(dir->path, dir->gamedir, dllName);
+				if(FS_FileInPathExists(netpath))
+				{
+					Q_strncpyz(found, netpath, foundlen);
+					*startSearch = dllSearch;
+					return VMI_NATIVE;
+				}
+			}
+			dllSearch = dllSearch->next;
+		}
+	}
+
 	while(search)
 	{
 		if(search->dir && !fs_numServerPaks)
 		{
 			dir = search->dir;
-
-			if(enableDll)
-			{
-				netpath = FS_BuildOSPath(dir->path, dir->gamedir, dllName);
-
-				if(FS_FileInPathExists(netpath))
-				{
-					Q_strncpyz(found, netpath, foundlen);
-					*startSearch = search;
-
-					return VMI_NATIVE;
-				}
-			}
 
 			if(FS_FOpenFileReadDir(qvmName, search, NULL, qfalse, qfalse) > 0)
 			{

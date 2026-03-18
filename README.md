@@ -16,10 +16,17 @@ The legacy [Makefile](/c:/dev/quackulous/Makefile) and [misc/msvc/tremulous.vcpr
 
 ## Bootstrap
 
-Use the repo bootstrap script on a machine that has Git and Visual Studio 2022 installed:
+Use the repo bootstrap script on a machine that has Git and Visual Studio 2022 installed.
+Visual Studio must include the native C++ toolchain:
+
+- `Desktop development with C++`
+- `MSVC v143 build tools for x64/x86`
+- `C++ CMake tools for Windows`
+
+Then run:
 
 ```powershell
-pwsh -File .\scripts\bootstrap-windows.ps1 -Configuration Debug
+powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap-windows.ps1 -Configuration Debug
 ```
 
 That script will:
@@ -31,6 +38,8 @@ That script will:
 5. Build the requested configuration.
 
 The canonical CMake output directory is `build/windows-msvc`, and the runnable staged layout is `build/windows-msvc/stage/<Config>`.
+
+If you previously configured with a broken toolchain argument and see `CMAKE_TOOLCHAIN_FILE=$toolchain`, rerun the bootstrap script. It now removes that stale CMake cache automatically before reconfiguring.
 
 ## Runtime layout
 

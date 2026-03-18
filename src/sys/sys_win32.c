@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "sys_local.h"
 
 #include <windows.h>
+#include <mmsystem.h>
 #include <lmerr.h>
 #include <lmcons.h>
 #include <lmwksta.h>

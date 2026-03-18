@@ -31,6 +31,7 @@ GetClientState
 ====================
 */
 static void GetClientState( uiClientState_t *state ) {
+	if ( !state ) return;
 	state->connectPacketCount = clc.connectPacketCount;
 	state->connState = clc.state;
 	Q_strncpyz( state->servername, clc.servername, sizeof( state->servername ) );
@@ -636,6 +637,7 @@ CL_GetGlConfig
 ====================
 */
 static void CL_GetGlconfig( glconfig_t *config ) {
+	if ( !config ) return;
 	*config = cls.glconfig;
 }
 

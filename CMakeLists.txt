@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 
-project(Quackulous VERSION 1.2.0 LANGUAGES C RC)
+project(Quackulous VERSION 1.2.0 LANGUAGES C RC ASM_MASM)
 
 if(NOT WIN32)
   message(FATAL_ERROR "The supported first-class CMake path currently targets Windows only.")
@@ -120,9 +120,9 @@ set(QUACK_COMMON_INCLUDE_DIRS
   "${CMAKE_CURRENT_SOURCE_DIR}/src/libcurl-7.35.0"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/libogg-1.3.1/include"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/libvorbis-1.3.4/include"
-  "${CMAKE_CURRENT_SOURCE_DIR}/src/libvorbis-1.3.4/lib"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/opus-1.1/include"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/opus-1.1/celt"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/libvorbis-1.3.4/lib"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/opus-1.1/silk"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/opus-1.1/silk/float"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/opusfile-0.5/include"
@@ -192,6 +192,20 @@ function(quackulous_copy_runtime_assets target)
       "$<TARGET_FILE_DIR:${target}>/server.cfg"
     VERBATIM
   )
+  # Copy game data pk3 files if the gamedata/base directory exists.
+  # These are not committed to the repo; populate gamedata/base/ from your
+  # Tremulous installation once and they will be deployed to every build config.
+  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/gamedata/base")
+    file(GLOB _gamedata_pk3s "${CMAKE_CURRENT_SOURCE_DIR}/gamedata/base/*.pk3")
+    if(_gamedata_pk3s)
+      add_custom_command(TARGET "${target}" POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy
+          ${_gamedata_pk3s}
+          "$<TARGET_FILE_DIR:${target}>/${QUACK_BASEGAME}"
+        VERBATIM
+      )
+    endif()
+  endif()
 endfunction()
 
 function(quackulous_copy_runtime_dlls target)
@@ -254,6 +268,8 @@ if(QUACK_BUILD_CLIENT)
   if(QUACK_USE_MUMBLE)
     target_compile_definitions(quackulous-client PRIVATE USE_MUMBLE)
   endif()
+  # idx64: enables the x64 MASM JIT wrapper (qvmcall64) in vm_x86.c
+  target_compile_definitions(quackulous-client PRIVATE idx64)
   set_target_properties(quackulous-client PROPERTIES
     OUTPUT_NAME "tremulous.${QUACK_ARCH_STRING}"
     RUNTIME_OUTPUT_DIRECTORY "${QUACK_RUNTIME_ROOT}/$<CONFIG>"
@@ -272,6 +288,8 @@ if(QUACK_BUILD_SERVER)
   )
   quackulous_target_defaults(quackulous-dedicated)
   target_compile_definitions(quackulous-dedicated PRIVATE DEDICATED)
+  # idx64: enables the x64 MASM JIT wrapper (qvmcall64) in vm_x86.c
+  target_compile_definitions(quackulous-dedicated PRIVATE idx64)
   if(QUACK_USE_VOIP)
     target_compile_definitions(quackulous-dedicated PRIVATE USE_VOIP)
   endif()

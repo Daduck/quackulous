@@ -39,6 +39,7 @@ CL_GetGameState
 ====================
 */
 void CL_GetGameState( gameState_t *gs ) {
+	if ( !gs ) return;
 	*gs = cl.gameState;
 }
 
@@ -48,6 +49,7 @@ CL_GetGlconfig
 ====================
 */
 void CL_GetGlconfig( glconfig_t *glconfig ) {
+	if ( !glconfig ) return;
 	*glconfig = cls.glconfig;
 }
 

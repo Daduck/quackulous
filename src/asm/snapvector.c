@@ -24,6 +24,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qasm-inline.h"
 #include "../qcommon/q_shared.h"
 
+#ifdef _MSC_VER
+
+/* MSVC x64: plain cast truncates toward zero, matching the original behaviour. */
+
+void qsnapvectorsse(vec3_t vec)
+{
+	vec[0] = (float)(int)vec[0];
+	vec[1] = (float)(int)vec[1];
+	vec[2] = (float)(int)vec[2];
+}
+
+void qsnapvectorx87(vec3_t vec)
+{
+	vec[0] = (float)(int)vec[0];
+	vec[1] = (float)(int)vec[1];
+	vec[2] = (float)(int)vec[2];
+}
+
+#else /* GCC / Clang inline asm path */
+
 /*
  * GNU inline asm version of qsnapvector
  * See MASM snapvector.asm for commentary
@@ -51,14 +71,13 @@ void qsnapvectorsse(vec3_t vec)
 		: "r" (ssemask), "r" (vec)
 		: "memory", "%xmm0", "%xmm1", "%xmm2"
 	);
-	
 }
 
 #define QROUNDX87(src) \
 	"flds " src "\n" \
 	"fistpl " src "\n" \
 	"fildl " src "\n" \
-	"fstps " src "\n"	
+	"fstps " src "\n"
 
 void qsnapvectorx87(vec3_t vec)
 {
@@ -72,3 +91,5 @@ void qsnapvectorx87(vec3_t vec)
 		: "memory"
 	);
 }
+
+#endif /* _MSC_VER */

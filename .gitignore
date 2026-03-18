@@ -1,4 +1,5 @@
 build
+gamedata
 Makefile.local
 *.swp
 *tags

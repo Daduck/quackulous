@@ -23,6 +23,34 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "qasm-inline.h"
 
+#ifdef _MSC_VER
+
+/* MSVC x64: SSE2 is always available; plain cast uses cvttss2si automatically. */
+
+long qftolsse(float f)
+{
+	return (long)f;
+}
+
+int qvmftolsse(void)
+{
+	/* The x86 JIT does not use this path on x64 MSVC builds. */
+	return 0;
+}
+
+long qftolx87(float f)
+{
+	return (long)f;
+}
+
+int qvmftolx87(void)
+{
+	/* The x86 JIT does not use this path on x64 MSVC builds. */
+	return 0;
+}
+
+#else /* GCC / Clang inline asm path */
+
 static const unsigned short fpucw = 0x0C7F;
 
 /*
@@ -32,21 +60,21 @@ static const unsigned short fpucw = 0x0C7F;
 long qftolsse(float f)
 {
   long retval;
-  
+
   __asm__ volatile
   (
     "cvttss2si %1, %0\n"
     : "=r" (retval)
     : "x" (f)
   );
-  
+
   return retval;
 }
 
 int qvmftolsse(void)
 {
   int retval;
-  
+
   __asm__ volatile
   (
     "movss (" EDI ", " EBX ", 4), %%xmm0\n"
@@ -55,7 +83,7 @@ int qvmftolsse(void)
     :
     : "%xmm0"
   );
-  
+
   return retval;
 }
 
@@ -75,7 +103,7 @@ long qftolx87(float f)
     : "=r" (retval)
     : "m" (f), "m" (oldcw), "m" (fpucw)
   );
-  
+
   return retval;
 }
 
@@ -95,6 +123,8 @@ int qvmftolx87(void)
     : "=r" (retval)
     : "m" (oldcw), "m" (fpucw)
   );
-  
+
   return retval;
 }
+
+#endif /* _MSC_VER */

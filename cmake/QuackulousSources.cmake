@@ -61,6 +61,7 @@ function(quackulous_collect_sources)
   set(client_platform
     src/asm/ftola.c
     src/asm/snapvector.c
+    src/asm/vm_x86_64.asm
     src/sdl/sdl_input.c
     src/sdl/sdl_snd.c
     src/sys/con_log.c
@@ -72,6 +73,7 @@ function(quackulous_collect_sources)
   set(dedicated_platform
     src/asm/ftola.c
     src/asm/snapvector.c
+    src/asm/vm_x86_64.asm
     src/null/null_client.c
     src/null/null_input.c
     src/null/null_snddma.c
