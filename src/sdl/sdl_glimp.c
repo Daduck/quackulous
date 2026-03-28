@@ -459,6 +459,23 @@ static int GLimp_SetMode( qboolean failSafe, qboolean fullscreen, qboolean nobor
 		
 		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
+		// Request a minimum OpenGL version so modern drivers allocate an
+		// accelerated context instead of a legacy compatibility fallback.
+		// GL2 renderer needs at least OpenGL 2.0 for GLSL/FBO/VBO support.
+		// GL1 renderer uses fixed-function pipeline; request 1.4 minimum so
+		// drivers don't penalize us with a software rasterizer.
+#if defined(RENDERER_OPENGL2)
+		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
+		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 0 );
+		// Compatibility profile: GL2 renderer still uses some legacy paths
+		// (immediate-mode fallbacks, ARB extension names). Upgrading to core
+		// profile (3.3+) is tracked separately once ARB naming is cleaned up.
+		SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY );
+#else
+		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 1 );
+		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 4 );
+#endif
+
 #if 0 // if multisampling is enabled on X11, this causes create window to fail.
 		// If not allowing software GL, demand accelerated
 		if( !r_allowSoftwareGL->integer )

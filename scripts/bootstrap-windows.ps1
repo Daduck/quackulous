@@ -156,7 +156,7 @@ if (-not (Test-Path $vcpkgExe)) {
   & (Join-Path $vcpkgRoot "bootstrap-vcpkg.bat")
 }
 
-& $vcpkgExe install sdl2:x64-windows
+& $vcpkgExe install sdl2:x64-windows openal-soft:x64-windows
 
 $fullBuildDir = Join-Path $repoRoot $BuildDir
 $toolchain = Join-Path $vcpkgRoot "scripts\buildsystems\vcpkg.cmake"
@@ -172,7 +172,7 @@ $cmakeConfigureArgs = @(
   "-G", $generator,
   "-A", "x64",
   "-DCMAKE_TOOLCHAIN_FILE=$toolchain",
-  "-DQUACK_BUILD_RENDERER_OPENGL2=OFF"
+  "-DQUACK_BUILD_RENDERER_OPENGL2=ON"
 )
 
 & $cmake @cmakeConfigureArgs

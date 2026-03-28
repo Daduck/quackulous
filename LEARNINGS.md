@@ -58,6 +58,8 @@
 
 - The default `vm_ui`, `vm_cgame`, and `vm_game` cvars still prefer compiled/QVM mode, so local development and smoke coverage must explicitly set them to `0` to force the native DLL path.
 - The new startup smoke test uses that native-DLL mode plus a local `map tremor` launch to validate client boot, staged asset discovery, and local client/server bring-up in one run.
+- The VS Code debug launch now follows the same path: [.vscode/launch.json](/c:/dev/quackulous/.vscode/launch.json) pins `fs_basepath` and `fs_homepath` to the staged runtime directory and forces `vm_ui=0`, `vm_cgame=0`, and `vm_game=0`.
+- Module-level bring-up coverage now lives in [scripts/client-module-smoke.ps1](/c:/dev/quackulous/scripts/client-module-smoke.ps1) and runs three isolated client launches for renderer, filesystem/network, and audio bootstrap. Each run uses a unique `fs_homepath` under `stage/<Config>/testhome/<module>/` so log files and `tremulous.pid` do not collide across tests.
 
 ### Defensive null guards in syscall handlers (added 2026-03-17)
 
@@ -73,7 +75,29 @@
 - `vswhere.exe` lives at `C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe` (not x64 Program Files).
 - CMakePresets.json default preset uses VS 18 2026; `-vs2022` variants are available for VS 2022.
 
+### Graphics modernization — renderer architecture (2026-03-28)
+
+- The codebase has two renderer DLLs: `renderer_opengl1_x86_64.dll` (fixed-function, default) and `renderer_opengl2_x86_64.dll` (GLSL, FBO, HDR, SSAO, normal/specular mapping, shadow maps — ~90% implemented).
+- GL2 was gated by `QUACK_BUILD_RENDERER_OPENGL2=OFF`. This has been flipped to ON so it builds by default.
+- `sdl_glimp.c` is compiled into **each renderer DLL separately** (it is in `renderer_platform` source list, not the client). This means OpenGL context attributes can be conditioned per-renderer via compile defines.
+- A `RENDERER_OPENGL2` compile define was added to the GL2 target so `sdl_glimp.c` can branch on it.
+- GL2 renderer currently requests OpenGL 2.0 compatibility profile. Upgrading to 3.3 core requires replacing all ARB extension suffix names (e.g., `qglCreateShaderObjectARB`) with core equivalents — tracked as M2.
+- No hardcoded resolution limits exist in the codebase. Ultrawide (3440×1440, 21:9) is automatically handled by SDL2 mode enumeration and `glConfig.windowAspect`.
+- The cgame uses **Hor+ FOV scaling**: `fov_x = 2 * atan2(refdef.width, refdef.height / tan(fov_y/2))`. Wider displays correctly get wider horizontal FOV with no code changes needed.
+- The GL2 MSVC compile risk items identified by scan:
+  - `tr_public.h` `__attribute__` uses — neutralized by `q_shared.h` being included first in every GL2 TU.
+  - `__frsqrte` PowerPC intrinsic in `tr_surface.c` — inside `#if 0`, never compiled.
+  - No other MSVC blockers found in scan. Actual build needed to confirm.
+
 ## Decision log
+
+### 2026-03-28
+
+- Enabled GL2 renderer by default (was OFF). Rationale: Phase 1 build stability is confirmed; GL2 is the correct renderer for modern GPU hardware and is the prerequisite for all future graphics quality work.
+- OpenGL context version: set GL2 to 2.0 compat (not 3.3 core) for now to avoid breaking the existing ARB-named extension loading system. Core profile upgrade is a separate tracked task (M2).
+- GL2 build fix (2026-03-28): `renderer_dlopen_common` in `cmake/QuackulousSources.cmake` originally listed `src/renderergl1/tr_subs.c` explicitly. The GL2 glob (`src/renderergl2/*.c`) also pulls in `src/renderergl2/tr_subs.c`, causing LNK2005 duplicate-symbol errors for `Com_Error` and `Com_Printf`. Fix: removed `tr_subs.c` from `renderer_dlopen_common` and added it explicitly only to `renderer_gl1_sources`; GL2 gets it via the glob.
+- `bootstrap-windows.ps1` was passing `-DQUACK_BUILD_RENDERER_OPENGL2=OFF`, overriding the `ON` default in CMakeLists.txt. Changed to `=ON` so the bootstrap script actually builds GL2.
+- OpenAL staging (2026-03-28): The sound system uses `USE_OPENAL_DLOPEN` (LoadLibrary at runtime), so `OpenAL32.dll` is invisible to CMake's `TARGET_RUNTIME_DLLS`. Fix: added `openal-soft:x64-windows` to vcpkg install and a POST_BUILD copy command in CMakeLists.txt that copies `OpenAL32.dll` from `${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin` (Debug) or `.../bin` (Release) to the stage directory.
 
 ### 2026-03-16
 

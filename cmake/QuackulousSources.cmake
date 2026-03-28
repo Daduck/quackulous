@@ -92,7 +92,6 @@ function(quackulous_collect_sources)
     src/qcommon/puff.c
     src/qcommon/q_math.c
     src/qcommon/q_shared.c
-    src/renderergl1/tr_subs.c
   )
 
   set(client_sources
@@ -112,11 +111,14 @@ function(quackulous_collect_sources)
     ${dedicated_platform}
   )
 
+  # GL1 has no tr_subs.c in its glob, so supply it explicitly.
+  # GL2 picks up src/renderergl2/tr_subs.c via the renderer_gl2 glob.
   set(renderer_gl1_sources
     ${renderer_common}
     ${renderer_gl1}
     ${renderer_platform}
     ${renderer_dlopen_common}
+    src/renderergl1/tr_subs.c
   )
 
   set(renderer_gl2_sources

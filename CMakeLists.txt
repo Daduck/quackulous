@@ -22,7 +22,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 option(QUACK_BUILD_CLIENT "Build the playable client." ON)
 option(QUACK_BUILD_SERVER "Build the dedicated server." ON)
 option(QUACK_BUILD_GAME_DLLS "Build native cgame/game/ui DLLs." ON)
-option(QUACK_BUILD_RENDERER_OPENGL2 "Build the OpenGL 2 renderer DLL." OFF)
+option(QUACK_BUILD_RENDERER_OPENGL2 "Build the OpenGL 2 renderer DLL." ON)
 option(QUACK_USE_RENDERER_DLOPEN "Load renderers as DLLs." ON)
 option(QUACK_USE_OPENAL "Enable OpenAL sound support." ON)
 option(QUACK_USE_OPENAL_DLOPEN "Load OpenAL dynamically at runtime." ON)
@@ -268,8 +268,6 @@ if(QUACK_BUILD_CLIENT)
   if(QUACK_USE_MUMBLE)
     target_compile_definitions(quackulous-client PRIVATE USE_MUMBLE)
   endif()
-  # idx64: enables the x64 MASM JIT wrapper (qvmcall64) in vm_x86.c
-  target_compile_definitions(quackulous-client PRIVATE idx64)
   set_target_properties(quackulous-client PROPERTIES
     OUTPUT_NAME "tremulous.${QUACK_ARCH_STRING}"
     RUNTIME_OUTPUT_DIRECTORY "${QUACK_RUNTIME_ROOT}/$<CONFIG>"
@@ -278,6 +276,19 @@ if(QUACK_BUILD_CLIENT)
   )
   quackulous_copy_runtime_assets(quackulous-client)
   quackulous_copy_runtime_dlls(quackulous-client)
+  # OpenAL is loaded at runtime via LoadLibrary (USE_OPENAL_DLOPEN), so it is
+  # invisible to TARGET_RUNTIME_DLLS.  Stage it explicitly from the vcpkg tree.
+  if(QUACK_USE_OPENAL AND QUACK_USE_OPENAL_DLOPEN AND DEFINED VCPKG_INSTALLED_DIR)
+    set(_oal_dll_debug   "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin/OpenAL32.dll")
+    set(_oal_dll_release "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin/OpenAL32.dll")
+    add_custom_command(TARGET quackulous-client POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+        "$<IF:$<CONFIG:Debug>,${_oal_dll_debug},${_oal_dll_release}>"
+        "$<TARGET_FILE_DIR:quackulous-client>"
+      COMMENT "Staging OpenAL32.dll"
+      VERBATIM
+    )
+  endif()
 endif()
 
 if(QUACK_BUILD_SERVER)
@@ -288,8 +299,6 @@ if(QUACK_BUILD_SERVER)
   )
   quackulous_target_defaults(quackulous-dedicated)
   target_compile_definitions(quackulous-dedicated PRIVATE DEDICATED)
-  # idx64: enables the x64 MASM JIT wrapper (qvmcall64) in vm_x86.c
-  target_compile_definitions(quackulous-dedicated PRIVATE idx64)
   if(QUACK_USE_VOIP)
     target_compile_definitions(quackulous-dedicated PRIVATE USE_VOIP)
   endif()
@@ -346,6 +355,7 @@ if(QUACK_BUILD_CLIENT AND QUACK_BUILD_RENDERER_OPENGL2)
     winmm
     ws2_32
   )
+  target_compile_definitions(quackulous-renderer-opengl2 PRIVATE RENDERER_OPENGL2)
   set_target_properties(quackulous-renderer-opengl2 PROPERTIES
     OUTPUT_NAME "renderer_opengl2_${QUACK_ARCH_STRING}"
     RUNTIME_OUTPUT_DIRECTORY "${QUACK_RUNTIME_ROOT}/$<CONFIG>"
@@ -406,6 +416,45 @@ if(QUACK_BUILD_CLIENT AND BUILD_TESTING)
   )
   set_tests_properties(client_startup_smoke PROPERTIES
     LABELS "smoke"
+    TIMEOUT 90
+  )
+
+  add_test(
+    NAME client_renderer_bootstrap
+    COMMAND powershell
+      -ExecutionPolicy Bypass
+      -File "${CMAKE_CURRENT_SOURCE_DIR}/scripts/client-module-smoke.ps1"
+      -RuntimeRoot "$<TARGET_FILE_DIR:quackulous-client>"
+      -Module renderer
+  )
+  set_tests_properties(client_renderer_bootstrap PROPERTIES
+    LABELS "smoke;bringup"
+    TIMEOUT 90
+  )
+
+  add_test(
+    NAME client_filesystem_network_bootstrap
+    COMMAND powershell
+      -ExecutionPolicy Bypass
+      -File "${CMAKE_CURRENT_SOURCE_DIR}/scripts/client-module-smoke.ps1"
+      -RuntimeRoot "$<TARGET_FILE_DIR:quackulous-client>"
+      -Module filesystem-network
+  )
+  set_tests_properties(client_filesystem_network_bootstrap PROPERTIES
+    LABELS "smoke;bringup"
+    TIMEOUT 90
+  )
+
+  add_test(
+    NAME client_audio_bootstrap
+    COMMAND powershell
+      -ExecutionPolicy Bypass
+      -File "${CMAKE_CURRENT_SOURCE_DIR}/scripts/client-module-smoke.ps1"
+      -RuntimeRoot "$<TARGET_FILE_DIR:quackulous-client>"
+      -Module audio
+  )
+  set_tests_properties(client_audio_bootstrap PROPERTIES
+    LABELS "smoke;bringup"
     TIMEOUT 90
   )
 endif()

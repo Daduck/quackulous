@@ -16,11 +16,11 @@
 
 ## Current phase
 
-- Phase: Build and runtime bring-up
+- Phase: Graphics modernization (Phase M)
 - Overall status: `in_progress`
-- First hard milestone: playable Windows client build under Visual Studio 2022 + MSVC x64
+- Milestone: GL2 renderer enabled and stable; game runs at native resolution on modern GPUs
 
-## Active tasks
+## Completed (Phase 1 — build bring-up)
 
 | ID | Task | Status | Notes |
 |---|---|---|---|
@@ -29,15 +29,28 @@
 | P3 | Fix compile errors under modern MSVC | `done` | Five issues resolved; see LEARNINGS.md. |
 | P4 | Validate runtime layout and boot path | `done` | Smoke script passes; `tremulous.x86_64.exe` boots to FS_Startup. |
 | P5 | Expand smoke tests beyond `--version` | `done` | Added startup smoke that boots the client, loads native UI/game/cgame DLLs, mounts staged assets, and reaches a local `tremor` session. |
-| P6 | Fix F5 debug launch - UI init crash | `in_progress` | Startup smoke now proves the native-DLL local path works. The remaining work is making the normal F5/debug launch follow that same path instead of loading `vm/ui.qvm`. |
+| P6 | Fix F5 debug launch - UI init crash | `done` | `.vscode/launch.json` now pins `fs_basepath`/`fs_homepath` to the staged runtime and forces `vm_ui/vm_cgame/vm_game` to native DLL mode, matching the passing startup smoke path. |
+| P7 | Add module-level bring-up coverage | `done` | Added client renderer, filesystem/network, and audio bootstrap smoke tests with isolated `fs_homepath` sandboxes; `ctest --preset windows-msvc-debug-smoke` now runs 6 passing tests. |
+
+## Active tasks (Phase M — graphics modernization)
+
+| ID | Task | Status | Notes |
+|---|---|---|---|
+| M1 | Enable GL2 renderer build | `done` | `QUACK_BUILD_RENDERER_OPENGL2` flipped ON; `RENDERER_OPENGL2` define added to target. |
+| M2 | Request explicit OpenGL context version | `done` | `sdl_glimp.c` now sets GL 2.0 compat context for GL2, GL 1.4 for GL1. |
+| M3 | Verify ultrawide (3440×1440) FOV path | `done` | cgame uses Hor+ scaling via `atan2(width, y)` — correct, no changes needed. |
+| M4 | Build and smoke-test GL2 renderer | `done` | GL2 builds clean under MSVC; `renderer_opengl2_x86_64.dll` in stage. All 6 smoke tests pass. |
+| M5 | Fix any MSVC compile errors in GL2 sources | `done` | One LNK2005 (tr_subs.c linked twice); fixed in QuackulousSources.cmake. No other errors. |
+| M6 | Add GL2 bootstrap smoke test | `todo` | Add a CTest entry that boots with `renderer_opengl2_x86_64.dll`. |
+| M7 | OpenGL 3.3 core profile upgrade for GL2 | `todo` | Requires updating ARB extension naming to core equivalents — tracked separately. |
+| M8 | Quality defaults (anisotropic, MSAA, shadow res) | `todo` | Set better out-of-box defaults once GL2 is stable. |
 
 ## Current blockers
 
-- **UI init crash still blocks the default F5/debug path.** The startup smoke passes only because it explicitly forces `vm_ui/vm_cgame/vm_game` to native DLL mode. The IDE/debug launch still needs to inherit that behavior.
+None.
 
 ## Next actions
 
-1. Run game via the normal F5/debug path and confirm it follows the same native-DLL path as the startup smoke test.
-2. If F5 still loads `vm/ui.qvm`, fix the debugger launch args or startup cvar path so `vm_ui/vm_cgame/vm_game` default to native DLLs for local development.
-3. If QVM still needs to be supported on x64, investigate `DoSyscall` idx64 sign-extension of 32-bit QVM args to 64-bit `intptr_t`.
-4. Track and burn down remaining compiler warnings (C5286 enum conversion, C4005 macro redefinitions).
+1. Add a GL2-specific CTest smoke entry (M6) that boots with `+set cl_renderer opengl2`.
+2. Manually boot the client with `+set cl_renderer opengl2` and verify rendering at native resolution.
+3. Proceed to M7 (OpenGL 3.3 core profile upgrade) once GL2 boot is confirmed.

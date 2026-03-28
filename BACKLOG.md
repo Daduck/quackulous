@@ -9,10 +9,40 @@
 
 ## Immediate backlog after the first playable build
 
-- Add startup smoke tests that move beyond `--version` and validate client boot, asset discovery, and local connection flow.
-- Add module-level tests around filesystem, networking, VM loading, renderer bootstrap, and audio bootstrap.
+- Add startup smoke tests that move beyond `--version` and validate client boot, asset discovery, and local connection flow. ✓ done
+- Add module-level tests around filesystem, networking, VM loading, renderer bootstrap, and audio bootstrap. ✓ done
 - Track and burn down compiler warnings so regressions become easier to review.
 - Audit any features that stay temporarily gated during bring-up and either restore them or retire them explicitly.
+
+## Graphics modernization backlog (Phase M — active)
+
+### M1: GL2 renderer stabilization
+- Build `renderer_opengl2_x86_64.dll` under MSVC and fix any compile errors. (`QUACK_BUILD_RENDERER_OPENGL2` is now ON by default.)
+- Boot with `+set cl_renderer opengl2` and confirm rendering reaches a playable frame.
+- Add a GL2 CTest smoke entry alongside the existing GL1 renderer bootstrap test.
+- Document any GL2-specific MSVC quirks in LEARNINGS.md.
+
+### M2: OpenGL 3.3 core profile for GL2
+- Replace ARB extension suffix naming (`qglCreateShaderObjectARB` etc.) with OpenGL 3.3 core equivalents (`glCreateShader` etc.) in `tr_extensions.c` and callers.
+- Once ARB names are cleaned up, switch `sdl_glimp.c` from `SDL_GL_CONTEXT_PROFILE_COMPATIBILITY` to `SDL_GL_CONTEXT_PROFILE_CORE` at version 3.3.
+- Benefit: modern driver optimization paths, no deprecated-functionality overhead, future-proofing.
+
+### M3: Display and resolution hardening
+- Test and confirm 3440×1440 (21:9) and 5120×1440 (32:9) modes via `r_width`/`r_height` cvars.
+- Verify UI/HUD does not stretch at non-16:9 aspect ratios (the 2D projection uses `glConfig.windowAspect` — audit all 2D draw calls).
+- Consider exposing a `cg_fovBasis` cvar to let players explicitly choose vertical vs horizontal FOV base.
+
+### M4: Quality defaults for modern hardware
+- Default `r_ext_texture_filter_anisotropic 1` and `r_ext_max_anisotropy 16` in GL2 init.
+- Default `r_ext_multisample 4` (4× MSAA) in GL2 init.
+- Increase default shadow map resolution (`r_shadowMapSize`) once GL2 is stable.
+- Audit tone-mapping and HDR defaults (`r_hdr`, `r_toneMap`) for a good out-of-box look.
+
+### M5: Lighting and texture quality improvements (later track)
+- Evaluate normal map and specular map asset pipeline for existing Tremulous content.
+- Improve shadow quality: cascaded shadow maps are implemented in GL2 — tune cascade splits and bias.
+- Evaluate real-time ambient occlusion quality (SSAO radius, sample count) tuning.
+- Investigate PBR material workflow for new content once the base renderer is confirmed stable.
 
 ## Migration-readiness backlog
 

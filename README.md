@@ -65,6 +65,14 @@ cmake --build --preset windows-msvc-debug
 ctest --preset windows-msvc-debug-smoke
 ```
 
+That smoke preset now covers:
+
+- staged runtime layout,
+- full client startup to a local `tremor` session,
+- renderer bootstrap,
+- filesystem plus networking bootstrap,
+- audio bootstrap.
+
 ## Scope of this modernization phase
 
 This phase is intentionally conservative:
