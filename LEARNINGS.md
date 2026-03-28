@@ -22,6 +22,8 @@
   - executables and renderer DLLs in the top runtime directory,
   - game DLLs under `base/`,
   - assets available under `base/`.
+- Forced termination leaves `tremulous.pid` in `fs_homepath`, which triggers the engine's `Abnormal Exit` safe-mode dialog on the next launch before normal logging starts.
+- Automated startup smoke should remove stale `tremulous.pid` before launch and clean it up afterward so the run stays non-interactive.
 
 ### Scope control
 
@@ -51,6 +53,11 @@
 - The x64 JIT (`vm_x86.c` + `vm_x86_64.asm`) compiled the QVM successfully but it crashed at `UI_INIT` with `Q_strncpyz: destsize < 1`. Root cause not yet fully diagnosed — suspected x64 argument sign-extension issue in `DoSyscall` (`data[index]` read as `int`, signed-extended to `intptr_t`), or a pre-existing QVM bug triggered by the x64 execution environment.
 - **Partial fix applied:** `FS_FindVM` in `src/qcommon/files.c` now does a DLL-first pass over all directories before falling back to QVM search from packs (when `enableDll` and `!fs_numServerPaks`). This makes native DLLs win over pk3-embedded QVMs in offline/development mode.
 - **Known remaining work:** The x64 JIT path (`DoSyscall` idx64 branch) may need its own fix for pure-server mode where native DLLs are prohibited and QVM must be used. Track as a separate backlog item.
+
+### Native DLL smoke path
+
+- The default `vm_ui`, `vm_cgame`, and `vm_game` cvars still prefer compiled/QVM mode, so local development and smoke coverage must explicitly set them to `0` to force the native DLL path.
+- The new startup smoke test uses that native-DLL mode plus a local `map tremor` launch to validate client boot, staged asset discovery, and local client/server bring-up in one run.
 
 ### Defensive null guards in syscall handlers (added 2026-03-17)
 

@@ -396,6 +396,18 @@ if(QUACK_BUILD_CLIENT AND BUILD_TESTING)
       -RequireOpenGL2 "$<IF:$<BOOL:${QUACK_BUILD_RENDERER_OPENGL2}>,1,0>"
   )
   set_tests_properties(runtime_layout PROPERTIES LABELS "smoke")
+
+  add_test(
+    NAME client_startup_smoke
+    COMMAND powershell
+      -ExecutionPolicy Bypass
+      -File "${CMAKE_CURRENT_SOURCE_DIR}/scripts/startup-smoke.ps1"
+      -RuntimeRoot "$<TARGET_FILE_DIR:quackulous-client>"
+  )
+  set_tests_properties(client_startup_smoke PROPERTIES
+    LABELS "smoke"
+    TIMEOUT 90
+  )
 endif()
 
 if(QUACK_BUILD_SERVER AND BUILD_TESTING)
@@ -403,7 +415,7 @@ if(QUACK_BUILD_SERVER AND BUILD_TESTING)
     NAME dedicated_version
     COMMAND "$<TARGET_FILE:quackulous-dedicated>" --version
   )
-  set_tests_properties(dedicated_version PROPERTIES LABELS "smoke")
+  set_tests_properties(dedicated_version PROPERTIES LABELS "server")
 endif()
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/assets/" DESTINATION "${QUACK_BASEGAME}")

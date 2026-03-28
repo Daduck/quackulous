@@ -82,7 +82,9 @@
         "outputOnFailure": true
       },
       "filter": {
-        "label": "smoke"
+        "include": {
+          "label": "smoke"
+        }
       }
     }
   ]
