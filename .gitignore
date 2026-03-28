@@ -36,6 +36,14 @@ profile
 !default.mode2v3
 !default.perspectivev3
 
+# Local tools
+####################
+.tools/sd-texture/
+
+# Claude Code
+####################
+.claude/settings.local.json
+
 # Microsoft Visual Studio
 ####################
 *.sdf
