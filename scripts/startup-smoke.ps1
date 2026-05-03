@@ -16,10 +16,15 @@ $launchWorkingDirectory = (Resolve-Path -LiteralPath (Join-Path $runtimeRootPath
 $clientExe = Join-Path $runtimeRootPath "tremulous.x86_64.exe"
 $logPath = Join-Path $runtimeRootPath "base\\qconsole.log"
 $pidFilePath = Join-Path $runtimeRootPath "tremulous.pid"
+$basePath = Join-Path $runtimeRootPath "base"
+
+$rendererCvar = if ($Renderer -eq "opengl2") { "opengl2" } else { "opengl1" }
 
 if (-not (Test-Path -LiteralPath $clientExe)) {
   throw "Client executable not found at '$clientExe'."
 }
+
+New-Item -ItemType Directory -Path $basePath -Force | Out-Null
 
 if (Test-Path -LiteralPath $logPath) {
   Remove-Item -LiteralPath $logPath -Force
@@ -32,7 +37,9 @@ if (Test-Path -LiteralPath $pidFilePath) {
 $clientArgs = @(
   "+set", "fs_basepath", $runtimeRootPath,
   "+set", "fs_homepath", $runtimeRootPath,
+  "+set", "cl_renderer", $rendererCvar,
   "+set", "logfile", "2",
+  "+set", "com_abnormalExit", "0",
   "+set", "com_introplayed", "1",
   "+set", "s_initsound", "0",
   "+set", "sv_pure", "0",
@@ -42,12 +49,6 @@ $clientArgs = @(
   "+set", "r_fullscreen", "0",
   "+map", $Map
 )
-
-if ($Renderer -eq "opengl2") {
-  $clientArgs = @(
-    "+set", "cl_renderer", "opengl2"
-  ) + $clientArgs
-}
 
 $process = Start-Process -FilePath $clientExe -ArgumentList $clientArgs -WorkingDirectory $launchWorkingDirectory -PassThru
 

@@ -29,6 +29,7 @@
   - assets available under `base/`.
 - Forced termination leaves `tremulous.pid` in `fs_homepath`, which triggers the engine's `Abnormal Exit` safe-mode dialog on the next launch before normal logging starts.
 - Automated startup smoke should remove stale `tremulous.pid` before launch and clean it up afterward so the run stays non-interactive.
+- Headless/CI smoke bring-up can stall before expected `qconsole.log` markers if renderer choice or abnormal-exit state is left to prior config. Durable fix in smoke launch args: explicitly set `cl_renderer=opengl1` for default bring-up tests (keep GL2 only for the dedicated GL2 smoke case) and set `com_abnormalExit=0` to suppress safe-mode dialog paths.
 
 ### Scope control
 

@@ -36,6 +36,7 @@
 | P10 | Remove SDL `WIN32_LEAN_AND_MEAN` redefinition noise | `done` | Removed global `WIN32_LEAN_AND_MEAN` from `QUACK_COMMON_DEFINES` in `CMakeLists.txt`; rebuild confirms the `SDL_opengl.h` C4005 warning no longer appears. |
 | P11 | Remove Opus `C4334` shift warnings | `done` | In `src/opus-1.1/src/opus_encoder.c`, replaced repeated `1<<...` expressions in dynamic-frame logic with typed `opus_int64` shifts cached in local `int` variables (`frame_span`, `state_mask`, `best_span`) to avoid MSVC x64 shift-width warnings without changing behavior. |
 | P12 | Remove net_ip errno redefinition warnings | `done` | Guarded WinSock-to-errno mappings (`EAGAIN`, `EADDRNOTAVAIL`, `EAFNOSUPPORT`, `ECONNRESET`) with `#ifndef` in `src/qcommon/net_ip.c` so MSVC/UCRT predefines are not redefined (`C4005`). |
+| P13 | Stabilize smoke tests in CI/headless runners | `done` | Updated startup/module smoke scripts to force deterministic renderer selection (`cl_renderer=opengl1` except explicit GL2 test) and set `com_abnormalExit=0` to avoid non-interactive startup stalls before log creation; verified with `ctest --test-dir build/windows-msvc --build-config Debug -L smoke` (7/7 pass). |
 
 ## Active tasks (Phase M — graphics modernization)
 

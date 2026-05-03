@@ -20,6 +20,8 @@ $homeBase = Join-Path $homeRoot "base"
 $logPath = Join-Path $homeBase "qconsole.log"
 $pidFilePath = Join-Path $homeRoot "tremulous.pid"
 
+$rendererCvar = if ($Module -eq "renderer-opengl2") { "opengl2" } else { "opengl1" }
+
 if (-not (Test-Path -LiteralPath $clientExe)) {
   throw "Client executable not found at '$clientExe'."
 }
@@ -38,7 +40,9 @@ $soundInit = if ($Module -eq "audio") { "1" } else { "0" }
 $clientArgs = @(
   "+set", "fs_basepath", $runtimeRootPath,
   "+set", "fs_homepath", $homeRoot,
+  "+set", "cl_renderer", $rendererCvar,
   "+set", "logfile", "2",
+  "+set", "com_abnormalExit", "0",
   "+set", "com_introplayed", "1",
   "+set", "sv_pure", "0",
   "+set", "vm_ui", "0",
@@ -48,12 +52,6 @@ $clientArgs = @(
   "+set", "s_initsound", $soundInit,
   "+map", $Map
 )
-
-if ($Module -eq "renderer-opengl2") {
-  $clientArgs = @(
-    "+set", "cl_renderer", "opengl2"
-  ) + $clientArgs
-}
 
 $requiredPatterns = switch ($Module) {
   "renderer" {
