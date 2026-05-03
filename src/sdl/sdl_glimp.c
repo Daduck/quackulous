@@ -63,6 +63,67 @@ void (APIENTRYP qglUnlockArraysEXT) (void);
 
 /*
 ===============
+GLimp_InitConfigStrings
+
+Fill GL vendor/renderer/version and extension strings with core-profile-safe paths.
+===============
+*/
+static void GLimp_InitConfigStrings( void )
+{
+	const GLubyte *vendor;
+	const GLubyte *renderer;
+	const GLubyte *version;
+	const GLubyte *extensions;
+
+	vendor = qglGetString(GL_VENDOR);
+	renderer = qglGetString(GL_RENDERER);
+	version = qglGetString(GL_VERSION);
+	extensions = qglGetString(GL_EXTENSIONS);
+
+	Q_strncpyz(glConfig.vendor_string, vendor ? (const char *)vendor : "Unknown", sizeof(glConfig.vendor_string));
+	Q_strncpyz(glConfig.renderer_string, renderer ? (const char *)renderer : "Unknown", sizeof(glConfig.renderer_string));
+	Q_strncpyz(glConfig.version_string, version ? (const char *)version : "Unknown", sizeof(glConfig.version_string));
+
+	if (*glConfig.renderer_string && glConfig.renderer_string[strlen(glConfig.renderer_string) - 1] == '\n')
+		glConfig.renderer_string[strlen(glConfig.renderer_string) - 1] = 0;
+
+	if (extensions)
+	{
+		Q_strncpyz(glConfig.extensions_string, (const char *)extensions, sizeof(glConfig.extensions_string));
+	}
+	else
+	{
+		int numExtensions = 0;
+		int i;
+		PFNGLGETSTRINGIPROC getStringi;
+
+		glConfig.extensions_string[0] = '\0';
+		getStringi = (PFNGLGETSTRINGIPROC) SDL_GL_GetProcAddress("glGetStringi");
+
+		if (!getStringi)
+		{
+			ri.Printf(PRINT_WARNING, "...OpenGL context did not provide glGetStringi; extension checks may be incomplete\n");
+			return;
+		}
+
+		qglGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
+
+		for (i = 0; i < numExtensions; i++)
+		{
+			const GLubyte *extension = getStringi(GL_EXTENSIONS, (GLuint)i);
+			if (!extension || !*extension)
+				continue;
+
+			if (glConfig.extensions_string[0])
+				Q_strcat(glConfig.extensions_string, sizeof(glConfig.extensions_string), " ");
+
+			Q_strcat(glConfig.extensions_string, sizeof(glConfig.extensions_string), (const char *)extension);
+		}
+	}
+}
+
+/*
+===============
 GLimp_Shutdown
 ===============
 */
@@ -465,12 +526,9 @@ static int GLimp_SetMode( qboolean failSafe, qboolean fullscreen, qboolean nobor
 		// GL1 renderer uses fixed-function pipeline; request 1.4 minimum so
 		// drivers don't penalize us with a software rasterizer.
 #if defined(RENDERER_OPENGL2)
-		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
-		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 0 );
-		// Compatibility profile: GL2 renderer still uses some legacy paths
-		// (immediate-mode fallbacks, ARB extension names). Upgrading to core
-		// profile (3.3+) is tracked separately once ARB naming is cleaned up.
-		SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY );
+		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
+		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
+		SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
 #else
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 1 );
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 4 );
@@ -835,12 +893,7 @@ success:
 		SDL_SetWindowBrightness( SDL_window, 1.0f ) >= 0;
 
 	// get our config strings
-	Q_strncpyz( glConfig.vendor_string, (char *) qglGetString (GL_VENDOR), sizeof( glConfig.vendor_string ) );
-	Q_strncpyz( glConfig.renderer_string, (char *) qglGetString (GL_RENDERER), sizeof( glConfig.renderer_string ) );
-	if (*glConfig.renderer_string && glConfig.renderer_string[strlen(glConfig.renderer_string) - 1] == '\n')
-		glConfig.renderer_string[strlen(glConfig.renderer_string) - 1] = 0;
-	Q_strncpyz( glConfig.version_string, (char *) qglGetString (GL_VERSION), sizeof( glConfig.version_string ) );
-	Q_strncpyz( glConfig.extensions_string, (char *) qglGetString (GL_EXTENSIONS), sizeof( glConfig.extensions_string ) );
+	GLimp_InitConfigStrings();
 
 	// initialize extensions
 	GLimp_InitExtensions( );

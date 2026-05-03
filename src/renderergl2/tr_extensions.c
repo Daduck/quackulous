@@ -238,6 +238,221 @@ static qboolean GLimp_HaveExtension(const char *ext)
 	return ((*ptr == ' ') || (*ptr == '\0'));  // verify it's complete string.
 }
 
+static void *GLimp_GetProcAddressWithFallback(const char *coreName, const char *arbName)
+{
+	void *proc = NULL;
+
+	if (coreName)
+	{
+		proc = (void *)SDL_GL_GetProcAddress(coreName);
+	}
+
+	if (!proc && arbName)
+	{
+		proc = (void *)SDL_GL_GetProcAddress(arbName);
+	}
+
+	return proc;
+}
+
+static GLboolean (APIENTRY * qglIsShaderCore) (GLuint shader);
+static GLboolean (APIENTRY * qglIsProgramCore) (GLuint program);
+static GLuint (APIENTRY * qglCreateShaderCore) (GLenum type);
+static GLuint (APIENTRY * qglCreateProgramCore) (void);
+static void (APIENTRY * qglAttachShaderCore) (GLuint program, GLuint shader);
+static void (APIENTRY * qglDetachShaderCore) (GLuint program, GLuint shader);
+static void (APIENTRY * qglDeleteShaderCore) (GLuint shader);
+static void (APIENTRY * qglDeleteProgramCore) (GLuint program);
+static void (APIENTRY * qglGetShaderivCore) (GLuint shader, GLenum pname, GLint *params);
+static void (APIENTRY * qglGetProgramivCore) (GLuint program, GLenum pname, GLint *params);
+static void (APIENTRY * qglGetShaderInfoLogCore) (GLuint shader, GLsizei maxLength, GLsizei *length, GLchar *infoLog);
+static void (APIENTRY * qglGetProgramInfoLogCore) (GLuint program, GLsizei maxLength, GLsizei *length, GLchar *infoLog);
+static void (APIENTRY * qglGetAttachedShadersCore) (GLuint program, GLsizei maxCount, GLsizei *count, GLuint *shaders);
+
+static qboolean GLimp_IsShaderObject(GLhandleARB object)
+{
+	if (!qglIsShaderCore)
+	{
+		return qfalse;
+	}
+
+	return qglIsShaderCore((GLuint)object) ? qtrue : qfalse;
+}
+
+static qboolean GLimp_IsProgramObject(GLhandleARB object)
+{
+	if (!qglIsProgramCore)
+	{
+		return qfalse;
+	}
+
+	return qglIsProgramCore((GLuint)object) ? qtrue : qfalse;
+}
+
+static GLhandleARB APIENTRY GLimp_CreateShaderObjectCompat(GLenum shaderType)
+{
+	if (!qglCreateShaderCore)
+	{
+		return 0;
+	}
+
+	return (GLhandleARB)qglCreateShaderCore(shaderType);
+}
+
+static GLhandleARB APIENTRY GLimp_CreateProgramObjectCompat(void)
+{
+	if (!qglCreateProgramCore)
+	{
+		return 0;
+	}
+
+	return (GLhandleARB)qglCreateProgramCore();
+}
+
+static void APIENTRY GLimp_AttachObjectCompat(GLhandleARB containerObj, GLhandleARB obj)
+{
+	if (qglAttachShaderCore)
+	{
+		qglAttachShaderCore((GLuint)containerObj, (GLuint)obj);
+	}
+}
+
+static void APIENTRY GLimp_DetachObjectCompat(GLhandleARB containerObj, GLhandleARB attachedObj)
+{
+	if (qglDetachShaderCore)
+	{
+		qglDetachShaderCore((GLuint)containerObj, (GLuint)attachedObj);
+	}
+}
+
+static void APIENTRY GLimp_DeleteObjectCompat(GLhandleARB obj)
+{
+	if (GLimp_IsShaderObject(obj))
+	{
+		if (qglDeleteShaderCore)
+		{
+			qglDeleteShaderCore((GLuint)obj);
+		}
+		return;
+	}
+
+	if (GLimp_IsProgramObject(obj))
+	{
+		if (qglDeleteProgramCore)
+		{
+			qglDeleteProgramCore((GLuint)obj);
+		}
+	}
+}
+
+static void APIENTRY GLimp_GetObjectParameterivCompat(GLhandleARB obj, GLenum pname, GLint *params)
+{
+	if (!params)
+	{
+		return;
+	}
+
+	if (GLimp_IsShaderObject(obj))
+	{
+		if (!qglGetShaderivCore)
+		{
+			*params = 0;
+			return;
+		}
+
+		if (pname == GL_OBJECT_TYPE_ARB)
+		{
+			*params = GL_SHADER_OBJECT_ARB;
+		}
+		else if (pname == GL_OBJECT_COMPILE_STATUS_ARB || pname == GL_COMPILE_STATUS)
+		{
+			qglGetShaderivCore((GLuint)obj, GL_COMPILE_STATUS, params);
+		}
+		else if (pname == GL_OBJECT_INFO_LOG_LENGTH_ARB || pname == GL_INFO_LOG_LENGTH)
+		{
+			qglGetShaderivCore((GLuint)obj, GL_INFO_LOG_LENGTH, params);
+		}
+		else if (pname == GL_OBJECT_SHADER_SOURCE_LENGTH_ARB || pname == GL_SHADER_SOURCE_LENGTH)
+		{
+			qglGetShaderivCore((GLuint)obj, GL_SHADER_SOURCE_LENGTH, params);
+		}
+		else
+		{
+			*params = 0;
+		}
+		return;
+	}
+
+	if (GLimp_IsProgramObject(obj))
+	{
+		if (!qglGetProgramivCore)
+		{
+			*params = 0;
+			return;
+		}
+
+		if (pname == GL_OBJECT_TYPE_ARB)
+		{
+			*params = GL_PROGRAM_OBJECT_ARB;
+		}
+		else if (pname == GL_OBJECT_LINK_STATUS_ARB || pname == GL_LINK_STATUS)
+		{
+			qglGetProgramivCore((GLuint)obj, GL_LINK_STATUS, params);
+		}
+		else if (pname == GL_OBJECT_VALIDATE_STATUS_ARB || pname == GL_VALIDATE_STATUS)
+		{
+			qglGetProgramivCore((GLuint)obj, GL_VALIDATE_STATUS, params);
+		}
+		else if (pname == GL_OBJECT_INFO_LOG_LENGTH_ARB || pname == GL_INFO_LOG_LENGTH)
+		{
+			qglGetProgramivCore((GLuint)obj, GL_INFO_LOG_LENGTH, params);
+		}
+		else if (pname == GL_OBJECT_ACTIVE_UNIFORMS_ARB || pname == GL_ACTIVE_UNIFORMS)
+		{
+			qglGetProgramivCore((GLuint)obj, GL_ACTIVE_UNIFORMS, params);
+		}
+		else if (pname == GL_OBJECT_ATTACHED_OBJECTS_ARB)
+		{
+			qglGetProgramivCore((GLuint)obj, GL_ATTACHED_SHADERS, params);
+		}
+		else
+		{
+			*params = 0;
+		}
+		return;
+	}
+
+	*params = 0;
+}
+
+static void APIENTRY GLimp_GetInfoLogCompat(GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *infoLog)
+{
+	if (GLimp_IsShaderObject(obj))
+	{
+		if (qglGetShaderInfoLogCore)
+		{
+			qglGetShaderInfoLogCore((GLuint)obj, maxLength, length, (GLchar *)infoLog);
+		}
+		return;
+	}
+
+	if (GLimp_IsProgramObject(obj))
+	{
+		if (qglGetProgramInfoLogCore)
+		{
+			qglGetProgramInfoLogCore((GLuint)obj, maxLength, length, (GLchar *)infoLog);
+		}
+	}
+}
+
+static void APIENTRY GLimp_GetAttachedObjectsCompat(GLhandleARB containerObj, GLsizei maxCount, GLsizei *count, GLhandleARB *obj)
+{
+	if (qglGetAttachedShadersCore)
+	{
+		qglGetAttachedShadersCore((GLuint)containerObj, maxCount, count, (GLuint *)obj);
+	}
+}
+
 void GLimp_InitExtraExtensions()
 {
 	char *extension;
@@ -292,13 +507,13 @@ void GLimp_InitExtraExtensions()
 	qglDisableVertexAttribArrayARB = NULL;
 	if( GLimp_HaveExtension( extension ) )
 	{
-		qglVertexAttrib4fARB = (PFNGLVERTEXATTRIB4FARBPROC) SDL_GL_GetProcAddress("glVertexAttrib4fARB");
-		qglVertexAttrib4fvARB = (PFNGLVERTEXATTRIB4FVARBPROC) SDL_GL_GetProcAddress("glVertexAttrib4fvARB");
-		qglVertexAttribPointerARB = (PFNGLVERTEXATTRIBPOINTERARBPROC) SDL_GL_GetProcAddress("glVertexAttribPointerARB");
+		qglVertexAttrib4fARB = (PFNGLVERTEXATTRIB4FARBPROC) GLimp_GetProcAddressWithFallback("glVertexAttrib4f", "glVertexAttrib4fARB");
+		qglVertexAttrib4fvARB = (PFNGLVERTEXATTRIB4FVARBPROC) GLimp_GetProcAddressWithFallback("glVertexAttrib4fv", "glVertexAttrib4fvARB");
+		qglVertexAttribPointerARB = (PFNGLVERTEXATTRIBPOINTERARBPROC) GLimp_GetProcAddressWithFallback("glVertexAttribPointer", "glVertexAttribPointerARB");
 		qglEnableVertexAttribArrayARB =
-			(PFNGLENABLEVERTEXATTRIBARRAYARBPROC) SDL_GL_GetProcAddress("glEnableVertexAttribArrayARB");
+			(PFNGLENABLEVERTEXATTRIBARRAYARBPROC) GLimp_GetProcAddressWithFallback("glEnableVertexAttribArray", "glEnableVertexAttribArrayARB");
 		qglDisableVertexAttribArrayARB =
-			(PFNGLDISABLEVERTEXATTRIBARRAYARBPROC) SDL_GL_GetProcAddress("glDisableVertexAttribArrayARB");
+			(PFNGLDISABLEVERTEXATTRIBARRAYARBPROC) GLimp_GetProcAddressWithFallback("glDisableVertexAttribArray", "glDisableVertexAttribArrayARB");
 
 		ri.Printf(PRINT_ALL, result[1], extension);
 		//glRefConfig.vertexProgram = qtrue;
@@ -322,15 +537,15 @@ void GLimp_InitExtraExtensions()
 	qglGetBufferPointervARB = NULL;
 	if( GLimp_HaveExtension( extension ) )
 	{
-		qglBindBufferARB = (PFNGLBINDBUFFERARBPROC) SDL_GL_GetProcAddress("glBindBufferARB");
-		qglDeleteBuffersARB = (PFNGLDELETEBUFFERSARBPROC) SDL_GL_GetProcAddress("glDeleteBuffersARB");
-		qglGenBuffersARB = (PFNGLGENBUFFERSARBPROC) SDL_GL_GetProcAddress("glGenBuffersARB");
-		qglIsBufferARB = (PFNGLISBUFFERARBPROC) SDL_GL_GetProcAddress("glIsBufferARB");
-		qglBufferDataARB = (PFNGLBUFFERDATAARBPROC) SDL_GL_GetProcAddress("glBufferDataARB");
-		qglBufferSubDataARB = (PFNGLBUFFERSUBDATAARBPROC) SDL_GL_GetProcAddress("glBufferSubDataARB");
-		qglGetBufferSubDataARB = (PFNGLGETBUFFERSUBDATAARBPROC) SDL_GL_GetProcAddress("glGetBufferSubDataARB");
-		qglGetBufferParameterivARB = (PFNGLGETBUFFERPARAMETERIVARBPROC) SDL_GL_GetProcAddress("glGetBufferParameterivARB");
-		qglGetBufferPointervARB = (PFNGLGETBUFFERPOINTERVARBPROC) SDL_GL_GetProcAddress("glGetBufferPointervARB");
+		qglBindBufferARB = (PFNGLBINDBUFFERARBPROC) GLimp_GetProcAddressWithFallback("glBindBuffer", "glBindBufferARB");
+		qglDeleteBuffersARB = (PFNGLDELETEBUFFERSARBPROC) GLimp_GetProcAddressWithFallback("glDeleteBuffers", "glDeleteBuffersARB");
+		qglGenBuffersARB = (PFNGLGENBUFFERSARBPROC) GLimp_GetProcAddressWithFallback("glGenBuffers", "glGenBuffersARB");
+		qglIsBufferARB = (PFNGLISBUFFERARBPROC) GLimp_GetProcAddressWithFallback("glIsBuffer", "glIsBufferARB");
+		qglBufferDataARB = (PFNGLBUFFERDATAARBPROC) GLimp_GetProcAddressWithFallback("glBufferData", "glBufferDataARB");
+		qglBufferSubDataARB = (PFNGLBUFFERSUBDATAARBPROC) GLimp_GetProcAddressWithFallback("glBufferSubData", "glBufferSubDataARB");
+		qglGetBufferSubDataARB = (PFNGLGETBUFFERSUBDATAARBPROC) GLimp_GetProcAddressWithFallback("glGetBufferSubData", "glGetBufferSubDataARB");
+		qglGetBufferParameterivARB = (PFNGLGETBUFFERPARAMETERIVARBPROC) GLimp_GetProcAddressWithFallback("glGetBufferParameteriv", "glGetBufferParameterivARB");
+		qglGetBufferPointervARB = (PFNGLGETBUFFERPOINTERVARBPROC) GLimp_GetProcAddressWithFallback("glGetBufferPointerv", "glGetBufferPointervARB");
 		ri.Printf(PRINT_ALL, result[1], extension);
 		//glRefConfig.vertexBufferObject = qtrue;
 	}
@@ -380,46 +595,102 @@ void GLimp_InitExtraExtensions()
 	qglGetUniformfvARB = NULL;
 	qglGetUniformivARB = NULL;
 	qglGetShaderSourceARB = NULL;
-	if( GLimp_HaveExtension( extension ) )
+
+	qglIsShaderCore = (void *)SDL_GL_GetProcAddress("glIsShader");
+	qglIsProgramCore = (void *)SDL_GL_GetProcAddress("glIsProgram");
+	qglCreateShaderCore = (void *)SDL_GL_GetProcAddress("glCreateShader");
+	qglCreateProgramCore = (void *)SDL_GL_GetProcAddress("glCreateProgram");
+	qglAttachShaderCore = (void *)SDL_GL_GetProcAddress("glAttachShader");
+	qglDetachShaderCore = (void *)SDL_GL_GetProcAddress("glDetachShader");
+	qglDeleteShaderCore = (void *)SDL_GL_GetProcAddress("glDeleteShader");
+	qglDeleteProgramCore = (void *)SDL_GL_GetProcAddress("glDeleteProgram");
+	qglGetShaderivCore = (void *)SDL_GL_GetProcAddress("glGetShaderiv");
+	qglGetProgramivCore = (void *)SDL_GL_GetProcAddress("glGetProgramiv");
+	qglGetShaderInfoLogCore = (void *)SDL_GL_GetProcAddress("glGetShaderInfoLog");
+	qglGetProgramInfoLogCore = (void *)SDL_GL_GetProcAddress("glGetProgramInfoLog");
+	qglGetAttachedShadersCore = (void *)SDL_GL_GetProcAddress("glGetAttachedShaders");
+
+	if( GLimp_HaveExtension( extension ) || (qglCreateShaderCore && qglCreateProgramCore) )
 	{
 		qglDeleteObjectARB = (PFNGLDELETEOBJECTARBPROC) SDL_GL_GetProcAddress("glDeleteObjectARB");
 		qglGetHandleARB = (PFNGLGETHANDLEARBPROC) SDL_GL_GetProcAddress("glGetHandleARB");
 		qglDetachObjectARB = (PFNGLDETACHOBJECTARBPROC) SDL_GL_GetProcAddress("glDetachObjectARB");
 		qglCreateShaderObjectARB = (PFNGLCREATESHADEROBJECTARBPROC) SDL_GL_GetProcAddress("glCreateShaderObjectARB");
-		qglShaderSourceARB = (PFNGLSHADERSOURCEARBPROC) SDL_GL_GetProcAddress("glShaderSourceARB");
-		qglCompileShaderARB = (PFNGLCOMPILESHADERARBPROC) SDL_GL_GetProcAddress("glCompileShaderARB");
+		qglShaderSourceARB = (PFNGLSHADERSOURCEARBPROC) GLimp_GetProcAddressWithFallback("glShaderSource", "glShaderSourceARB");
+		qglCompileShaderARB = (PFNGLCOMPILESHADERARBPROC) GLimp_GetProcAddressWithFallback("glCompileShader", "glCompileShaderARB");
 		qglCreateProgramObjectARB = (PFNGLCREATEPROGRAMOBJECTARBPROC) SDL_GL_GetProcAddress("glCreateProgramObjectARB");
 		qglAttachObjectARB = (PFNGLATTACHOBJECTARBPROC) SDL_GL_GetProcAddress("glAttachObjectARB");
-		qglLinkProgramARB = (PFNGLLINKPROGRAMARBPROC) SDL_GL_GetProcAddress("glLinkProgramARB");
-		qglUseProgramObjectARB = (PFNGLUSEPROGRAMOBJECTARBPROC) SDL_GL_GetProcAddress("glUseProgramObjectARB");
-		qglValidateProgramARB = (PFNGLVALIDATEPROGRAMARBPROC) SDL_GL_GetProcAddress("glValidateProgramARB");
-		qglUniform1fARB = (PFNGLUNIFORM1FARBPROC) SDL_GL_GetProcAddress("glUniform1fARB");
-		qglUniform2fARB = (PFNGLUNIFORM2FARBPROC) SDL_GL_GetProcAddress("glUniform2fARB");
-		qglUniform3fARB = (PFNGLUNIFORM3FARBPROC) SDL_GL_GetProcAddress("glUniform3fARB");
-		qglUniform4fARB = (PFNGLUNIFORM4FARBPROC) SDL_GL_GetProcAddress("glUniform4fARB");
-		qglUniform1iARB = (PFNGLUNIFORM1IARBPROC) SDL_GL_GetProcAddress("glUniform1iARB");
-		qglUniform2iARB = (PFNGLUNIFORM2IARBPROC) SDL_GL_GetProcAddress("glUniform2iARB");
-		qglUniform3iARB = (PFNGLUNIFORM3IARBPROC) SDL_GL_GetProcAddress("glUniform3iARB");
-		qglUniform4iARB = (PFNGLUNIFORM4IARBPROC) SDL_GL_GetProcAddress("glUniform4iARB");
-		qglUniform1fvARB = (PFNGLUNIFORM1FVARBPROC) SDL_GL_GetProcAddress("glUniform1fvARB");
-		qglUniform2fvARB = (PFNGLUNIFORM2FVARBPROC) SDL_GL_GetProcAddress("glUniform2fvARB");
-		qglUniform3fvARB = (PFNGLUNIFORM3FVARBPROC) SDL_GL_GetProcAddress("glUniform3fvARB");
-		qglUniform4fvARB = (PFNGLUNIFORM4FVARBPROC) SDL_GL_GetProcAddress("glUniform4fvARB");
-		qglUniform2ivARB = (PFNGLUNIFORM2IVARBPROC) SDL_GL_GetProcAddress("glUniform2ivARB");
-		qglUniform3ivARB = (PFNGLUNIFORM3IVARBPROC) SDL_GL_GetProcAddress("glUniform3ivARB");
-		qglUniform4ivARB = (PFNGLUNIFORM4IVARBPROC) SDL_GL_GetProcAddress("glUniform4ivARB");
-		qglUniformMatrix2fvARB = (PFNGLUNIFORMMATRIX2FVARBPROC) SDL_GL_GetProcAddress("glUniformMatrix2fvARB");
-		qglUniformMatrix3fvARB = (PFNGLUNIFORMMATRIX3FVARBPROC) SDL_GL_GetProcAddress("glUniformMatrix3fvARB");
-		qglUniformMatrix4fvARB = (PFNGLUNIFORMMATRIX4FVARBPROC) SDL_GL_GetProcAddress("glUniformMatrix4fvARB");
+		qglLinkProgramARB = (PFNGLLINKPROGRAMARBPROC) GLimp_GetProcAddressWithFallback("glLinkProgram", "glLinkProgramARB");
+		qglUseProgramObjectARB = (PFNGLUSEPROGRAMOBJECTARBPROC) GLimp_GetProcAddressWithFallback("glUseProgram", "glUseProgramObjectARB");
+		qglValidateProgramARB = (PFNGLVALIDATEPROGRAMARBPROC) GLimp_GetProcAddressWithFallback("glValidateProgram", "glValidateProgramARB");
+		qglUniform1fARB = (PFNGLUNIFORM1FARBPROC) GLimp_GetProcAddressWithFallback("glUniform1f", "glUniform1fARB");
+		qglUniform2fARB = (PFNGLUNIFORM2FARBPROC) GLimp_GetProcAddressWithFallback("glUniform2f", "glUniform2fARB");
+		qglUniform3fARB = (PFNGLUNIFORM3FARBPROC) GLimp_GetProcAddressWithFallback("glUniform3f", "glUniform3fARB");
+		qglUniform4fARB = (PFNGLUNIFORM4FARBPROC) GLimp_GetProcAddressWithFallback("glUniform4f", "glUniform4fARB");
+		qglUniform1iARB = (PFNGLUNIFORM1IARBPROC) GLimp_GetProcAddressWithFallback("glUniform1i", "glUniform1iARB");
+		qglUniform2iARB = (PFNGLUNIFORM2IARBPROC) GLimp_GetProcAddressWithFallback("glUniform2i", "glUniform2iARB");
+		qglUniform3iARB = (PFNGLUNIFORM3IARBPROC) GLimp_GetProcAddressWithFallback("glUniform3i", "glUniform3iARB");
+		qglUniform4iARB = (PFNGLUNIFORM4IARBPROC) GLimp_GetProcAddressWithFallback("glUniform4i", "glUniform4iARB");
+		qglUniform1fvARB = (PFNGLUNIFORM1FVARBPROC) GLimp_GetProcAddressWithFallback("glUniform1fv", "glUniform1fvARB");
+		qglUniform2fvARB = (PFNGLUNIFORM2FVARBPROC) GLimp_GetProcAddressWithFallback("glUniform2fv", "glUniform2fvARB");
+		qglUniform3fvARB = (PFNGLUNIFORM3FVARBPROC) GLimp_GetProcAddressWithFallback("glUniform3fv", "glUniform3fvARB");
+		qglUniform4fvARB = (PFNGLUNIFORM4FVARBPROC) GLimp_GetProcAddressWithFallback("glUniform4fv", "glUniform4fvARB");
+		qglUniform2ivARB = (PFNGLUNIFORM2IVARBPROC) GLimp_GetProcAddressWithFallback("glUniform2iv", "glUniform2ivARB");
+		qglUniform3ivARB = (PFNGLUNIFORM3IVARBPROC) GLimp_GetProcAddressWithFallback("glUniform3iv", "glUniform3ivARB");
+		qglUniform4ivARB = (PFNGLUNIFORM4IVARBPROC) GLimp_GetProcAddressWithFallback("glUniform4iv", "glUniform4ivARB");
+		qglUniformMatrix2fvARB = (PFNGLUNIFORMMATRIX2FVARBPROC) GLimp_GetProcAddressWithFallback("glUniformMatrix2fv", "glUniformMatrix2fvARB");
+		qglUniformMatrix3fvARB = (PFNGLUNIFORMMATRIX3FVARBPROC) GLimp_GetProcAddressWithFallback("glUniformMatrix3fv", "glUniformMatrix3fvARB");
+		qglUniformMatrix4fvARB = (PFNGLUNIFORMMATRIX4FVARBPROC) GLimp_GetProcAddressWithFallback("glUniformMatrix4fv", "glUniformMatrix4fvARB");
 		qglGetObjectParameterfvARB = (PFNGLGETOBJECTPARAMETERFVARBPROC) SDL_GL_GetProcAddress("glGetObjectParameterfvARB");
 		qglGetObjectParameterivARB = (PFNGLGETOBJECTPARAMETERIVARBPROC) SDL_GL_GetProcAddress("glGetObjectParameterivARB");
 		qglGetInfoLogARB = (PFNGLGETINFOLOGARBPROC) SDL_GL_GetProcAddress("glGetInfoLogARB");
 		qglGetAttachedObjectsARB = (PFNGLGETATTACHEDOBJECTSARBPROC) SDL_GL_GetProcAddress("glGetAttachedObjectsARB");
-		qglGetUniformLocationARB = (PFNGLGETUNIFORMLOCATIONARBPROC) SDL_GL_GetProcAddress("glGetUniformLocationARB");
-		qglGetActiveUniformARB = (PFNGLGETACTIVEUNIFORMARBPROC) SDL_GL_GetProcAddress("glGetActiveUniformARB");
-		qglGetUniformfvARB = (PFNGLGETUNIFORMFVARBPROC) SDL_GL_GetProcAddress("glGetUniformfvARB");
-		qglGetUniformivARB = (PFNGLGETUNIFORMIVARBPROC) SDL_GL_GetProcAddress("glGetUniformivARB");
-		qglGetShaderSourceARB = (PFNGLGETSHADERSOURCEARBPROC) SDL_GL_GetProcAddress("glGetShaderSourceARB");
+		qglGetUniformLocationARB = (PFNGLGETUNIFORMLOCATIONARBPROC) GLimp_GetProcAddressWithFallback("glGetUniformLocation", "glGetUniformLocationARB");
+		qglGetActiveUniformARB = (PFNGLGETACTIVEUNIFORMARBPROC) GLimp_GetProcAddressWithFallback("glGetActiveUniform", "glGetActiveUniformARB");
+		qglGetUniformfvARB = (PFNGLGETUNIFORMFVARBPROC) GLimp_GetProcAddressWithFallback("glGetUniformfv", "glGetUniformfvARB");
+		qglGetUniformivARB = (PFNGLGETUNIFORMIVARBPROC) GLimp_GetProcAddressWithFallback("glGetUniformiv", "glGetUniformivARB");
+		qglGetShaderSourceARB = (PFNGLGETSHADERSOURCEARBPROC) GLimp_GetProcAddressWithFallback("glGetShaderSource", "glGetShaderSourceARB");
+
+		if (!qglCreateShaderObjectARB && qglCreateShaderCore)
+		{
+			qglCreateShaderObjectARB = GLimp_CreateShaderObjectCompat;
+		}
+		if (!qglCreateProgramObjectARB && qglCreateProgramCore)
+		{
+			qglCreateProgramObjectARB = GLimp_CreateProgramObjectCompat;
+		}
+		if (!qglAttachObjectARB && qglAttachShaderCore)
+		{
+			qglAttachObjectARB = GLimp_AttachObjectCompat;
+		}
+		if (!qglDetachObjectARB && qglDetachShaderCore)
+		{
+			qglDetachObjectARB = GLimp_DetachObjectCompat;
+		}
+		if (!qglDeleteObjectARB && (qglDeleteShaderCore || qglDeleteProgramCore))
+		{
+			qglDeleteObjectARB = GLimp_DeleteObjectCompat;
+		}
+		if (!qglGetObjectParameterivARB && (qglGetShaderivCore || qglGetProgramivCore))
+		{
+			qglGetObjectParameterivARB = GLimp_GetObjectParameterivCompat;
+		}
+		if (!qglGetInfoLogARB && (qglGetShaderInfoLogCore || qglGetProgramInfoLogCore))
+		{
+			qglGetInfoLogARB = GLimp_GetInfoLogCompat;
+		}
+		if (!qglGetAttachedObjectsARB && qglGetAttachedShadersCore)
+		{
+			qglGetAttachedObjectsARB = GLimp_GetAttachedObjectsCompat;
+		}
+
+		if (!qglCreateShaderObjectARB || !qglShaderSourceARB || !qglCompileShaderARB ||
+			!qglCreateProgramObjectARB || !qglAttachObjectARB || !qglLinkProgramARB ||
+			!qglUseProgramObjectARB || !qglValidateProgramARB || !qglGetObjectParameterivARB ||
+			!qglGetInfoLogARB || !qglGetUniformLocationARB || !qglGetActiveUniformARB)
+		{
+			ri.Error(ERR_FATAL, result[2], extension);
+		}
 		ri.Printf(PRINT_ALL, result[1], extension);
 		//glRefConfig.shaderObjects = qtrue;
 	}
@@ -434,7 +705,7 @@ void GLimp_InitExtraExtensions()
 	qglBindAttribLocationARB = NULL;
 	qglGetActiveAttribARB = NULL;
 	qglGetAttribLocationARB = NULL;
-	if( GLimp_HaveExtension( extension ) )
+	if( GLimp_HaveExtension( extension ) || SDL_GL_GetProcAddress("glBindAttribLocation") )
 	{
 		//int				reservedComponents;
 
@@ -458,9 +729,9 @@ void GLimp_InitExtraExtensions()
 		//glConfig.maxVertexSkinningBones = (int) Q_bound(0.0, (Q_max(glConfig.maxVertexUniforms - reservedComponents, 0) / 16), MAX_BONES);
 		//glConfig.vboVertexSkinningAvailable = r_vboVertexSkinning->integer && ((glConfig.maxVertexSkinningBones >= 12) ? qtrue : qfalse);
 
-		qglBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC) SDL_GL_GetProcAddress("glBindAttribLocationARB");
-		qglGetActiveAttribARB = (PFNGLGETACTIVEATTRIBARBPROC) SDL_GL_GetProcAddress("glGetActiveAttribARB");
-		qglGetAttribLocationARB = (PFNGLGETATTRIBLOCATIONARBPROC) SDL_GL_GetProcAddress("glGetAttribLocationARB");
+		qglBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC) GLimp_GetProcAddressWithFallback("glBindAttribLocation", "glBindAttribLocationARB");
+		qglGetActiveAttribARB = (PFNGLGETACTIVEATTRIBARBPROC) GLimp_GetProcAddressWithFallback("glGetActiveAttrib", "glGetActiveAttribARB");
+		qglGetAttribLocationARB = (PFNGLGETATTRIBLOCATIONARBPROC) GLimp_GetProcAddressWithFallback("glGetAttribLocation", "glGetAttribLocationARB");
 		ri.Printf(PRINT_ALL, result[1], extension);
 		//glRefConfig.vertexShader = qtrue;
 	}
@@ -474,9 +745,21 @@ void GLimp_InitExtraExtensions()
 	glRefConfig.textureFloat = qfalse;
 	if( GLimp_HaveExtension( extension ) )
 	{
+		const GLubyte *glslVersionString;
 		char version[256];
 
-		Q_strncpyz( version, (char *) qglGetString (GL_SHADING_LANGUAGE_VERSION_ARB), sizeof( version ) );
+		glslVersionString = qglGetString(GL_SHADING_LANGUAGE_VERSION);
+		if (!glslVersionString)
+		{
+			glslVersionString = qglGetString(GL_SHADING_LANGUAGE_VERSION_ARB);
+		}
+
+		if (!glslVersionString)
+		{
+			ri.Error(ERR_FATAL, "OpenGL driver did not return a GLSL version string");
+		}
+
+		Q_strncpyz(version, (const char *)glslVersionString, sizeof(version));
 
 		sscanf(version, "%d.%d", &glRefConfig.glslMajorVersion, &glRefConfig.glslMinorVersion);
 

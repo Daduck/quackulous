@@ -142,10 +142,7 @@ $cmake = Resolve-Tool -CommandName "cmake" -Candidates @(
   "C:\Program Files\Microsoft Visual Studio\18\Enterprise\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe"
 )
 
-$vcpkgRoot = $env:VCPKG_ROOT
-if (-not $vcpkgRoot) {
-  $vcpkgRoot = Join-Path $repoRoot ".tools\vcpkg"
-}
+$vcpkgRoot = Join-Path $repoRoot ".tools\vcpkg"
 
 if (-not (Test-Path $vcpkgRoot)) {
   git clone https://github.com/microsoft/vcpkg $vcpkgRoot

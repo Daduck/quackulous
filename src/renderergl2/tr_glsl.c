@@ -149,7 +149,7 @@ static uniformInfo_t uniformsInfo[] =
 };
 
 
-static void GLSL_PrintInfoLog(GLhandleARB object, qboolean developerOnly)
+static void GLSL_PrintInfoLog(GLuint object, qboolean developerOnly)
 {
 	char           *msg;
 	static char     msgPart[1024];
@@ -157,7 +157,7 @@ static void GLSL_PrintInfoLog(GLhandleARB object, qboolean developerOnly)
 	int             i;
 	int             printLevel = developerOnly ? PRINT_DEVELOPER : PRINT_ALL;
 
-	qglGetObjectParameterivARB(object, GL_OBJECT_INFO_LOG_LENGTH_ARB, &maxLength);
+	qglGetObjectParameterivARB(object, GL_INFO_LOG_LENGTH, &maxLength);
 
 	if (maxLength <= 0)
 	{
@@ -192,14 +192,14 @@ static void GLSL_PrintInfoLog(GLhandleARB object, qboolean developerOnly)
 	}
 }
 
-static void GLSL_PrintShaderSource(GLhandleARB object)
+static void GLSL_PrintShaderSource(GLuint object)
 {
 	char           *msg;
 	static char     msgPart[1024];
 	int             maxLength = 0;
 	int             i;
 
-	qglGetObjectParameterivARB(object, GL_OBJECT_SHADER_SOURCE_LENGTH_ARB, &maxLength);
+	qglGetObjectParameterivARB(object, GL_SHADER_SOURCE_LENGTH, &maxLength);
 
 	msg = ri.Malloc(maxLength);
 
@@ -225,7 +225,7 @@ static void GLSL_GetShaderHeader( GLenum shaderType, const GLcharARB *extra, cha
 	{
 		Q_strcat(dest, size, "#version 130\n");
 
-		if(shaderType == GL_VERTEX_SHADER_ARB)
+		if(shaderType == GL_VERTEX_SHADER)
 		{
 			Q_strcat(dest, size, "#define attribute in\n");
 			Q_strcat(dest, size, "#define varying out\n");
@@ -335,10 +335,10 @@ static void GLSL_GetShaderHeader( GLenum shaderType, const GLcharARB *extra, cha
 	Q_strcat(dest, size, "#line 0\n");
 }
 
-static int GLSL_CompileGPUShader(GLhandleARB program, GLhandleARB *prevShader, const GLcharARB *buffer, int size, GLenum shaderType)
+static int GLSL_CompileGPUShader(GLuint program, GLuint *prevShader, const GLcharARB *buffer, int size, GLenum shaderType)
 {
 	GLint           compiled;
-	GLhandleARB     shader;
+	GLuint          shader;
 
 	shader = qglCreateShaderObjectARB(shaderType);
 
@@ -348,7 +348,7 @@ static int GLSL_CompileGPUShader(GLhandleARB program, GLhandleARB *prevShader, c
 	qglCompileShaderARB(shader);
 
 	// check if shader compiled
-	qglGetObjectParameterivARB(shader, GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
+	qglGetObjectParameterivARB(shader, GL_COMPILE_STATUS, &compiled);
 	if(!compiled)
 	{
 		GLSL_PrintShaderSource(shader);
@@ -383,7 +383,7 @@ static int GLSL_LoadGPUShaderText(const char *name, const char *fallback,
 	int             size;
 	int             result;
 
-	if(shaderType == GL_VERTEX_SHADER_ARB)
+	if(shaderType == GL_VERTEX_SHADER)
 	{
 		Com_sprintf(filename, sizeof(filename), "glsl/%s_vp.glsl", name);
 	}
@@ -437,13 +437,13 @@ static int GLSL_LoadGPUShaderText(const char *name, const char *fallback,
 	return result;
 }
 
-static void GLSL_LinkProgram(GLhandleARB program)
+static void GLSL_LinkProgram(GLuint program)
 {
 	GLint           linked;
 
 	qglLinkProgramARB(program);
 
-	qglGetObjectParameterivARB(program, GL_OBJECT_LINK_STATUS_ARB, &linked);
+	qglGetObjectParameterivARB(program, GL_LINK_STATUS, &linked);
 	if(!linked)
 	{
 		GLSL_PrintInfoLog(program, qfalse);
@@ -452,13 +452,13 @@ static void GLSL_LinkProgram(GLhandleARB program)
 	}
 }
 
-static void GLSL_ValidateProgram(GLhandleARB program)
+static void GLSL_ValidateProgram(GLuint program)
 {
 	GLint           validated;
 
 	qglValidateProgramARB(program);
 
-	qglGetObjectParameterivARB(program, GL_OBJECT_VALIDATE_STATUS_ARB, &validated);
+	qglGetObjectParameterivARB(program, GL_VALIDATE_STATUS, &validated);
 	if(!validated)
 	{
 		GLSL_PrintInfoLog(program, qfalse);
@@ -467,14 +467,14 @@ static void GLSL_ValidateProgram(GLhandleARB program)
 	}
 }
 
-static void GLSL_ShowProgramUniforms(GLhandleARB program)
+static void GLSL_ShowProgramUniforms(GLuint program)
 {
 	int             i, count, size;
 	GLenum			type;
 	char            uniformName[1000];
 
 	// query the number of active uniforms
-	qglGetObjectParameterivARB(program, GL_OBJECT_ACTIVE_UNIFORMS_ARB, &count);
+	qglGetObjectParameterivARB(program, GL_ACTIVE_UNIFORMS, &count);
 
 	// Loop over each of the active uniforms, and set their value
 	for(i = 0; i < count; i++)
@@ -499,18 +499,18 @@ static int GLSL_InitGPUShader2(shaderProgram_t * program, const char *name, int 
 	program->program = qglCreateProgramObjectARB();
 	program->attribs = attribs;
 
-	if (!(GLSL_CompileGPUShader(program->program, &program->vertexShader, vpCode, strlen(vpCode), GL_VERTEX_SHADER_ARB)))
+	if (!(GLSL_CompileGPUShader(program->program, &program->vertexShader, vpCode, strlen(vpCode), GL_VERTEX_SHADER)))
 	{
-		ri.Printf(PRINT_ALL, "GLSL_InitGPUShader2: Unable to load \"%s\" as GL_VERTEX_SHADER_ARB\n", name);
+		ri.Printf(PRINT_ALL, "GLSL_InitGPUShader2: Unable to load \"%s\" as GL_VERTEX_SHADER\n", name);
 		qglDeleteObjectARB(program->program);
 		return 0;
 	}
 
 	if(fpCode)
 	{
-		if(!(GLSL_CompileGPUShader(program->program, &program->fragmentShader, fpCode, strlen(fpCode), GL_FRAGMENT_SHADER_ARB)))
+		if(!(GLSL_CompileGPUShader(program->program, &program->fragmentShader, fpCode, strlen(fpCode), GL_FRAGMENT_SHADER)))
 		{
-			ri.Printf(PRINT_ALL, "GLSL_InitGPUShader2: Unable to load \"%s\" as GL_FRAGMENT_SHADER_ARB\n", name);
+			ri.Printf(PRINT_ALL, "GLSL_InitGPUShader2: Unable to load \"%s\" as GL_FRAGMENT_SHADER\n", name);
 			qglDeleteObjectARB(program->program);
 			return 0;
 		}
@@ -573,7 +573,7 @@ static int GLSL_InitGPUShader(shaderProgram_t * program, const char *name,
 	size = sizeof(vpCode);
 	if (addHeader)
 	{
-		GLSL_GetShaderHeader(GL_VERTEX_SHADER_ARB, extra, vpCode, size);
+		GLSL_GetShaderHeader(GL_VERTEX_SHADER, extra, vpCode, size);
 		postHeader = &vpCode[strlen(vpCode)];
 		size -= strlen(vpCode);
 	}
@@ -582,7 +582,7 @@ static int GLSL_InitGPUShader(shaderProgram_t * program, const char *name,
 		postHeader = &vpCode[0];
 	}
 
-	if (!GLSL_LoadGPUShaderText(name, fallback_vp, GL_VERTEX_SHADER_ARB, postHeader, size))
+	if (!GLSL_LoadGPUShaderText(name, fallback_vp, GL_VERTEX_SHADER, postHeader, size))
 	{
 		return 0;
 	}
@@ -592,7 +592,7 @@ static int GLSL_InitGPUShader(shaderProgram_t * program, const char *name,
 		size = sizeof(fpCode);
 		if (addHeader)
 		{
-			GLSL_GetShaderHeader(GL_FRAGMENT_SHADER_ARB, extra, fpCode, size);
+			GLSL_GetShaderHeader(GL_FRAGMENT_SHADER, extra, fpCode, size);
 			postHeader = &fpCode[strlen(fpCode)];
 			size -= strlen(fpCode);
 		}
@@ -601,7 +601,7 @@ static int GLSL_InitGPUShader(shaderProgram_t * program, const char *name,
 			postHeader = &fpCode[0];
 		}
 
-		if (!GLSL_LoadGPUShaderText(name, fallback_fp, GL_FRAGMENT_SHADER_ARB, postHeader, size))
+		if (!GLSL_LoadGPUShaderText(name, fallback_fp, GL_FRAGMENT_SHADER, postHeader, size))
 		{
 			return 0;
 		}

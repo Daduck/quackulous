@@ -31,6 +31,11 @@
 | P5 | Expand smoke tests beyond `--version` | `done` | Added startup smoke that boots the client, loads native UI/game/cgame DLLs, mounts staged assets, and reaches a local `tremor` session. |
 | P6 | Fix F5 debug launch - UI init crash | `done` | `.vscode/launch.json` now pins `fs_basepath`/`fs_homepath` to the staged runtime and forces `vm_ui/vm_cgame/vm_game` to native DLL mode, matching the passing startup smoke path. |
 | P7 | Add module-level bring-up coverage | `done` | Added client renderer, filesystem/network, and audio bootstrap smoke tests with isolated `fs_homepath` sandboxes; `ctest --preset windows-msvc-debug-smoke` now runs 6 passing tests. |
+| P8 | Stabilize bootstrap vcpkg selection | `done` | `scripts/bootstrap-windows.ps1` now always uses repo-local `.tools/vcpkg` so global/VS `VCPKG_ROOT` cannot force a manifest-only instance and break SDL2/OpenAL install. |
+| P9 | Stop MASM `/wd*` option noise | `done` | Scoped `/W3` and `/wd*` flags in `quackulous_target_defaults` to C sources only, so MASM no longer reports `A4018 invalid command-line option` for inherited MSVC warning flags. |
+| P10 | Remove SDL `WIN32_LEAN_AND_MEAN` redefinition noise | `done` | Removed global `WIN32_LEAN_AND_MEAN` from `QUACK_COMMON_DEFINES` in `CMakeLists.txt`; rebuild confirms the `SDL_opengl.h` C4005 warning no longer appears. |
+| P11 | Remove Opus `C4334` shift warnings | `done` | In `src/opus-1.1/src/opus_encoder.c`, replaced repeated `1<<...` expressions in dynamic-frame logic with typed `opus_int64` shifts cached in local `int` variables (`frame_span`, `state_mask`, `best_span`) to avoid MSVC x64 shift-width warnings without changing behavior. |
+| P12 | Remove net_ip errno redefinition warnings | `done` | Guarded WinSock-to-errno mappings (`EAGAIN`, `EADDRNOTAVAIL`, `EAFNOSUPPORT`, `ECONNRESET`) with `#ifndef` in `src/qcommon/net_ip.c` so MSVC/UCRT predefines are not redefined (`C4005`). |
 
 ## Active tasks (Phase M — graphics modernization)
 
@@ -39,11 +44,11 @@
 | M1 | Enable GL2 renderer build | `done` | `QUACK_BUILD_RENDERER_OPENGL2` flipped ON; `RENDERER_OPENGL2` define added to target. |
 | M2 | Request explicit OpenGL context version | `done` | `sdl_glimp.c` now sets GL 2.0 compat context for GL2, GL 1.4 for GL1. |
 | M3 | Verify ultrawide (3440×1440) FOV path | `done` | cgame uses Hor+ scaling via `atan2(width, y)` — correct, no changes needed. |
-| M4 | Build and smoke-test GL2 renderer | `done` | GL2 builds clean under MSVC; `renderer_opengl2_x86_64.dll` in stage. All 6 smoke tests pass. |
+| M4 | Build and smoke-test GL2 renderer | `done` | GL2 builds clean under MSVC; `renderer_opengl2_x86_64.dll` in stage. Smoke preset now runs 7 passing tests including GL2 renderer bootstrap. |
 | M5 | Fix any MSVC compile errors in GL2 sources | `done` | One LNK2005 (tr_subs.c linked twice); fixed in QuackulousSources.cmake. No other errors. |
-| M6 | Add GL2 bootstrap smoke test | `todo` | Add a CTest entry that boots with `renderer_opengl2_x86_64.dll`. |
-| M7 | OpenGL 3.3 core profile upgrade for GL2 | `todo` | Requires updating ARB extension naming to core equivalents — tracked separately. |
-| M8 | Quality defaults (anisotropic, MSAA, shadow res) | `todo` | Set better out-of-box defaults once GL2 is stable. |
+| M6 | Add GL2 bootstrap smoke test | `done` | `client_renderer_opengl2_bootstrap` is wired in `CMakeLists.txt` via `scripts/client-module-smoke.ps1 -Module renderer-opengl2`; verified passing in `ctest --preset windows-msvc-debug-smoke`. |
+| M7 | OpenGL 3.3 core profile upgrade for GL2 | `done` | `sdl_glimp.c` now requests a 3.3 core profile for GL2. Core-profile bring-up required null-safe GL string handling: GLSL version query in `tr_extensions.c` now validates `qglGetString` results before copy, and `sdl_glimp.c` now rebuilds `glConfig.extensions_string` via `glGetStringi` + `GL_NUM_EXTENSIONS` when legacy `GL_EXTENSIONS` is unavailable. Rebuilt + `ctest --preset windows-msvc-debug-smoke` pass (7/7, including `client_renderer_opengl2_bootstrap`). |
+| M8 | Quality defaults (anisotropic, MSAA, shadow res) | `done` | First-pass defaults tuned in renderer init: anisotropic filtering enabled by default (`r_ext_texture_filter_anisotropic=1`, `r_ext_max_anisotropy=8`), MSAA default raised to 2x (`r_ext_multisample=2`), and GL2 sun shadow map default raised to 2048 (`r_shadowMapSize=2048`). Rebuilt + smoke validated (7/7 pass). |
 
 ## Current blockers
 
@@ -51,6 +56,6 @@ None.
 
 ## Next actions
 
-1. Add a GL2-specific CTest smoke entry (M6) that boots with `+set cl_renderer opengl2`.
-2. Manually boot the client with `+set cl_renderer opengl2` and verify rendering at native resolution.
-3. Proceed to M7 (OpenGL 3.3 core profile upgrade) once GL2 boot is confirmed.
+1. Manually boot the client with `+set cl_renderer opengl2` and verify rendering quality/perf at native resolution.
+2. Retire ARB compatibility wrappers incrementally now that core-profile runtime is stable.
+3. Add one targeted visual/perf comparison capture for pre/post M8 defaults.

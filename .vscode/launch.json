@@ -27,7 +27,7 @@
         "0"
       ],
       "cwd": "${workspaceFolder}/build/windows-msvc/stage/Debug",
-      "console": "integratedTerminal",
+      "externalConsole": false,
       "preLaunchTask": "bootstrap-build-debug",
       "stopAtEntry": false
     }

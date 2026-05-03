@@ -138,7 +138,6 @@ set(QUACK_COMMON_DEFINES
   WINVER=0x0601
   _CRT_NONSTDC_NO_DEPRECATE
   _CRT_SECURE_NO_WARNINGS
-  WIN32_LEAN_AND_MEAN
 )
 
 if(QUACK_USE_LOCAL_HEADERS)
@@ -161,22 +160,22 @@ function(quackulous_target_defaults target)
   target_include_directories("${target}" PRIVATE ${QUACK_COMMON_INCLUDE_DIRS})
   target_compile_definitions("${target}" PRIVATE ${QUACK_COMMON_DEFINES})
   target_compile_options("${target}" PRIVATE
-    /W3
-    /wd4013
-    /wd4018
-    /wd4028
-    /wd4047
-    /wd4090
-    /wd4101
-    /wd4113
-    /wd4133
-    /wd4244
-    /wd4267
-    /wd4305
-    /wd4311
-    /wd4312
-    /wd4477
-    /wd4996
+    $<$<COMPILE_LANGUAGE:C>:/W3>
+    $<$<COMPILE_LANGUAGE:C>:/wd4013>
+    $<$<COMPILE_LANGUAGE:C>:/wd4018>
+    $<$<COMPILE_LANGUAGE:C>:/wd4028>
+    $<$<COMPILE_LANGUAGE:C>:/wd4047>
+    $<$<COMPILE_LANGUAGE:C>:/wd4090>
+    $<$<COMPILE_LANGUAGE:C>:/wd4101>
+    $<$<COMPILE_LANGUAGE:C>:/wd4113>
+    $<$<COMPILE_LANGUAGE:C>:/wd4133>
+    $<$<COMPILE_LANGUAGE:C>:/wd4244>
+    $<$<COMPILE_LANGUAGE:C>:/wd4267>
+    $<$<COMPILE_LANGUAGE:C>:/wd4305>
+    $<$<COMPILE_LANGUAGE:C>:/wd4311>
+    $<$<COMPILE_LANGUAGE:C>:/wd4312>
+    $<$<COMPILE_LANGUAGE:C>:/wd4477>
+    $<$<COMPILE_LANGUAGE:C>:/wd4996>
   )
   target_link_options("${target}" PRIVATE /DEBUG:FULL)
 endfunction()
@@ -431,6 +430,21 @@ if(QUACK_BUILD_CLIENT AND BUILD_TESTING)
     LABELS "smoke;bringup"
     TIMEOUT 90
   )
+
+  if(QUACK_BUILD_RENDERER_OPENGL2)
+    add_test(
+      NAME client_renderer_opengl2_bootstrap
+      COMMAND powershell
+        -ExecutionPolicy Bypass
+        -File "${CMAKE_CURRENT_SOURCE_DIR}/scripts/client-module-smoke.ps1"
+        -RuntimeRoot "$<TARGET_FILE_DIR:quackulous-client>"
+        -Module renderer-opengl2
+    )
+    set_tests_properties(client_renderer_opengl2_bootstrap PROPERTIES
+      LABELS "smoke;bringup"
+      TIMEOUT 90
+    )
+  endif()
 
   add_test(
     NAME client_filesystem_network_bootstrap

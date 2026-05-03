@@ -2,7 +2,7 @@ param(
   [Parameter(Mandatory = $true)]
   [string]$RuntimeRoot,
   [Parameter(Mandatory = $true)]
-  [ValidateSet("renderer", "filesystem-network", "audio")]
+  [ValidateSet("renderer", "renderer-opengl2", "filesystem-network", "audio")]
   [string]$Module,
   [string]$Map = "tremor",
   [int]$StartupTimeoutSeconds = 45,
@@ -35,7 +35,6 @@ if (Test-Path -LiteralPath $pidFilePath) {
 }
 
 $soundInit = if ($Module -eq "audio") { "1" } else { "0" }
-
 $clientArgs = @(
   "+set", "fs_basepath", $runtimeRootPath,
   "+set", "fs_homepath", $homeRoot,
@@ -50,10 +49,26 @@ $clientArgs = @(
   "+map", $Map
 )
 
+if ($Module -eq "renderer-opengl2") {
+  $clientArgs = @(
+    "+set", "cl_renderer", "opengl2"
+  ) + $clientArgs
+}
+
 $requiredPatterns = switch ($Module) {
   "renderer" {
     @(
       "Trying to load ""renderer_opengl1_x86_64\.dll""",
+      "SDL using driver """,
+      "GL_VENDOR:",
+      "GL_RENDERER:",
+      "GL_VERSION:",
+      "----- finished R_Init -----"
+    )
+  }
+  "renderer-opengl2" {
+    @(
+      "Trying to load ""renderer_opengl2_x86_64\.dll""",
       "SDL using driver """,
       "GL_VENDOR:",
       "GL_RENDERER:",
@@ -85,6 +100,7 @@ $requiredPatterns = switch ($Module) {
 
 $readyPattern = switch ($Module) {
   "renderer" { "----- finished R_Init -----" }
+  "renderer-opengl2" { "----- finished R_Init -----" }
   "filesystem-network" { "Opening IP socket:" }
   "audio" { "Sound memory manager started" }
 }

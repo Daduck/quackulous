@@ -585,8 +585,9 @@ static int transient_viterbi(const float *E, const float *E_1, int N, int frame_
    }
    for (i=0;i<4;i++)
    {
-      cost[0][1<<i] = (frame_cost + rate*(1<<i))*(1+factor*transient_boost(E, E_1, i, N+1));
-      states[0][1<<i] = i;
+      int frame_span = (int)(((opus_int64)1)<<i);
+      cost[0][frame_span] = (frame_cost + rate*frame_span)*(1+factor*transient_boost(E, E_1, i, N+1));
+      states[0][frame_span] = i;
    }
    for (i=1;i<N;i++)
    {
@@ -603,26 +604,28 @@ static int transient_viterbi(const float *E, const float *E_1, int N, int frame_
       for(j=0;j<4;j++)
       {
          int k;
+         int frame_span = (int)(((opus_int64)1)<<j);
          float min_cost;
          float curr_cost;
-         states[i][1<<j] = 1;
+         states[i][frame_span] = 1;
          min_cost = cost[i-1][1];
          for(k=1;k<4;k++)
          {
-            float tmp = cost[i-1][(1<<(k+1))-1];
+            int state_mask = (int)((((opus_int64)1)<<(k+1))-1);
+            float tmp = cost[i-1][state_mask];
             if (tmp < min_cost)
             {
-               states[i][1<<j] = (1<<(k+1))-1;
+               states[i][frame_span] = state_mask;
                min_cost = tmp;
             }
          }
-         curr_cost = (frame_cost + rate*(1<<j))*(1+factor*transient_boost(E+i, E_1+i, j, N-i+1));
-         cost[i][1<<j] = min_cost;
+         curr_cost = (frame_cost + rate*frame_span)*(1+factor*transient_boost(E+i, E_1+i, j, N-i+1));
+         cost[i][frame_span] = min_cost;
          /* If part of the frame is outside the analysis window, only count part of the cost */
-         if (N-i < (1<<j))
-            cost[i][1<<j] += curr_cost*(float)(N-i)/(1<<j);
+         if (N-i < frame_span)
+            cost[i][frame_span] += curr_cost*(float)(N-i)/frame_span;
          else
-            cost[i][1<<j] += curr_cost;
+            cost[i][frame_span] += curr_cost;
       }
    }
 
@@ -711,11 +714,14 @@ int optimize_framesize(const opus_val16 *x, int len, int C, opus_int32 Fs,
    if (buffering)
       N=IMIN(MAX_DYNAMIC_FRAMESIZE, N+2);
    bestLM = transient_viterbi(e, e_1, N, (int)((1.f+.5f*tonality)*(60*C+40)), bitrate/400);
-   mem[0] = e[1<<bestLM];
+   {
+      int best_span = (int)(((opus_int64)1)<<bestLM);
+      mem[0] = e[best_span];
    if (buffering)
    {
-      mem[1] = e[(1<<bestLM)+1];
-      mem[2] = e[(1<<bestLM)+2];
+      mem[1] = e[best_span+1];
+      mem[2] = e[best_span+2];
+   }
    }
    return bestLM;
 }
