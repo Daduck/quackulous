@@ -1,6 +1,8 @@
 param(
   [Parameter(Mandatory = $true)]
   [string]$RuntimeRoot,
+  [ValidateSet("default", "opengl2")]
+  [string]$Renderer = "default",
   [string]$Map = "tremor",
   [int]$StartupTimeoutSeconds = 45,
   [int]$ShutdownTimeoutSeconds = 15
@@ -40,6 +42,12 @@ $clientArgs = @(
   "+set", "r_fullscreen", "0",
   "+map", $Map
 )
+
+if ($Renderer -eq "opengl2") {
+  $clientArgs = @(
+    "+set", "cl_renderer", "opengl2"
+  ) + $clientArgs
+}
 
 $process = Start-Process -FilePath $clientExe -ArgumentList $clientArgs -WorkingDirectory $launchWorkingDirectory -PassThru
 
@@ -103,6 +111,7 @@ if (-not $enteredGame -and $logText -notmatch "entered the game") {
 
 $requiredPatterns = @(
   "----- Client Initialization Complete -----",
+  $(if ($Renderer -eq "opengl2") { 'Trying to load "renderer_opengl2_x86_64\.dll"' } else { 'Trying to load "renderer_opengl1_x86_64\.dll"' }),
   "Loading DLL file: .*uix86_64\.dll",
   "Loading DLL file: .*gamex86_64\.dll",
   "Loading DLL file: .*cgamex86_64\.dll",
