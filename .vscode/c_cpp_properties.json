@@ -1,0 +1,29 @@
+{
+  "configurations": [
+    {
+      "name": "Win64-MSVC",
+      "compilerPath": "cl.exe",
+      "windowsSdkVersion": "10.0.22000.0",
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "windows-msvc-x64",
+      "defines": [
+        "_WIN32",
+        "_WIN64",
+        "_WINDOWS",
+        "WIN32",
+        "NDEBUG"
+      ],
+      "includePath": [
+        "${workspaceFolder}/src",
+        "${workspaceFolder}/src/qcommon",
+        "${workspaceFolder}/src/AL",
+        "${workspaceFolder}/src/SDL2",
+        "${workspaceFolder}/src/zlib",
+        "${workspaceFolder}/src/libs",
+        "${workspaceFolder}/.tools/vcpkg/installed/x64-windows/include"
+      ]
+    }
+  ],
+  "version": 4
+}
