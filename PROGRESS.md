@@ -50,6 +50,8 @@
 | M6 | Add GL2 bootstrap smoke test | `done` | `client_renderer_opengl2_bootstrap` is wired in `CMakeLists.txt` via `scripts/client-module-smoke.ps1 -Module renderer-opengl2`; verified passing in `ctest --preset windows-msvc-debug-smoke`. |
 | M7 | OpenGL 3.3 core profile upgrade for GL2 | `done` | `sdl_glimp.c` now requests a 3.3 core profile for GL2. Core-profile bring-up required null-safe GL string handling: GLSL version query in `tr_extensions.c` now validates `qglGetString` results before copy, and `sdl_glimp.c` now rebuilds `glConfig.extensions_string` via `glGetStringi` + `GL_NUM_EXTENSIONS` when legacy `GL_EXTENSIONS` is unavailable. Rebuilt + `ctest --preset windows-msvc-debug-smoke` pass (7/7, including `client_renderer_opengl2_bootstrap`). |
 | M8 | Quality defaults (anisotropic, MSAA, shadow res) | `done` | First-pass defaults tuned in renderer init: anisotropic filtering enabled by default (`r_ext_texture_filter_anisotropic=1`, `r_ext_max_anisotropy=8`), MSAA default raised to 2x (`r_ext_multisample=2`), and GL2 sun shadow map default raised to 2048 (`r_shadowMapSize=2048`). Rebuilt + smoke validated (7/7 pass). |
+| M9 | Add GL2 ultrawide display smoke coverage | `done` | Extended `scripts/client-module-smoke.ps1` with explicit display launch knobs (`-CustomWidth`, `-CustomHeight`, `-Fullscreen`) and mode assertion logic; added `client_display_ultrawide_windowed_opengl2` CTest (`3440x1440`, windowed, GL2). Rebuilt + `ctest --preset windows-msvc-debug-smoke` now passes 8/8. |
+| M10 | Add GL2 fullscreen display smoke coverage | `done` | Added flexible `-ModeRegex` assertion support in `scripts/client-module-smoke.ps1` for fullscreen mode validation when desktop sizing overrides requested dimensions; added `client_display_fullscreen_opengl2` CTest with GL2 + fullscreen and regex mode check (`MODE: -1, [0-9]+ x [0-9]+ fullscreen`). `ctest --preset windows-msvc-debug-smoke` now passes 9/9. |
 
 ## Current blockers
 
@@ -57,6 +59,6 @@ None.
 
 ## Next actions
 
-1. Manually boot the client with `+set cl_renderer opengl2` and verify rendering quality/perf at native resolution.
+1. Manually boot the client with `+set cl_renderer opengl2` and capture visual/HUD scaling issues across ultrawide fullscreen and windowed.
 2. Retire ARB compatibility wrappers incrementally now that core-profile runtime is stable.
 3. Add one targeted visual/perf comparison capture for pre/post M8 defaults.

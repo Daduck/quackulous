@@ -444,6 +444,39 @@ if(QUACK_BUILD_CLIENT AND BUILD_TESTING)
       LABELS "smoke;bringup"
       TIMEOUT 90
     )
+
+    add_test(
+      NAME client_display_ultrawide_windowed_opengl2
+      COMMAND powershell
+        -ExecutionPolicy Bypass
+        -File "${CMAKE_CURRENT_SOURCE_DIR}/scripts/client-module-smoke.ps1"
+        -RuntimeRoot "$<TARGET_FILE_DIR:quackulous-client>"
+        -Module renderer-opengl2
+        -CustomWidth 3440
+        -CustomHeight 1440
+        -Fullscreen 0
+    )
+    set_tests_properties(client_display_ultrawide_windowed_opengl2 PROPERTIES
+      LABELS "smoke;display"
+      TIMEOUT 90
+    )
+
+    add_test(
+      NAME client_display_fullscreen_opengl2
+      COMMAND powershell
+        -ExecutionPolicy Bypass
+        -File "${CMAKE_CURRENT_SOURCE_DIR}/scripts/client-module-smoke.ps1"
+        -RuntimeRoot "$<TARGET_FILE_DIR:quackulous-client>"
+        -Module renderer-opengl2
+        -CustomWidth 1920
+        -CustomHeight 1080
+        -Fullscreen 1
+        -ModeRegex "MODE: -1, [0-9]+ x [0-9]+ fullscreen"
+    )
+    set_tests_properties(client_display_fullscreen_opengl2 PROPERTIES
+      LABELS "smoke;display"
+      TIMEOUT 90
+    )
   endif()
 
   add_test(

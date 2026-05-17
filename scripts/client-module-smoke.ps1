@@ -4,6 +4,10 @@ param(
   [Parameter(Mandatory = $true)]
   [ValidateSet("renderer", "renderer-opengl2", "filesystem-network", "audio")]
   [string]$Module,
+  [int]$CustomWidth = 0,
+  [int]$CustomHeight = 0,
+  [int]$Fullscreen = 0,
+  [string]$ModeRegex = "",
   [string]$Map = "tremor",
   [int]$StartupTimeoutSeconds = 45,
   [int]$ShutdownTimeoutSeconds = 15
@@ -48,10 +52,18 @@ $clientArgs = @(
   "+set", "vm_ui", "0",
   "+set", "vm_cgame", "0",
   "+set", "vm_game", "0",
-  "+set", "r_fullscreen", "0",
+  "+set", "r_fullscreen", "$Fullscreen",
   "+set", "s_initsound", $soundInit,
   "+map", $Map
 )
+
+if (($CustomWidth -gt 0) -and ($CustomHeight -gt 0)) {
+  $clientArgs += @(
+    "+set", "r_mode", "-1",
+    "+set", "r_customwidth", "$CustomWidth",
+    "+set", "r_customheight", "$CustomHeight"
+  )
+}
 
 $requiredPatterns = switch ($Module) {
   "renderer" {
@@ -177,6 +189,20 @@ if (-not $ready -and $logText -notmatch $readyPattern) {
 foreach ($pattern in $requiredPatterns) {
   if ($logText -notmatch $pattern) {
     throw "Module smoke test '$Module' is missing expected log pattern '$pattern'. See '$logPath'."
+  }
+}
+
+if (($CustomWidth -gt 0) -and ($CustomHeight -gt 0) -and [string]::IsNullOrWhiteSpace($ModeRegex)) {
+  $modeDescriptor = if ($Fullscreen -eq 0) { "windowed" } else { "fullscreen" }
+  $modePattern = "MODE: -1, $CustomWidth x $CustomHeight $modeDescriptor"
+  if ($logText -notmatch [Regex]::Escape($modePattern)) {
+    throw "Module smoke test '$Module' is missing expected mode marker '$modePattern'. See '$logPath'."
+  }
+}
+
+if (-not [string]::IsNullOrWhiteSpace($ModeRegex)) {
+  if ($logText -notmatch $ModeRegex) {
+    throw "Module smoke test '$Module' is missing expected mode regex '$ModeRegex'. See '$logPath'."
   }
 }
 
