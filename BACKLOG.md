@@ -80,6 +80,12 @@
   - telemetry and anti-abuse support.
 - Be explicit about which low-latency realtime gameplay responsibilities can stay on Workers and which require a more traditional authoritative game server.
 
+## AI players backlog
+
+- Add AI-controlled players so matches can be played or tested without a full set of human players.
+- Decide whether AI players should use existing botlib/navigation support, a modernized bot layer, or a new gameplay-specific AI system.
+- Cover basic use cases first: fill empty teams, join local practice matches, and provide predictable behavior for smoke/manual testing.
+
 ## Testing backlog for future conversion
 
 - Add a larger automated test suite so the codebase can eventually be converted to another codebase with confidence.
