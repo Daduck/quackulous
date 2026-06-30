@@ -101,6 +101,7 @@ $requiredPatterns = switch ($Module) {
     @(
       "------ Initializing Sound ------",
       "SDL_Init\( SDL_INIT_AUDIO \)\.\.\. OK",
+      "Format:\s+AUDIO_(U8|S16LSB|S16MSB)",
       "SDL audio initialized\.",
       "Sound initialization successful\.",
       "Sound memory manager started"

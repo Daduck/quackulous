@@ -44,6 +44,9 @@ cvar_t *s_sdlMixSamps;
 /* The audio callback. All the magic happens here. */
 static int dmapos = 0;
 static int dmasize = 0;
+#if SDL_MAJOR_VERSION >= 2
+static SDL_AudioDeviceID s_sdlAudioDevice = 0;
+#endif
 
 /*
 ===============
@@ -199,7 +202,13 @@ qboolean SNDDMA_Init(void)
 	desired.channels = (int) s_sdlChannels->value;
 	desired.callback = SNDDMA_AudioCallback;
 
+#if SDL_MAJOR_VERSION >= 2
+	s_sdlAudioDevice = SDL_OpenAudioDevice(NULL, 0, &desired, &obtained,
+		SDL_AUDIO_ALLOW_FREQUENCY_CHANGE);
+	if (!s_sdlAudioDevice)
+#else
 	if (SDL_OpenAudio(&desired, &obtained) == -1)
+#endif
 	{
 		Com_Printf("SDL_OpenAudio() failed: %s\n", SDL_GetError());
 		SDL_QuitSubSystem(SDL_INIT_AUDIO);
@@ -238,7 +247,11 @@ qboolean SNDDMA_Init(void)
 	dma.buffer = calloc(1, dmasize);
 
 	Com_Printf("Starting SDL audio callback...\n");
+#if SDL_MAJOR_VERSION >= 2
+	SDL_PauseAudioDevice(s_sdlAudioDevice, 0);  // start callback.
+#else
 	SDL_PauseAudio(0);  // start callback.
+#endif
 
 	Com_Printf("SDL audio initialized.\n");
 	snd_inited = qtrue;
@@ -263,8 +276,17 @@ SNDDMA_Shutdown
 void SNDDMA_Shutdown(void)
 {
 	Com_Printf("Closing SDL audio device...\n");
+#if SDL_MAJOR_VERSION >= 2
+	if (s_sdlAudioDevice)
+	{
+		SDL_PauseAudioDevice(s_sdlAudioDevice, 1);
+		SDL_CloseAudioDevice(s_sdlAudioDevice);
+		s_sdlAudioDevice = 0;
+	}
+#else
 	SDL_PauseAudio(1);
 	SDL_CloseAudio();
+#endif
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	free(dma.buffer);
 	dma.buffer = NULL;
@@ -282,7 +304,11 @@ Send sound to device if buffer isn't really the dma buffer
 */
 void SNDDMA_Submit(void)
 {
+#if SDL_MAJOR_VERSION >= 2
+	SDL_UnlockAudioDevice(s_sdlAudioDevice);
+#else
 	SDL_UnlockAudio();
+#endif
 }
 
 /*
@@ -292,5 +318,9 @@ SNDDMA_BeginPainting
 */
 void SNDDMA_BeginPainting (void)
 {
+#if SDL_MAJOR_VERSION >= 2
+	SDL_LockAudioDevice(s_sdlAudioDevice);
+#else
 	SDL_LockAudio();
+#endif
 }
