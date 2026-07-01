@@ -1917,15 +1917,15 @@ static void RawImage_UploadTexture(GLuint texture, byte *data, int x, int y, int
 	switch (internalFormat)
 	{
 		case GL_DEPTH_COMPONENT:
-		case GL_DEPTH_COMPONENT16_ARB:
-		case GL_DEPTH_COMPONENT24_ARB:
-		case GL_DEPTH_COMPONENT32_ARB:
+		case GL_DEPTH_COMPONENT16:
+		case GL_DEPTH_COMPONENT24:
+		case GL_DEPTH_COMPONENT32:
 			dataFormat = GL_DEPTH_COMPONENT;
 			dataType = GL_UNSIGNED_BYTE;
 			break;
-		case GL_RGBA16F_ARB:
+		case GL_RGBA16F:
 			dataFormat = GL_RGBA;
-			dataType = GL_HALF_FLOAT_ARB;
+			dataType = GL_HALF_FLOAT;
 			break;
 		default:
 			dataFormat = GL_RGBA;
@@ -2133,9 +2133,9 @@ done:
 	switch(internalFormat)
 	{
 		case GL_DEPTH_COMPONENT:
-		case GL_DEPTH_COMPONENT16_ARB:
-		case GL_DEPTH_COMPONENT24_ARB:
-		case GL_DEPTH_COMPONENT32_ARB:
+		case GL_DEPTH_COMPONENT16:
+		case GL_DEPTH_COMPONENT24:
+		case GL_DEPTH_COMPONENT32:
 			qglTextureParameterf(image->texnum, textureTarget, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
 			qglTextureParameterf(image->texnum, textureTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			qglTextureParameterf(image->texnum, textureTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -2176,7 +2176,7 @@ image_t *R_CreateImage2( const char *name, byte *pic, int width, int height, GLe
 	}
 
 	image = tr.images[tr.numImages] = ri.Hunk_Alloc( sizeof( image_t ), h_low );
-	image->texnum = 1024 + tr.numImages;
+	qglGenTextures(1, &image->texnum);
 	tr.numImages++;
 
 	image->type = type;
@@ -2749,7 +2749,7 @@ void R_CreateBuiltinImages( void ) {
 
 		hdrFormat = GL_RGBA8;
 		if (r_hdr->integer && glRefConfig.framebufferObject && glRefConfig.textureFloat)
-			hdrFormat = GL_RGBA16F_ARB;
+			hdrFormat = GL_RGBA16F;
 
 		rgbFormat = GL_RGBA8;
 
@@ -2766,15 +2766,15 @@ void R_CreateBuiltinImages( void ) {
 
 		if (glRefConfig.framebufferObject)
 		{
-			tr.renderDepthImage  = R_CreateImage("*renderdepth",  NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24_ARB);
-			tr.textureDepthImage = R_CreateImage("*texturedepth", NULL, PSHADOW_MAP_SIZE, PSHADOW_MAP_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24_ARB);
+			tr.renderDepthImage  = R_CreateImage("*renderdepth",  NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24);
+			tr.textureDepthImage = R_CreateImage("*texturedepth", NULL, PSHADOW_MAP_SIZE, PSHADOW_MAP_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24);
 		}
 
 		{
 			unsigned short sdata[4];
 			void *p;
 
-			if (hdrFormat == GL_RGBA16F_ARB)
+			if (hdrFormat == GL_RGBA16F)
 			{
 				sdata[0] = FloatToHalf(0.0f);
 				sdata[1] = FloatToHalf(0.45f);
@@ -2822,7 +2822,7 @@ void R_CreateBuiltinImages( void ) {
 		{
 			for ( x = 0; x < 4; x++)
 			{
-				tr.sunShadowDepthImage[x] = R_CreateImage(va("*sunshadowdepth%i", x), NULL, r_shadowMapSize->integer, r_shadowMapSize->integer, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24_ARB);
+				tr.sunShadowDepthImage[x] = R_CreateImage(va("*sunshadowdepth%i", x), NULL, r_shadowMapSize->integer, r_shadowMapSize->integer, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24);
 				qglTextureParameterf(tr.sunShadowDepthImage[x]->texnum, GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 				qglTextureParameterf(tr.sunShadowDepthImage[x]->texnum, GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 			}

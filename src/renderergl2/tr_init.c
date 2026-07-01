@@ -876,19 +876,27 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 */
 void GL_SetDefaultState( void )
 {
+	ri.Printf(PRINT_ALL, "DEBUG: qglClearDepth\n");
 	qglClearDepth( 1.0f );
 
+	ri.Printf(PRINT_ALL, "DEBUG: qglCullFace\n");
 	qglCullFace(GL_FRONT);
 
+	ri.Printf(PRINT_ALL, "DEBUG: qglColor4f\n");
 	qglColor4f (1,1,1,1);
 
+	ri.Printf(PRINT_ALL, "DEBUG: GL_BindNullTextures\n");
 	GL_BindNullTextures();
+	ri.Printf(PRINT_ALL, "DEBUG: GL_BindNullFramebuffers\n");
 	GL_BindNullFramebuffers();
 
+	ri.Printf(PRINT_ALL, "DEBUG: qglEnable\n");
 	qglEnable(GL_TEXTURE_2D);
+	ri.Printf(PRINT_ALL, "DEBUG: GL_TextureMode\n");
 	GL_TextureMode( r_textureMode->string );
 
 	//qglShadeModel( GL_SMOOTH );
+	ri.Printf(PRINT_ALL, "DEBUG: qglDepthFunc\n");
 	qglDepthFunc( GL_LEQUAL );
 
 	//
@@ -899,13 +907,16 @@ void GL_SetDefaultState( void )
 	glState.faceCulling = CT_TWO_SIDED;
 	glState.faceCullFront = qtrue;
 
+	ri.Printf(PRINT_ALL, "DEBUG: GL_BindNullProgram\n");
 	GL_BindNullProgram();
 
+	ri.Printf(PRINT_ALL, "DEBUG: qglBindVertexArray\n");
 	if (glRefConfig.vertexArrayObject)
-		qglBindVertexArrayARB(0);
+		qglBindVertexArray(0);
 
-	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+	ri.Printf(PRINT_ALL, "DEBUG: qglBindBuffer\n");
+	qglBindBuffer(GL_ARRAY_BUFFER, 0);
+	qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glState.currentVao = NULL;
 	glState.vertexAttribsEnabled = 0;
 
@@ -972,7 +983,7 @@ void GfxInfo_f( void )
 	R_PrintLongString( glConfig.extensions_string );
 	ri.Printf( PRINT_ALL, "\n" );
 	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
-	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_UNITS_ARB: %d\n", glConfig.numTextureUnits );
+	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_UNITS: %d\n", glConfig.numTextureUnits );
 	ri.Printf( PRINT_ALL, "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits );
 	ri.Printf( PRINT_ALL, "MODE: %d, %d x %d %s hz:", r_mode->integer, glConfig.vidWidth, glConfig.vidHeight, fsstrings[r_fullscreen->integer == 1] );
 	if ( glConfig.displayFrequency )
@@ -995,7 +1006,7 @@ void GfxInfo_f( void )
 	ri.Printf( PRINT_ALL, "texturemode: %s\n", r_textureMode->string );
 	ri.Printf( PRINT_ALL, "picmip: %d\n", r_picmip->integer );
 	ri.Printf( PRINT_ALL, "texture bits: %d\n", r_texturebits->integer );
-	ri.Printf( PRINT_ALL, "multitexture: %s\n", enablestrings[qglActiveTextureARB != 0] );
+	ri.Printf( PRINT_ALL, "multitexture: %s\n", enablestrings[qglActiveTexture != 0] );
 	ri.Printf( PRINT_ALL, "compiled vertex arrays: %s\n", enablestrings[qglLockArraysEXT != 0 ] );
 	ri.Printf( PRINT_ALL, "texenv add: %s\n", enablestrings[glConfig.textureEnvAddAvailable != 0] );
 	ri.Printf( PRINT_ALL, "compressed textures: %s\n", enablestrings[glConfig.textureCompression!=TC_NONE] );
@@ -1305,7 +1316,7 @@ void R_InitQueries(void)
 		return;
 
 	if (r_drawSunRays->integer)
-		qglGenQueriesARB(ARRAY_LEN(tr.sunFlareQuery), tr.sunFlareQuery);
+		qglGenQueries(ARRAY_LEN(tr.sunFlareQuery), tr.sunFlareQuery);
 }
 
 void R_ShutDownQueries(void)
@@ -1314,7 +1325,7 @@ void R_ShutDownQueries(void)
 		return;
 
 	if (r_drawSunRays->integer)
-		qglDeleteQueriesARB(ARRAY_LEN(tr.sunFlareQuery), tr.sunFlareQuery);
+		qglDeleteQueries(ARRAY_LEN(tr.sunFlareQuery), tr.sunFlareQuery);
 }
 
 /*

@@ -161,20 +161,10 @@ function(quackulous_target_defaults target)
   target_compile_definitions("${target}" PRIVATE ${QUACK_COMMON_DEFINES})
   target_compile_options("${target}" PRIVATE
     $<$<COMPILE_LANGUAGE:C>:/W3>
-    $<$<COMPILE_LANGUAGE:C>:/wd4013>
-    $<$<COMPILE_LANGUAGE:C>:/wd4018>
-    $<$<COMPILE_LANGUAGE:C>:/wd4028>
-    $<$<COMPILE_LANGUAGE:C>:/wd4047>
-    $<$<COMPILE_LANGUAGE:C>:/wd4090>
-    $<$<COMPILE_LANGUAGE:C>:/wd4101>
     $<$<COMPILE_LANGUAGE:C>:/wd4113>
-    $<$<COMPILE_LANGUAGE:C>:/wd4133>
     $<$<COMPILE_LANGUAGE:C>:/wd4244>
     $<$<COMPILE_LANGUAGE:C>:/wd4267>
     $<$<COMPILE_LANGUAGE:C>:/wd4305>
-    $<$<COMPILE_LANGUAGE:C>:/wd4311>
-    $<$<COMPILE_LANGUAGE:C>:/wd4312>
-    $<$<COMPILE_LANGUAGE:C>:/wd4477>
     $<$<COMPILE_LANGUAGE:C>:/wd4996>
   )
   target_link_options("${target}" PRIVATE /DEBUG:FULL)

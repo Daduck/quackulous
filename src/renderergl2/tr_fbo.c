@@ -139,19 +139,19 @@ void FBO_CreateBuffer(FBO_t *fbo, int format, int index, int multisample)
 		case GL_RGBA:
 		case GL_RGB8:
 		case GL_RGBA8:
-		case GL_RGB16F_ARB:
-		case GL_RGBA16F_ARB:
-		case GL_RGB32F_ARB:
-		case GL_RGBA32F_ARB:
+		case GL_RGB16F:
+		case GL_RGBA16F:
+		case GL_RGB32F:
+		case GL_RGBA32F:
 			fbo->colorFormat = format;
 			pRenderBuffer = &fbo->colorBuffers[index];
 			attachment = GL_COLOR_ATTACHMENT0_EXT + index;
 			break;
 
 		case GL_DEPTH_COMPONENT:
-		case GL_DEPTH_COMPONENT16_ARB:
-		case GL_DEPTH_COMPONENT24_ARB:
-		case GL_DEPTH_COMPONENT32_ARB:
+		case GL_DEPTH_COMPONENT16:
+		case GL_DEPTH_COMPONENT24:
+		case GL_DEPTH_COMPONENT32:
 			fbo->depthFormat = format;
 			pRenderBuffer = &fbo->depthBuffer;
 			attachment = GL_DEPTH_ATTACHMENT_EXT;
@@ -214,7 +214,7 @@ void FBO_AttachImage(FBO_t *fbo, image_t *image, GLenum attachment, GLuint cubem
 	int index;
 
 	if (image->flags & IMGFLAG_CUBEMAP)
-		target = GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB + cubemapside;
+		target = GL_TEXTURE_CUBE_MAP_POSITIVE_X + cubemapside;
 
 	qglNamedFramebufferTexture2D(fbo->frameBuffer, attachment, target, image->texnum, 0);
 	index = attachment - GL_COLOR_ATTACHMENT0_EXT;
@@ -266,7 +266,7 @@ void FBO_Init(void)
 
 	hdrFormat = GL_RGBA8;
 	if (r_hdr->integer && glRefConfig.framebufferObject && glRefConfig.textureFloat)
-		hdrFormat = GL_RGBA16F_ARB;
+		hdrFormat = GL_RGBA16F;
 
 	if (glRefConfig.framebufferMultisample)
 		qglGetIntegerv(GL_MAX_SAMPLES_EXT, &multisample);
@@ -286,7 +286,7 @@ void FBO_Init(void)
 	{
 		tr.renderFbo = FBO_Create("_render", tr.renderDepthImage->width, tr.renderDepthImage->height);
 		FBO_CreateBuffer(tr.renderFbo, hdrFormat, 0, multisample);
-		FBO_CreateBuffer(tr.renderFbo, GL_DEPTH_COMPONENT24_ARB, 0, multisample);
+		FBO_CreateBuffer(tr.renderFbo, GL_DEPTH_COMPONENT24, 0, multisample);
 		R_CheckFBO(tr.renderFbo);
 
 		tr.msaaResolveFbo = FBO_Create("_msaaResolve", tr.renderDepthImage->width, tr.renderDepthImage->height);
@@ -333,7 +333,7 @@ void FBO_Init(void)
 		{
 			tr.pshadowFbos[i] = FBO_Create(va("_shadowmap%d", i), tr.pshadowMaps[i]->width, tr.pshadowMaps[i]->height);
 			FBO_AttachImage(tr.pshadowFbos[i], tr.pshadowMaps[i], GL_COLOR_ATTACHMENT0_EXT, 0);
-			FBO_CreateBuffer(tr.pshadowFbos[i], GL_DEPTH_COMPONENT24_ARB, 0, 0);
+			FBO_CreateBuffer(tr.pshadowFbos[i], GL_DEPTH_COMPONENT24, 0, 0);
 			R_CheckFBO(tr.pshadowFbos[i]);
 		}
 	}
@@ -410,7 +410,7 @@ void FBO_Init(void)
 	{
 		tr.renderCubeFbo = FBO_Create("_renderCubeFbo", tr.renderCubeImage->width, tr.renderCubeImage->height);
 		FBO_AttachImage(tr.renderCubeFbo, tr.renderCubeImage, GL_COLOR_ATTACHMENT0_EXT, 0);
-		FBO_CreateBuffer(tr.renderCubeFbo, GL_DEPTH_COMPONENT24_ARB, 0, 0);
+		FBO_CreateBuffer(tr.renderCubeFbo, GL_DEPTH_COMPONENT24, 0, 0);
 		R_CheckFBO(tr.renderCubeFbo);
 	}
 

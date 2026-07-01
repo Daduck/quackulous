@@ -298,7 +298,7 @@ static	void R_LoadLightmaps( lump_t *l, lump_t *surfs ) {
 	}
 
 	if (glRefConfig.floatLightmap)
-		textureInternalFormat = GL_RGBA16F_ARB;
+		textureInternalFormat = GL_RGBA16F;
 	else
 		textureInternalFormat = GL_RGBA8;
 

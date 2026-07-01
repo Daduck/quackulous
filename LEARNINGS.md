@@ -123,3 +123,5 @@
   - [BACKLOG.md](/c:/dev/quackulous/BACKLOG.md) for the queue,
   - [PROGRESS.md](/c:/dev/quackulous/PROGRESS.md) for current status,
   - [LEARNINGS.md](/c:/dev/quackulous/LEARNINGS.md) for durable knowledge.
+
+- **2026-07-01 MSVC Warnings Burn Down**: Investigated global /wd* suppressions in CMakeLists.txt. We successfully removed the following 10 suppressions because they currently have zero instances in the codebase on /W3: /wd4018, /wd4028, /wd4047, /wd4090, /wd4101, /wd4133, /wd4311, /wd4312, /wd4477, and most notably /wd4013 (undefined function). Restoring /wd4013 as a warning is a critical win because it now catches implicit int declarations for undeclared functions (like missing extern function pointers), directly preventing pointer-as-code DEP crashes during refactoring.

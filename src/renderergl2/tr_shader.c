@@ -3051,7 +3051,7 @@ static shader_t *FinishShader( void ) {
 	//
 	// look for multitexture potential
 	//
-	if ( qglActiveTextureARB ) {
+	if ( qglActiveTexture ) {
 		stage = CollapseStagesToGLSL();
 	}
 
