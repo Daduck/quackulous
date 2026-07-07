@@ -148,6 +148,7 @@ vmCvar_t  cg_thirdPersonShoulderViewMode;
 vmCvar_t  cg_staticDeathCam;
 vmCvar_t  cg_thirdPersonPitchFollow;
 vmCvar_t  cg_thirdPersonRange;
+vmCvar_t  cg_fovBasis;
 vmCvar_t  cg_stereoSeparation;
 vmCvar_t  cg_lagometer;
 vmCvar_t  cg_drawSpeed;
@@ -249,6 +250,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_lagometer, "cg_lagometer", "0", CVAR_ARCHIVE },
   { &cg_drawSpeed, "cg_drawSpeed", "0", CVAR_ARCHIVE },
   { &cg_teslaTrailTime, "cg_teslaTrailTime", "250", CVAR_ARCHIVE  },
+  { &cg_fovBasis, "cg_fovBasis", "1", CVAR_ARCHIVE },
   { &cg_gun_x, "cg_gunX", "0", CVAR_CHEAT },
   { &cg_gun_y, "cg_gunY", "0", CVAR_CHEAT },
   { &cg_gun_z, "cg_gunZ", "0", CVAR_CHEAT },
@@ -1744,8 +1746,15 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 
   // get the rendering configuration from the client system
   trap_GetGlconfig( &cgs.glconfig );
-  cgs.screenXScale = cgs.glconfig.vidWidth / 640.0f;
-  cgs.screenYScale = cgs.glconfig.vidHeight / 480.0f;
+  {
+    float scaleX = cgs.glconfig.vidWidth / 640.0f;
+    float scaleY = cgs.glconfig.vidHeight / 480.0f;
+    float scale = (scaleX < scaleY) ? scaleX : scaleY;
+    cgs.screenXScale = scale;
+    cgs.screenYScale = scale;
+    cgs.screenXOffset = (cgs.glconfig.vidWidth - 640.0f * scale) / 2.0f;
+    cgs.screenYOffset = (cgs.glconfig.vidHeight - 480.0f * scale) / 2.0f;
+  }
 
   // load a few needed things before we do any screen updates
   cgs.media.whiteShader     = trap_R_RegisterShader( "white" );

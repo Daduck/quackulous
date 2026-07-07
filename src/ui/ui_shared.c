@@ -2100,8 +2100,8 @@ Adjusted for resolution and screen aspect ratio
 */
 void UI_AdjustFrom640( float *x, float *y, float *w, float *h )
 {
-  *x *= DC->xscale;
-  *y *= DC->yscale;
+  *x = *x * DC->xscale + DC->xoffset;
+  *y = *y * DC->yscale + DC->yoffset;
   *w *= DC->xscale;
   *h *= DC->yscale;
 }

@@ -941,6 +941,18 @@ static int CG_CalcFov( void )
     }
   }
 
+  if ( cg_fovBasis.integer == 0 ) {
+    // Horizontal basis: treat class FOV as horizontal FOV on a 4:3 screen
+    float fov_h = fov_y / 0.75f;
+    float x = 640.0f / tan( 0.5f * DEG2RAD( fov_h ) );
+    fov_y = atan2( 480.0f, x );
+    fov_y = 2.0f * RAD2DEG( fov_y );
+  } else if ( cg_fovBasis.integer == 1 ) {
+    // Vertical basis: treat class FOV directly as vertical FOV
+    fov_y = fov_y / 0.75f;
+  }
+  // Otherwise (e.g. 2), use legacy Tremulous approximation (fov_h * 0.75)
+
   y = cg.refdef.height / tan( 0.5f * DEG2RAD( fov_y ) );
   fov_x = atan2( cg.refdef.width, y );
   fov_x = 2.0f * RAD2DEG( fov_x );

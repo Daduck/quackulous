@@ -4017,8 +4017,15 @@ void UI_Init( qboolean inGameLoad )
   trap_GetGlconfig( &uiInfo.uiDC.glconfig );
 
   // for 640x480 virtualized screen
-  uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * ( 1.0f / 480.0f );
-  uiInfo.uiDC.xscale = uiInfo.uiDC.glconfig.vidWidth * ( 1.0f / 640.0f );
+  {
+    float scaleX = uiInfo.uiDC.glconfig.vidWidth * ( 1.0f / 640.0f );
+    float scaleY = uiInfo.uiDC.glconfig.vidHeight * ( 1.0f / 480.0f );
+    float scale = (scaleX < scaleY) ? scaleX : scaleY;
+    uiInfo.uiDC.yscale = scale;
+    uiInfo.uiDC.xscale = scale;
+    uiInfo.uiDC.xoffset = (uiInfo.uiDC.glconfig.vidWidth - 640.0f * scale) / 2.0f;
+    uiInfo.uiDC.yoffset = (uiInfo.uiDC.glconfig.vidHeight - 480.0f * scale) / 2.0f;
+  }
 
   // wide screen
   uiInfo.uiDC.aspectScale = ( ( 640.0f * uiInfo.uiDC.glconfig.vidHeight ) /

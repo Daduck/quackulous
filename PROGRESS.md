@@ -106,11 +106,14 @@
 
 ## Next actions
 
-1. Retire ARB Compatibility Wrappers:
-   - Subagent finished the search/replace from `ARB` extension to Core names.
-   - The build started crashing in `renderer_opengl2` inside `GLSL_InitGPUShader2`.
-   - **Root Cause Identified:** The subagent missed adding `extern` declarations for several `ARB` function pointers (like `qglBindAttribLocation`) in `tr_local.h`. Due to this, the compiler implicitly treated these function pointers as `int`, generating a `call` instruction that treated the *address of the pointer variable* as code, causing an Access Violation (DEP).
-   - **Fix:** Restored the missing `extern` declarations to `tr_local.h` from `tr_extensions.c`. `client_renderer_opengl2_bootstrap` test now passes!
-   - **Status:** Core ARB refactor complete and passing smoke tests!
-2. Proceed to capturing visual/HUD scaling analysis for ultrawide fullscreen/windowed.
-3. Add one targeted visual/perf comparison capture for pre/post M8 defaults.
+1. **[Phase M] Display and Resolution Hardening**
+- [x] Retire `ARB` wrapper usage in `renderergl2`
+- [x] HUD and UI pillarboxing for ultrawide aspect ratios
+- [x] Explicit `cg_fovBasis` (Horizontal vs Vertical) scaling logic
+- [ ] Visual/Performance comparison with pre/post M8 renderer quality defaults
+- [ ] Burn Down Compiler Warnings
+
+2. **[Phase M] Quality defaults for modern hardware**
+- [x] Set `r_ext_multisample` default to 4 (4x MSAA)
+- [x] Set `r_ext_max_anisotropy` default to 16
+- [x] Set `r_shadowMapSize` default to 4096

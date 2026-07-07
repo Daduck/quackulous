@@ -1330,6 +1330,8 @@ typedef struct
   glconfig_t    glconfig;               // rendering configuration
   float         screenXScale;           // derived from glconfig
   float         screenYScale;
+  float         screenXOffset;
+  float         screenYOffset;
   float         screenXBias;
 
   int           serverCommandSequence;  // reliable command stream counter
@@ -1451,6 +1453,7 @@ extern  vmCvar_t    cg_noPlayerAnims;
 extern  vmCvar_t    cg_showmiss;
 extern  vmCvar_t    cg_footsteps;
 extern  vmCvar_t    cg_addMarks;
+extern  vmCvar_t    cg_fovBasis;
 extern  vmCvar_t    cg_viewsize;
 extern  vmCvar_t    cg_drawGun;
 extern  vmCvar_t    cg_gun_frame;

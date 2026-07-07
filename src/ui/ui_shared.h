@@ -446,6 +446,8 @@ typedef struct
 
   float      yscale;
   float      xscale;
+  float      xoffset;
+  float      yoffset;
   float      aspectScale;
   int        realTime;
   int        frameTime;
