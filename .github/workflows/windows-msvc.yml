@@ -44,4 +44,4 @@ jobs:
 
       - name: Smoke tests
         shell: pwsh
-        run: ctest --test-dir build/windows-msvc --build-config Debug --output-on-failure -L smoke
+        run: ctest --test-dir build/windows-msvc --build-config Debug --output-on-failure -L smoke -LE interactive

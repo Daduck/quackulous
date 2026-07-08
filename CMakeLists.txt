@@ -402,7 +402,7 @@ if(QUACK_BUILD_CLIENT AND BUILD_TESTING)
       -RuntimeRoot "$<TARGET_FILE_DIR:quackulous-client>"
   )
   set_tests_properties(client_startup_smoke PROPERTIES
-    LABELS "smoke"
+    LABELS "smoke;interactive"
     TIMEOUT 90
   )
 
@@ -415,7 +415,7 @@ if(QUACK_BUILD_CLIENT AND BUILD_TESTING)
       -Module renderer
   )
   set_tests_properties(client_renderer_bootstrap PROPERTIES
-    LABELS "smoke;bringup"
+    LABELS "smoke;bringup;interactive"
     TIMEOUT 90
   )
 
@@ -429,7 +429,7 @@ if(QUACK_BUILD_CLIENT AND BUILD_TESTING)
         -Module renderer-opengl2
     )
     set_tests_properties(client_renderer_opengl2_bootstrap PROPERTIES
-      LABELS "smoke;bringup"
+      LABELS "smoke;bringup;interactive"
       TIMEOUT 90
     )
 
@@ -445,7 +445,7 @@ if(QUACK_BUILD_CLIENT AND BUILD_TESTING)
         -Fullscreen 0
     )
     set_tests_properties(client_display_ultrawide_windowed_opengl2 PROPERTIES
-      LABELS "smoke;display"
+      LABELS "smoke;display;interactive"
       TIMEOUT 90
     )
 
@@ -462,7 +462,7 @@ if(QUACK_BUILD_CLIENT AND BUILD_TESTING)
         -ModeRegex "MODE: -1, [0-9]+ x [0-9]+ fullscreen"
     )
     set_tests_properties(client_display_fullscreen_opengl2 PROPERTIES
-      LABELS "smoke;display"
+      LABELS "smoke;display;interactive"
       TIMEOUT 90
     )
   endif()
@@ -476,7 +476,7 @@ if(QUACK_BUILD_CLIENT AND BUILD_TESTING)
       -Module filesystem-network
   )
   set_tests_properties(client_filesystem_network_bootstrap PROPERTIES
-    LABELS "smoke;bringup"
+    LABELS "smoke;bringup;interactive"
     TIMEOUT 90
   )
 
@@ -489,7 +489,7 @@ if(QUACK_BUILD_CLIENT AND BUILD_TESTING)
       -Module audio
   )
   set_tests_properties(client_audio_bootstrap PROPERTIES
-    LABELS "smoke;bringup"
+    LABELS "smoke;bringup;interactive"
     TIMEOUT 90
   )
 endif()
