@@ -48,7 +48,7 @@ void G_namelog_connect( gclient_t *client )
   }
   if( !n )
   {
-    n = BG_Alloc( sizeof( namelog_t ) );
+    n = BG_Alloc( (int)sizeof( namelog_t ) );
     strcpy( n->guid, client->pers.guid );
     if( p )
     {
@@ -77,7 +77,7 @@ void G_namelog_connect( gclient_t *client )
       return;
   if( i == MAX_NAMELOG_ADDRS )
     i--;
-  memcpy( &n->ip[ i ], &client->pers.ip, sizeof( n->ip[ i ] ) );
+  memcpy( &n->ip[ i ], &client->pers.ip, (int)sizeof( n->ip[ i ] ) );
 }
 
 void G_namelog_disconnect( gclient_t *client )
@@ -106,9 +106,9 @@ void G_namelog_update_name( gclient_t *client )
 
   if( n->name[ n->nameOffset ][ 0 ] )
   {
-    G_SanitiseString( client->pers.netname, n1, sizeof( n1 ) );
+    G_SanitiseString( client->pers.netname, n1, (int)sizeof( n1 ) );
     G_SanitiseString( n->name[ n->nameOffset ],
-      n2, sizeof( n2 ) );
+      n2, (int)sizeof( n2 ) );
     if( strcmp( n1, n2 ) != 0 )
       n->nameOffset = ( n->nameOffset + 1 ) % MAX_NAMELOG_NAMES;
   }

@@ -209,7 +209,7 @@ long RllDecodeMonoToMono(unsigned char *from,short *to,unsigned int size,char si
 	for (z=0;z<size;z++) {
 		prev = to[z] = (short)(prev + cin.sqrTable[from[z]]); 
 	}
-	return size;	//*sizeof(short));
+	return size;	//*(int)sizeof(short));
 }
 
 
@@ -242,7 +242,7 @@ long RllDecodeMonoToStereo(unsigned char *from,short *to,unsigned int size,char 
 		to[z*2+0] = to[z*2+1] = (short)(prev);
 	}
 	
-	return size;	// * 2 * sizeof(short));
+	return size;	// * 2 * (int)sizeof(short));
 }
 
 
@@ -280,7 +280,7 @@ long RllDecodeStereoToStereo(unsigned char *from,short *to,unsigned int size,cha
                 to[z+1] = (short)(prevR);
 	}
 	
-	return (size>>1);	//*sizeof(short));
+	return (size>>1);	//*(int)sizeof(short));
 }
 
 
@@ -1402,9 +1402,9 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 	int		i;
 
 	if (strstr(arg, "/") == NULL && strstr(arg, "\\") == NULL) {
-		Com_sprintf (name, sizeof(name), "video/%s", arg);
+		Com_sprintf (name, (int)sizeof(name), "video/%s", arg);
 	} else {
-		Com_sprintf (name, sizeof(name), "%s", arg);
+		Com_sprintf (name, (int)sizeof(name), "%s", arg);
 	}
 
 	if (!(systemBits & CIN_system)) {
@@ -1417,7 +1417,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 
 	Com_DPrintf("CIN_PlayCinematic( %s )\n", arg);
 
-	Com_Memset(&cin, 0, sizeof(cinematics_t) );
+	Com_Memset(&cin, 0, (int)sizeof(cinematics_t) );
 	currentHandle = CIN_HandleForVideo();
 
 	cin.currentHandle = currentHandle;

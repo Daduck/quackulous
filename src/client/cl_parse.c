@@ -215,7 +215,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 
 	// read in the new snapshot to a temporary buffer
 	// we will only copy to cl.snap if it is valid
-	Com_Memset (&newSnap, 0, sizeof(newSnap));
+	Com_Memset (&newSnap, 0, (int)sizeof(newSnap));
 
 	// we will have read any new server commands in this
 	// message before we got to svc_snapshot
@@ -264,7 +264,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	// read areamask
 	len = MSG_ReadByte( msg );
 	
-	if(len > sizeof(newSnap.areamask))
+	if(len > (int)sizeof(newSnap.areamask))
 	{
 		Com_Error (ERR_DROP,"CL_ParseSnapshot: Invalid size %d for areamask", len);
 		return;
@@ -445,7 +445,7 @@ static void CL_ParseServerInfo(void)
 		"sv_allowDownload"));
 	Q_strncpyz(clc.sv_dlURL,
 		Info_ValueForKey(serverInfo, "sv_dlURL"),
-		sizeof(clc.sv_dlURL));
+		(int)sizeof(clc.sv_dlURL));
 }
 
 /*
@@ -489,7 +489,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 				Com_Error( ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
 			}
 			s = MSG_ReadBigString( msg );
-			len = strlen( s );
+			len = (int)strlen( s );
 
 			if ( len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS ) {
 				Com_Error( ERR_DROP, "MAX_GAMESTATE_CHARS exceeded" );
@@ -504,7 +504,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 			if ( newnum < 0 || newnum >= MAX_GENTITIES ) {
 				Com_Error( ERR_DROP, "Baseline number out of range: %i", newnum );
 			}
-			Com_Memset (&nullstate, 0, sizeof(nullstate));
+			Com_Memset (&nullstate, 0, (int)sizeof(nullstate));
 			es = &cl.entityBaselines[ newnum ];
 			MSG_ReadDeltaEntity( msg, &nullstate, es, newnum );
 		} else {
@@ -517,7 +517,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 	clc.checksumFeed = MSG_ReadLong( msg );
 
 	// save old gamedir
-	Cvar_VariableStringBuffer("fs_game", oldGame, sizeof(oldGame));
+	Cvar_VariableStringBuffer("fs_game", oldGame, (int)sizeof(oldGame));
 
 	// parse useful values out of CS_SERVERINFO
 	CL_ParseServerInfo();
@@ -533,7 +533,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 	if(!cl_oldGameSet && (Cvar_Flags("fs_game") & CVAR_MODIFIED))
 	{
 		cl_oldGameSet = qtrue;
-		Q_strncpyz(cl_oldGame, oldGame, sizeof(cl_oldGame));
+		Q_strncpyz(cl_oldGame, oldGame, (int)sizeof(cl_oldGame));
 	}
 
 	FS_ConditionalRestart(clc.checksumFeed, qfalse);
@@ -585,7 +585,7 @@ void CL_ParseDownload ( msg_t *msg ) {
 	}
 
 	size = MSG_ReadShort ( msg );
-	if (size < 0 || size > sizeof(data))
+	if (size < 0 || size > (int)sizeof(data))
 	{
 		Com_Error(ERR_DROP, "CL_ParseDownload: Invalid size %d for download chunk", size);
 		return;
@@ -722,12 +722,12 @@ void CL_ParseVoip ( msg_t *msg, qboolean ignoreData ) {
 	else if (packetsize < 0)
 		return;   // short/invalid packet, bail.
 
-	if (packetsize > sizeof (encoded)) {  // overlarge packet?
+	if (packetsize > (int)sizeof(encoded)) {  // overlarge packet?
 		int bytesleft = packetsize;
 		while (bytesleft) {
 			int br = bytesleft;
-			if (br > sizeof (encoded))
-				br = sizeof (encoded);
+			if (br > (int)sizeof(encoded))
+				br = (int)sizeof(encoded);
 			MSG_ReadData(msg, encoded, br);
 			bytesleft -= br;
 		}
@@ -765,7 +765,7 @@ void CL_ParseVoip ( msg_t *msg, qboolean ignoreData ) {
 		// reset the decoder just in case.
 		opus_decoder_ctl(clc.opusDecoder[sender], OPUS_RESET_STATE);
 		seqdiff = 0;
-	} else if (seqdiff * VOIP_MAX_PACKET_SAMPLES*2 >= sizeof (decoded)) { // dropped more than we can handle?
+	} else if (seqdiff * VOIP_MAX_PACKET_SAMPLES*2 >= (int)sizeof(decoded)) { // dropped more than we can handle?
 		// just start over.
 		Com_DPrintf("VoIP: Dropped way too many (%d) frames from client #%d\n",
 		            seqdiff, sender);
@@ -778,7 +778,7 @@ void CL_ParseVoip ( msg_t *msg, qboolean ignoreData ) {
 		            seqdiff, sender);
 		// tell opus that we're missing frames...
 		for (i = 0; i < seqdiff; i++) {
-			assert((written + VOIP_MAX_PACKET_SAMPLES) * 2 < sizeof (decoded));
+			assert((written + VOIP_MAX_PACKET_SAMPLES) * 2 < (int)sizeof(decoded));
 			numSamples = opus_decode(clc.opusDecoder[sender], NULL, 0, decoded + written, VOIP_MAX_PACKET_SAMPLES, 0);
 			if ( numSamples <= 0 ) {
 				Com_DPrintf("VoIP: Error decoding frame %d from client #%d\n", i, sender);
@@ -840,7 +840,7 @@ void CL_ParseCommandString( msg_t *msg ) {
 	clc.serverCommandSequence = seq;
 
 	index = seq & (MAX_RELIABLE_COMMANDS-1);
-	Q_strncpyz( clc.serverCommands[ index ], s, sizeof( clc.serverCommands[ index ] ) );
+	Q_strncpyz( clc.serverCommands[ index ], s, (int)sizeof( clc.serverCommands[ index ] ) );
 }
 
 

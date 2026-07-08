@@ -172,7 +172,7 @@ static qboolean CG_ParseBuildableAnimationFile( const char *filename, buildable_
   if( len < 0 )
     return qfalse;
 
-  if( len == 0 || len >= sizeof( text ) - 1 )
+  if( len == 0 || len >= (int)sizeof( text ) - 1 )
   {
     trap_FS_FCloseFile( f );
     CG_Printf( "File %s is %s\n", filename, len == 0 ? "empty" : "too long" );
@@ -263,7 +263,7 @@ static qboolean CG_ParseBuildableSoundFile( const char *filename, buildable_t bu
   if ( len < 0 )
     return qfalse;
 
-  if ( len == 0 || len >= sizeof( text ) - 1 )
+  if ( len == 0 || len >= (int)sizeof( text ) - 1 )
   {
     trap_FS_FCloseFile( f );
     CG_Printf( "File %s is %s\n", filename, len == 0 ? "empty" : "too long" );
@@ -320,17 +320,17 @@ void CG_InitBuildables( void )
   int           j;
   fileHandle_t  f;
 
-  memset( cg_buildables, 0, sizeof( cg_buildables ) );
+  memset( cg_buildables, 0, (int)sizeof( cg_buildables ) );
 
   //default sounds
   for( j = BANIM_NONE + 1; j < MAX_BUILDABLE_ANIMATIONS; j++ )
   {
     strcpy( soundfile, cg_buildableSoundNames[ j - 1 ] );
 
-    Com_sprintf( filename, sizeof( filename ), "sound/buildables/alien/%s", soundfile );
+    Com_sprintf( filename, (int)sizeof( filename ), "sound/buildables/alien/%s", soundfile );
     defaultAlienSounds[ j ] = trap_S_RegisterSound( filename, qfalse );
 
-    Com_sprintf( filename, sizeof( filename ), "sound/buildables/human/%s", soundfile );
+    Com_sprintf( filename, (int)sizeof( filename ), "sound/buildables/human/%s", soundfile );
     defaultHumanSounds[ j ] = trap_S_RegisterSound( filename, qfalse );
   }
 
@@ -341,12 +341,12 @@ void CG_InitBuildables( void )
     buildableName = BG_Buildable( i )->name;
 
     //animation.cfg
-    Com_sprintf( filename, sizeof( filename ), "models/buildables/%s/animation.cfg", buildableName );
+    Com_sprintf( filename, (int)sizeof( filename ), "models/buildables/%s/animation.cfg", buildableName );
     if ( !CG_ParseBuildableAnimationFile( filename, i ) )
       Com_Printf( S_COLOR_YELLOW "WARNING: failed to load animation file %s\n", filename );
 
     //sound.cfg
-    Com_sprintf( filename, sizeof( filename ), "sound/buildables/%s/sound.cfg", buildableName );
+    Com_sprintf( filename, (int)sizeof( filename ), "sound/buildables/%s/sound.cfg", buildableName );
     if ( !CG_ParseBuildableSoundFile( filename, i ) )
       Com_Printf( S_COLOR_YELLOW "WARNING: failed to load sound file %s\n", filename );
 
@@ -354,7 +354,7 @@ void CG_InitBuildables( void )
     for( j = 0; j <= 3; j++ )
     {
       modelFile = BG_BuildableConfig( i )->models[ j ];
-      if( strlen( modelFile ) > 0 )
+      if( (int)strlen( modelFile ) > 0 )
         cg_buildables[ i ].models[ j ] = trap_R_RegisterModel( modelFile );
     }
 
@@ -362,7 +362,7 @@ void CG_InitBuildables( void )
     for( j = BANIM_NONE + 1; j < MAX_BUILDABLE_ANIMATIONS; j++ )
     {
       strcpy( soundfile, cg_buildableSoundNames[ j - 1 ] );
-      Com_sprintf( filename, sizeof( filename ), "sound/buildables/%s/%s", buildableName, soundfile );
+      Com_sprintf( filename, (int)sizeof( filename ), "sound/buildables/%s/%s", buildableName, soundfile );
 
       if( cg_buildables[ i ].sounds[ j ].enabled )
       {
@@ -612,7 +612,7 @@ void CG_GhostBuildable( buildable_t buildable )
 
   ps = &cg.predictedPlayerState;
 
-  memset( &ent, 0, sizeof( ent ) );
+  memset( &ent, 0, (int)sizeof( ent ) );
 
   BG_BuildableBoundingBox( buildable, mins, maxs );
 
@@ -1210,7 +1210,7 @@ void CG_DrawBuildableStatus( void )
       buildableList[ buildables++ ] = cg.snap->entities[ i ].number;
   }
 
-  qsort( buildableList, buildables, sizeof( int ), CG_SortDistance );
+  qsort( buildableList, buildables, (int)sizeof( int ), CG_SortDistance );
   for( i = 0; i < buildables; i++ )
     CG_BuildableStatusDisplay( &cg_entities[ buildableList[ i ] ] );
 }
@@ -1247,7 +1247,7 @@ void CG_Buildable( centity_t *cent )
     return;
   }
 
-  memset ( &ent, 0, sizeof( ent ) );
+  memset ( &ent, 0, (int)sizeof( ent ) );
 
   VectorCopy( cent->lerpOrigin, ent.origin );
   VectorCopy( cent->lerpOrigin, ent.oldorigin );
@@ -1340,7 +1340,7 @@ void CG_Buildable( centity_t *cent )
     refEntity_t turretBarrel;
     vec3_t      flatAxis[ 3 ];
 
-    memset( &turretBarrel, 0, sizeof( turretBarrel ) );
+    memset( &turretBarrel, 0, (int)sizeof( turretBarrel ) );
 
     turretBarrel.hModel = cg_buildables[ es->modelindex ].models[ 1 ];
 
@@ -1382,7 +1382,7 @@ void CG_Buildable( centity_t *cent )
     vec3_t      flatAxis[ 3 ];
     vec3_t      swivelAngles;
 
-    memset( &turretTop, 0, sizeof( turretTop ) );
+    memset( &turretTop, 0, (int)sizeof( turretTop ) );
 
     VectorCopy( es->angles2, swivelAngles );
     swivelAngles[ PITCH ] = 0.0f;

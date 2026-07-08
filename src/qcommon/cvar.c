@@ -280,14 +280,14 @@ static const char *Cvar_Validate( cvar_t *var,
 	{
 		if( Q_isintegral( valuef ) )
 		{
-			Com_sprintf( s, sizeof( s ), "%d", (int)valuef );
+			Com_sprintf( s, (int)sizeof( s ), "%d", (int)valuef );
 
 			if( warn )
 				Com_Printf( ", setting to %d\n", (int)valuef );
 		}
 		else
 		{
-			Com_sprintf( s, sizeof( s ), "%f", valuef );
+			Com_sprintf( s, (int)sizeof( s ), "%f", valuef );
 
 			if( warn )
 				Com_Printf( ", setting to %f\n", valuef );
@@ -671,9 +671,9 @@ void Cvar_SetValue( const char *var_name, float value) {
 	char	val[32];
 
 	if ( value == (int)value ) {
-		Com_sprintf (val, sizeof(val), "%i",(int)value);
+		Com_sprintf (val, (int)sizeof(val), "%i",(int)value);
 	} else {
-		Com_sprintf (val, sizeof(val), "%f",value);
+		Com_sprintf (val, (int)sizeof(val), "%f",value);
 	}
 	Cvar_Set (var_name, val);
 }
@@ -688,9 +688,9 @@ void Cvar_SetValueSafe( const char *var_name, float value )
 	char val[32];
 
 	if( Q_isintegral( value ) )
-		Com_sprintf( val, sizeof(val), "%i", (int)value );
+		Com_sprintf( val, (int)sizeof(val), "%i", (int)value );
 	else
-		Com_sprintf( val, sizeof(val), "%f", value );
+		Com_sprintf( val, (int)sizeof(val), "%f", value );
 	Cvar_SetSafe( var_name, val );
 }
 
@@ -928,21 +928,21 @@ void Cvar_WriteVariables(fileHandle_t f)
 		if( var->flags & CVAR_ARCHIVE ) {
 			// write the latched value, even if it hasn't taken effect yet
 			if ( var->latchedString ) {
-				if( strlen( var->name ) + strlen( var->latchedString ) + 10 > sizeof( buffer ) ) {
+				if( (int)strlen( var->name ) + (int)strlen( var->latchedString ) + 10 > (int)sizeof( buffer ) ) {
 					Com_Printf( S_COLOR_YELLOW "WARNING: value of variable "
 							"\"%s\" too long to write to file\n", var->name );
 					continue;
 				}
-				Com_sprintf (buffer, sizeof(buffer), "seta %s \"%s\"\n", var->name, var->latchedString);
+				Com_sprintf (buffer, (int)sizeof(buffer), "seta %s \"%s\"\n", var->name, var->latchedString);
 			} else {
-				if( strlen( var->name ) + strlen( var->string ) + 10 > sizeof( buffer ) ) {
+				if( (int)strlen( var->name ) + (int)strlen( var->string ) + 10 > (int)sizeof( buffer ) ) {
 					Com_Printf( S_COLOR_YELLOW "WARNING: value of variable "
 							"\"%s\" too long to write to file\n", var->name );
 					continue;
 				}
-				Com_sprintf (buffer, sizeof(buffer), "seta %s \"%s\"\n", var->name, var->string);
+				Com_sprintf (buffer, (int)sizeof(buffer), "seta %s \"%s\"\n", var->name, var->string);
 			}
-			FS_Write( buffer, strlen( buffer ), f );
+			FS_Write( buffer, (int)strlen( buffer ), f );
 		}
 	}
 }
@@ -1146,7 +1146,7 @@ cvar_t *Cvar_Unset(cvar_t *cv)
 	if(cv->hashNext)
 		cv->hashNext->hashPrev = cv->hashPrev;
 
-	Com_Memset(cv, '\0', sizeof(*cv));
+	Com_Memset(cv, '\0', (int)sizeof(*cv));
 	
 	return next;
 }
@@ -1373,10 +1373,10 @@ void	Cvar_Update( vmCvar_t *vmCvar ) {
 		return;		// variable might have been cleared by a cvar_restart
 	}
 	vmCvar->modificationCount = cv->modificationCount;
-	if ( strlen(cv->string)+1 > MAX_CVAR_VALUE_STRING ) 
+	if ( (int)strlen(cv->string)+1 > MAX_CVAR_VALUE_STRING ) 
 	  Com_Error( ERR_DROP, "Cvar_Update: src %s length %u exceeds MAX_CVAR_VALUE_STRING",
 		     cv->string, 
-		     (unsigned int) strlen(cv->string));
+		     (unsigned int) (int)strlen(cv->string));
 	Q_strncpyz( vmCvar->string, cv->string,  MAX_CVAR_VALUE_STRING ); 
 
 	vmCvar->value = cv->value;
@@ -1409,8 +1409,8 @@ Reads in all archived cvars
 */
 void Cvar_Init (void)
 {
-	Com_Memset(cvar_indexes, '\0', sizeof(cvar_indexes));
-	Com_Memset(hashTable, '\0', sizeof(hashTable));
+	Com_Memset(cvar_indexes, '\0', (int)sizeof(cvar_indexes));
+	Com_Memset(hashTable, '\0', (int)sizeof(hashTable));
 
 	cvar_cheats = Cvar_Get("sv_cheats", "1", CVAR_ROM | CVAR_SYSTEMINFO );
 

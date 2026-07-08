@@ -366,7 +366,7 @@ jpegDest (j_compress_ptr cinfo, byte* outfile, int size)
   if (cinfo->dest == NULL) {	/* first time for this JPEG object? */
     cinfo->dest = (struct jpeg_destination_mgr *)
       (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
-				  sizeof(my_destination_mgr));
+				  (int)sizeof(my_destination_mgr));
   }
 
   dest = (my_dest_ptr) cinfo->dest;
@@ -417,7 +417,7 @@ size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality,
 
   /* Step 2: specify data destination (eg, a file) */
   /* Note: steps 2 and 3 can be done in either order. */
-  jpegDest(&cinfo, buffer, bufSize);
+  jpegDest(&cinfo, buffer, (int)bufSize);
 
   /* Step 3: set parameters for compression */
   cinfo.image_width = image_width; 	/* image width and height, in pixels */
@@ -468,10 +468,10 @@ void RE_SaveJPG(char * filename, int quality, int image_width, int image_height,
   size_t bufSize;
 
   bufSize = image_width * image_height * 3;
-  out = ri.Hunk_AllocateTempMemory(bufSize);
+  out = ri.Hunk_AllocateTempMemory((int)bufSize);
 
   bufSize = RE_SaveJPGToBuffer(out, bufSize, quality, image_width, image_height, image_buffer, padding);
-  ri.FS_WriteFile(filename, out, bufSize);
+  ri.FS_WriteFile(filename, out, (int)bufSize);
 
   ri.Hunk_FreeTempMemory(out);
 }

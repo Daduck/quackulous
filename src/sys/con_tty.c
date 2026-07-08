@@ -139,7 +139,7 @@ static void CON_Hide( void )
 			}
 		}
 		// Delete prompt
-		for (i = strlen(TTY_CONSOLE_PROMPT); i > 0; i--) {
+		for (i = (int)strlen(TTY_CONSOLE_PROMPT); i > 0; i--) {
 			CON_Back();
 		}
 		ttycon_hide++;
@@ -165,7 +165,7 @@ static void CON_Show( void )
 		if (ttycon_hide == 0)
 		{
 			size_t UNUSED_VAR size;
-			size = write(STDOUT_FILENO, TTY_CONSOLE_PROMPT, strlen(TTY_CONSOLE_PROMPT));
+			size = write(STDOUT_FILENO, TTY_CONSOLE_PROMPT, (int)strlen(TTY_CONSOLE_PROMPT));
 			if (TTY_con.cursor)
 			{
 				for (i=0; i<TTY_con.cursor; i++)
@@ -383,15 +383,15 @@ char *CON_Input( void )
 					if (clc.state != CA_ACTIVE && TTY_con.cursor &&
 						TTY_con.buffer[0] != '/' && TTY_con.buffer[0] != '\\')
 					{
-						memmove(TTY_con.buffer + 1, TTY_con.buffer, sizeof(TTY_con.buffer) - 1);
+						memmove(TTY_con.buffer + 1, TTY_con.buffer, (int)sizeof(TTY_con.buffer) - 1);
 						TTY_con.buffer[0] = '\\';
 						TTY_con.cursor++;
 					}
 
 					if (TTY_con.buffer[0] == '/' || TTY_con.buffer[0] == '\\') {
-						Q_strncpyz(text, TTY_con.buffer + 1, sizeof(text));
+						Q_strncpyz(text, TTY_con.buffer + 1, (int)sizeof(text));
 					} else if (TTY_con.cursor) {
-						Com_sprintf(text, sizeof(text), "cmd say %s", TTY_con.buffer);
+						Com_sprintf(text, (int)sizeof(text), "cmd say %s", TTY_con.buffer);
 					} else {
 						text[0] = '\0';
 					}
@@ -405,11 +405,11 @@ char *CON_Input( void )
 #else
 					// push it in history
 					Hist_Add(&TTY_con);
-					Q_strncpyz(text, TTY_con.buffer, sizeof(text));
+					Q_strncpyz(text, TTY_con.buffer, (int)sizeof(text));
 					Field_Clear(&TTY_con);
 					key = '\n';
 					size = write(STDOUT_FILENO, &key, 1);
-					size = write(STDOUT_FILENO, TTY_CONSOLE_PROMPT, strlen(TTY_CONSOLE_PROMPT));
+					size = write(STDOUT_FILENO, TTY_CONSOLE_PROMPT, (int)strlen(TTY_CONSOLE_PROMPT));
 #endif
 					return text;
 				}
@@ -468,7 +468,7 @@ char *CON_Input( void )
 				CON_FlushIn();
 				return NULL;
 			}
-			if (TTY_con.cursor >= sizeof(text) - 1)
+			if (TTY_con.cursor >= (int)sizeof(text) - 1)
 				return NULL;
 			// push regular character
 			TTY_con.buffer[TTY_con.cursor] = key;
@@ -492,7 +492,7 @@ char *CON_Input( void )
 		if(select (STDIN_FILENO + 1, &fdset, NULL, NULL, &timeout) == -1 || !FD_ISSET(STDIN_FILENO, &fdset))
 			return NULL;
 
-		len = read(STDIN_FILENO, text, sizeof(text));
+		len = read(STDIN_FILENO, text, (int)sizeof(text));
 		if (len == 0)
 		{ // eof!
 			stdin_active = qfalse;
@@ -532,7 +532,7 @@ void CON_Print( const char *msg )
 
 	// Only print prompt when msg ends with a newline, otherwise the console
 	//   might get garbled when output does not fit on one line.
-	if (msg[strlen(msg) - 1] == '\n') {
+	if (msg[(int)strlen(msg) - 1] == '\n') {
 		CON_Show();
 
 		// Run CON_Show the number of times it was deferred.

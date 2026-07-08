@@ -86,7 +86,7 @@ called to open a channel to a remote system
 */
 void Netchan_Setup(netsrc_t sock, netchan_t *chan, netadr_t adr, int qport, int challenge)
 {
-	Com_Memset (chan, 0, sizeof(*chan));
+	Com_Memset (chan, 0, (int)sizeof(*chan));
 	
 	chan->sock = sock;
 	chan->remoteAddress = adr;
@@ -110,7 +110,7 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 	int			outgoingSequence;
 
 	// write the packet header
-	MSG_InitOOB (&send, send_buf, sizeof(send_buf));				// <-- only do the oob here
+	MSG_InitOOB (&send, send_buf, (int)sizeof(send_buf));				// <-- only do the oob here
 
 	outgoingSequence = chan->outgoingSequence | FRAGMENT_BIT;
 	MSG_WriteLong(&send, outgoingSequence);
@@ -190,7 +190,7 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 	}
 
 	// write the packet header
-	MSG_InitOOB (&send, send_buf, sizeof(send_buf));
+	MSG_InitOOB (&send, send_buf, (int)sizeof(send_buf));
 
 	MSG_WriteLong( &send, chan->outgoingSequence );
 
@@ -343,7 +343,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 
 		// copy the fragment to the fragment buffer
 		if ( fragmentLength < 0 || msg->readcount + fragmentLength > msg->cursize ||
-			chan->fragmentLength + fragmentLength > sizeof( chan->fragmentBuffer ) ) {
+			chan->fragmentLength + fragmentLength > (int)sizeof( chan->fragmentBuffer ) ) {
 			if ( showdrop->integer || showpackets->integer ) {
 				Com_Printf ("%s:illegal fragment length\n"
 				, NET_AdrToString (chan->remoteAddress ) );
@@ -442,7 +442,7 @@ qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_messag
 
 	Com_Memcpy (net_message->data, loop->msgs[i].data, loop->msgs[i].datalen);
 	net_message->cursize = loop->msgs[i].datalen;
-	Com_Memset (net_from, 0, sizeof(*net_from));
+	Com_Memset (net_from, 0, (int)sizeof(*net_from));
 	net_from->type = NA_LOOPBACK;
 	return qtrue;
 
@@ -483,7 +483,7 @@ static void NET_QueuePacket( int length, const void *data, netadr_t to,
 	if(offset > 999)
 		offset = 999;
 
-	new = S_Malloc(sizeof(packetQueue_t));
+	new = S_Malloc((int)sizeof(packetQueue_t));
 	new->data = S_Malloc(length);
 	Com_Memcpy(new->data, data, length);
 	new->length = length;
@@ -567,11 +567,11 @@ void QDECL NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, const char *format, 
 	string[3] = -1;
 
 	va_start( argptr, format );
-	Q_vsnprintf( string+4, sizeof(string)-4, format, argptr );
+	Q_vsnprintf( string+4, (int)sizeof(string)-4, format, argptr );
 	va_end( argptr );
 
 	// send the datagram
-	NET_SendPacket( sock, strlen( string ), string, adr );
+	NET_SendPacket( sock, (int)strlen( string ), string, adr );
 }
 
 /*
@@ -617,13 +617,13 @@ int NET_StringToAdr( const char *s, netadr_t *a, netadrtype_t family )
 	char	*port = NULL;
 
 	if (!strcmp (s, "localhost")) {
-		Com_Memset (a, 0, sizeof(*a));
+		Com_Memset (a, 0, (int)sizeof(*a));
 		a->type = NA_LOOPBACK;
 // as NA_LOOPBACK doesn't require ports report port was given.
 		return 1;
 	}
 
-	Q_strncpyz( base, s, sizeof( base ) );
+	Q_strncpyz( base, s, (int)sizeof( base ) );
 	
 	if(*base == '[' || Q_CountChar(base, ':') > 1)
 	{

@@ -324,7 +324,7 @@ qboolean G_CallSpawn( gentity_t *ent )
 
   // check normal spawn functions
   s = bsearch( ent->classname, spawns, ARRAY_LEN( spawns ),
-    sizeof( spawn_t ), cmdcmp );
+    (int)sizeof( spawn_t ), cmdcmp );
   if( s )
   {
     // found it
@@ -349,7 +349,7 @@ char *G_NewString( const char *string )
   char  *newb, *new_p;
   int   i,l;
 
-  l = strlen( string ) + 1;
+  l = (int)strlen( string ) + 1;
 
   newb = BG_Alloc( l );
 
@@ -393,7 +393,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent )
   vec4_t  vec4;
 
   f = bsearch( key, fields, ARRAY_LEN( fields ),
-    sizeof( field_t ), cmdcmp );
+    (int)sizeof( field_t ), cmdcmp );
   if( !f )
     return;
   b = (byte *)ent;
@@ -493,7 +493,7 @@ char *G_AddSpawnVarToken( const char *string )
   int   l;
   char  *dest;
 
-  l = strlen( string );
+  l = (int)strlen( string );
   if( level.numSpawnVarChars + l + 1 > MAX_SPAWN_VARS_CHARS )
     G_Error( "G_AddSpawnVarToken: MAX_SPAWN_CHARS" );
 
@@ -524,7 +524,7 @@ qboolean G_ParseSpawnVars( void )
   level.numSpawnVarChars = 0;
 
   // parse the opening brace
-  if( !trap_GetEntityToken( com_token, sizeof( com_token ) ) )
+  if( !trap_GetEntityToken( com_token, (int)sizeof( com_token ) ) )
   {
     // end of spawn string
     return qfalse;
@@ -537,14 +537,14 @@ qboolean G_ParseSpawnVars( void )
   while( 1 )
   {
     // parse key
-    if( !trap_GetEntityToken( keyname, sizeof( keyname ) ) )
+    if( !trap_GetEntityToken( keyname, (int)sizeof( keyname ) ) )
       G_Error( "G_ParseSpawnVars: EOF without closing brace" );
 
     if( keyname[0] == '}' )
       break;
 
     // parse value
-    if( !trap_GetEntityToken( com_token, sizeof( com_token ) ) )
+    if( !trap_GetEntityToken( com_token, (int)sizeof( com_token ) ) )
       G_Error( "G_ParseSpawnVars: EOF without closing brace" );
 
     if( com_token[0] == '}' )

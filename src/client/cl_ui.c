@@ -34,9 +34,9 @@ static void GetClientState( uiClientState_t *state ) {
 	if ( !state ) return;
 	state->connectPacketCount = clc.connectPacketCount;
 	state->connState = clc.state;
-	Q_strncpyz( state->servername, clc.servername, sizeof( state->servername ) );
-	Q_strncpyz( state->updateInfoString, cls.updateInfoString, sizeof( state->updateInfoString ) );
-	Q_strncpyz( state->messageString, clc.serverMessage, sizeof( state->messageString ) );
+	Q_strncpyz( state->servername, clc.servername, (int)sizeof( state->servername ) );
+	Q_strncpyz( state->updateInfoString, cls.updateInfoString, (int)sizeof( state->updateInfoString ) );
+	Q_strncpyz( state->messageString, clc.serverMessage, (int)sizeof( state->messageString ) );
 	state->clientNum = cl.snap.ps.clientNum;
 }
 
@@ -51,12 +51,12 @@ void LAN_LoadCachedServers( void ) {
 	cls.numglobalservers = cls.numfavoriteservers = 0;
 	cls.numGlobalServerAddresses = 0;
 	if (FS_SV_FOpenFileRead("servercache.dat", &fileIn)) {
-		FS_Read(&cls.numglobalservers, sizeof(int), fileIn);
-		FS_Read(&cls.numfavoriteservers, sizeof(int), fileIn);
-		FS_Read(&size, sizeof(int), fileIn);
-		if (size == sizeof(cls.globalServers) + sizeof(cls.favoriteServers)) {
-			FS_Read(&cls.globalServers, sizeof(cls.globalServers), fileIn);
-			FS_Read(&cls.favoriteServers, sizeof(cls.favoriteServers), fileIn);
+		FS_Read(&cls.numglobalservers, (int)sizeof(int), fileIn);
+		FS_Read(&cls.numfavoriteservers, (int)sizeof(int), fileIn);
+		FS_Read(&size, (int)sizeof(int), fileIn);
+		if (size == (int)sizeof(cls.globalServers) + (int)sizeof(cls.favoriteServers)) {
+			FS_Read(&cls.globalServers, (int)sizeof(cls.globalServers), fileIn);
+			FS_Read(&cls.favoriteServers, (int)sizeof(cls.favoriteServers), fileIn);
 		} else {
 			cls.numglobalservers = cls.numfavoriteservers = 0;
 			cls.numGlobalServerAddresses = 0;
@@ -73,12 +73,12 @@ LAN_SaveServersToCache
 void LAN_SaveServersToCache( void ) {
 	int size;
 	fileHandle_t fileOut = FS_SV_FOpenFileWrite("servercache.dat");
-	FS_Write(&cls.numglobalservers, sizeof(int), fileOut);
-	FS_Write(&cls.numfavoriteservers, sizeof(int), fileOut);
-	size = sizeof(cls.globalServers) + sizeof(cls.favoriteServers);
-	FS_Write(&size, sizeof(int), fileOut);
-	FS_Write(&cls.globalServers, sizeof(cls.globalServers), fileOut);
-	FS_Write(&cls.favoriteServers, sizeof(cls.favoriteServers), fileOut);
+	FS_Write(&cls.numglobalservers, (int)sizeof(int), fileOut);
+	FS_Write(&cls.numfavoriteservers, (int)sizeof(int), fileOut);
+	size = (int)sizeof(cls.globalServers) + (int)sizeof(cls.favoriteServers);
+	FS_Write(&size, (int)sizeof(int), fileOut);
+	FS_Write(&cls.globalServers, (int)sizeof(cls.globalServers), fileOut);
+	FS_Write(&cls.favoriteServers, (int)sizeof(cls.favoriteServers), fileOut);
 	FS_FCloseFile(fileOut);
 }
 
@@ -108,7 +108,7 @@ qboolean GetNews( qboolean begin )
 	}
 
 	if ( !clc.downloadCURLM && FS_SV_FOpenFileRead("news.dat", &fileIn)) {
-		readSize = FS_Read(clc.newsString, sizeof( clc.newsString ), fileIn);
+		readSize = FS_Read(clc.newsString, (int)sizeof( clc.newsString ), fileIn);
 		FS_FCloseFile(fileIn);
 		clc.newsString[ readSize ] = '\0';
 		if( readSize > 0 ) {
@@ -198,7 +198,7 @@ static int LAN_AddServer(int source, const char *name, const char *address) {
 		}
 		if (i >= *count) {
 			servers[*count].adr = adr;
-			Q_strncpyz(servers[*count].hostName, name, sizeof(servers[*count].hostName));
+			Q_strncpyz(servers[*count].hostName, name, (int)sizeof(servers[*count].hostName));
 			servers[*count].visible = qtrue;
 			(*count)++;
 			return 1;
@@ -239,7 +239,7 @@ static void LAN_RemoveServer(int source, const char *addr) {
 			if (NET_CompareAdr( comp, servers[i].adr)) {
 				int j = i;
 				while (j < *count - 1) {
-					Com_Memcpy(&servers[j], &servers[j+1], sizeof(servers[j]));
+					Com_Memcpy(&servers[j], &servers[j+1], (int)sizeof(servers[j]));
 					j++;
 				}
 				(*count)--;

@@ -158,7 +158,7 @@ void BG_InitMemory( void )
   freeHead->size = POOLSIZE;
   freeHead->next = NULL;
   freeHead->prev = NULL;
-  freeMem = sizeof( memoryPool );
+  freeMem = (int)sizeof( memoryPool );
 }
 
 void BG_DefragmentMemory( void )
@@ -189,7 +189,7 @@ void BG_DefragmentMemory( void )
             freeHead = fmn->next;  // We're removing the head node
         }
         startfmn->size += fmn->size;
-        memset( fmn, 0, sizeof(freeMemNode_t) );  // A redundant call, really.
+        memset( fmn, 0, (int)sizeof(freeMemNode_t) );  // A redundant call, really.
 
         startfmn = freeHead;
         endfmn = fmn = NULL;        // Break out of current loop

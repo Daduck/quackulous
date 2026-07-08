@@ -137,8 +137,8 @@ static void CG_DrawFieldPadded( int x, int y, int width, int cw, int ch, int val
       break;
   }
 
-  Com_sprintf( num, sizeof( num ), "%d", value );
-  l = strlen( num );
+  Com_sprintf( num, (int)sizeof( num ), "%d", value );
+  l = (int)strlen( num );
 
   if( l > width )
     l = width;
@@ -217,8 +217,8 @@ void CG_DrawField( float x, float y, int width, float cw, float ch, int value )
       break;
   }
 
-  Com_sprintf( num, sizeof( num ), "%d", value );
-  l = strlen( num );
+  Com_sprintf( num, (int)sizeof( num ), "%d", value );
+  l = (int)strlen( num );
 
   if( l > width )
     l = width;
@@ -292,9 +292,9 @@ static void CG_DrawProgressBar( rectDef_t *rect, vec4_t color, float scale,
   trap_R_SetColor( NULL );
 
   //draw text
-  if( scale > 0.0 )
+  if( scale > 0.0f )
   {
-    Com_sprintf( textBuffer, sizeof( textBuffer ), "%d%%", (int)( progress * 100 ) );
+    Com_sprintf( textBuffer, (int)sizeof( textBuffer ), "%d%%", (int)( progress * 100 ) );
     CG_AlignText( rect, textBuffer, scale, 0.0f, 0.0f, textalign, VALIGN_CENTER, &tx, &ty );
 
     UI_Text_Paint( tx, ty, scale, color, textBuffer, 0, 0, textStyle );
@@ -485,7 +485,7 @@ static void CG_DrawPlayerClipsRing( rectDef_t *rect, vec4_t backColor,
         Vector4Lerp( progress, backColor, foreColor, color );
       }
       else
-        Com_Memcpy( color, foreColor, sizeof( color ) );
+        Com_Memcpy( color, foreColor, (int)sizeof( color ) );
       break;
   }
 
@@ -680,18 +680,18 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
     else
       text = va( "%d", value );
 
-    len = strlen( text );
+    len = (int)strlen( text );
 
     if( len <= 4 )
-      scale = 0.50;
+      scale = 0.50f;
     else if( len <= 6 )
-      scale = 0.43;
+      scale = 0.43f;
     else if( len == 7 ) 
-      scale = 0.36; 
+      scale = 0.36f; 
     else if( len == 8 )
-      scale = 0.33;
+      scale = 0.33f;
     else
-      scale = 0.31;
+      scale = 0.31f;
 
     CG_AlignText( rect, text, scale, 0.0f, 0.0f, ALIGN_RIGHT, VALIGN_CENTER, &tx, &ty );
     UI_Text_Paint( tx + 1, ty, scale, color, text, 0, 0, ITEM_TEXTSTYLE_NORMAL );
@@ -1187,7 +1187,7 @@ static void CG_DrawMOTD( rectDef_t *rect, float text_x, float text_y,
 
   s = CG_ConfigString( CS_MOTD );
 
-  Q_ParseNewlines( parsed, s, sizeof( parsed ) );
+  Q_ParseNewlines( parsed, s, (int)sizeof( parsed ) );
 
   UI_DrawTextBlock( rect, text_x, text_y, color, scale, textalign, textvalign, textStyle, parsed );
 }
@@ -1201,7 +1201,7 @@ static void CG_DrawHostname( rectDef_t *rect, float text_x, float text_y,
 
   info = CG_ConfigString( CS_SERVERINFO );
 
-  UI_EscapeEmoticons( buffer, Info_ValueForKey( info, "sv_hostname" ), sizeof( buffer ) );
+  UI_EscapeEmoticons( buffer, Info_ValueForKey( info, "sv_hostname" ), (int)sizeof( buffer ) );
   Q_CleanStr( buffer );
 
   UI_DrawTextBlock( rect, text_x, text_y, color, scale, textalign, textvalign, textStyle, buffer );
@@ -1816,12 +1816,12 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
   if( sort == TEAMOVERLAY_SORT_SCORE )
   {
     qsort( displayClients, maxDisplayCount,
-      sizeof( displayClients[ 0 ] ), SortScore );
+      (int)sizeof( displayClients[ 0 ] ), SortScore );
   }
   else if( sort == TEAMOVERLAY_SORT_WEAPONCLASS )
   {
     qsort( displayClients, maxDisplayCount,
-      sizeof( displayClients[ 0 ] ), SortWeaponClass );
+      (int)sizeof( displayClients[ 0 ] ), SortWeaponClass );
   }
 
   if( maxDisplayCount > cg_teamOverlayMaxPlayers.integer )
@@ -1850,7 +1850,7 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
     if( !ci->infoValid || pci == ci || ci->team != pci->team )
       continue;
 
-    Com_sprintf( name, sizeof( name ), "%s^7", ci->name );
+    Com_sprintf( name, (int)sizeof( name ), "%s^7", ci->name );
 
     trap_R_SetColor( color );
     CG_DrawPic( x, y, backgroundWidth,
@@ -2334,9 +2334,9 @@ static void CG_DrawSpeedGraph( rectDef_t *rect, vec4_t foreColor,
   int i;
   float val, max, top;
   // colour of graph is interpolated between these values
-  const vec3_t slow = { 0.0, 0.0, 1.0 };
-  const vec3_t medium = { 0.0, 1.0, 0.0 };
-  const vec3_t fast = { 1.0, 0.0, 0.0 };
+  const vec3_t slow = { 0.0f, 0.0f, 1.0f };
+  const vec3_t medium = { 0.0f, 1.0f, 0.0f };
+  const vec3_t fast = { 1.0f, 0.0f, 0.0f };
   vec4_t color;
 
   max = speedSamples[ maxSpeedSample ];
@@ -2394,7 +2394,7 @@ static void CG_DrawSpeedText( rectDef_t *rect, float text_x, float text_y,
   else
     val = speedSamples[ oldestSpeedSample - 1 ];
 
-  Com_sprintf( speedstr, sizeof( speedstr ), "%d", (int)val );
+  Com_sprintf( speedstr, (int)sizeof( speedstr ), "%d", (int)val );
 
   UI_Text_Paint(
       rect->x + ( rect->w - UI_Text_Width( speedstr, scale ) ) / 2.0f,
@@ -3064,7 +3064,7 @@ static void CG_DrawLighting( void )
       ( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_HUMANS ) )
   {
     vec4_t black = { 0, 0, 0, 0 };
-    black[ 3 ] = 1.0 - ( (float)( cg.snap->ps.stats[ STAT_STAMINA ] + 1000 ) / 200.0f );
+    black[ 3 ] = 1.0f - ( (float)( cg.snap->ps.stats[ STAT_STAMINA ] + 1000 ) / 200.0f );
     trap_R_SetColor( black );
     CG_DrawPic( 0, 0, 640, 480, cgs.media.whiteShader );
     trap_R_SetColor( NULL );
@@ -3095,11 +3095,11 @@ void CG_CenterPrint( const char *str, int y, int charWidth )
   const char *wrapped;
   static int maxWidth = (int)( ( 2.0f / 3.0f ) * (float)SCREEN_WIDTH );
 
-  Q_ParseNewlines( newlineParsed, str, sizeof( newlineParsed ) );
+  Q_ParseNewlines( newlineParsed, str, (int)sizeof( newlineParsed ) );
 
   wrapped = Item_Text_Wrap( newlineParsed, 0.5f, maxWidth );
 
-  Q_strncpyz( cg.centerPrint, wrapped, sizeof( cg.centerPrint ) );
+  Q_strncpyz( cg.centerPrint, wrapped, (int)sizeof( cg.centerPrint ) );
 
   cg.centerPrintTime = cg.time;
   cg.centerPrintY = y;
@@ -3148,7 +3148,7 @@ static void CG_DrawCenterString( void )
   {
     char linebuffer[ MAX_STRING_CHARS ];
 
-    for( l = 0; l < sizeof(linebuffer) - 1; l++ )
+    for( l = 0; l < (int)sizeof(linebuffer) - 1; l++ )
     {
       if( !start[ l ] || start[ l ] == '\n' )
         break;
@@ -3158,10 +3158,10 @@ static void CG_DrawCenterString( void )
 
     linebuffer[ l ] = 0;
 
-    w = UI_Text_Width( linebuffer, 0.5 );
-    h = UI_Text_Height( linebuffer, 0.5 );
+    w = UI_Text_Width( linebuffer, 0.5f );
+    h = UI_Text_Height( linebuffer, 0.5f );
     x = ( SCREEN_WIDTH - w ) / 2;
-    UI_Text_Paint( x, y + h, 0.5, color, linebuffer, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
+    UI_Text_Paint( x, y + h, 0.5f, color, linebuffer, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
     y += h + 6;
 
     while( *start && ( *start != '\n' ) )
@@ -3214,9 +3214,9 @@ static void CG_DrawVote( team_t team )
 
   if( cg_tutorial.integer )
   {
-    Com_sprintf( yeskey, sizeof( yeskey ), "[%s]", 
+    Com_sprintf( yeskey, (int)sizeof( yeskey ), "[%s]", 
       CG_KeyBinding( va( "%svote yes", team == TEAM_NONE ? "" : "team" ) ) );
-    Com_sprintf( nokey, sizeof( nokey ), "[%s]", 
+    Com_sprintf( nokey, (int)sizeof( nokey ), "[%s]", 
       CG_KeyBinding( va( "%svote no", team == TEAM_NONE ? "" : "team" ) ) );
   }
 
@@ -3390,7 +3390,7 @@ static void CG_DrawWarmup( void )
   h = UI_Text_Height( text, size );
   UI_Text_Paint( 320 - w / 2, 200, size, colorWhite, text, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
 
-  Com_sprintf( text, sizeof( text ), "%s", sec ? va( "%d", sec ) : "FIGHT!" );
+  Com_sprintf( text, (int)sizeof( text ), "%s", sec ? va( "%d", sec ) : "FIGHT!" );
 
   w = UI_Text_Width( text, size );
   UI_Text_Paint( 320 - w / 2, 200 + 1.5f * h, size, colorWhite, text, 0, 0, ITEM_TEXTSTYLE_SHADOWED );

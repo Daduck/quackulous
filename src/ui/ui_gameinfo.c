@@ -87,7 +87,7 @@ int UI_ParseInfos( char *buf, int max, char *infos[] )
       if( !strcmp( token, "}" ) )
         break;
 
-      Q_strncpyz( key, token, sizeof( key ) );
+      Q_strncpyz( key, token, (int)sizeof( key ) );
 
       token = COM_ParseExt( &buf, qfalse );
 
@@ -98,7 +98,7 @@ int UI_ParseInfos( char *buf, int max, char *infos[] )
     }
 
     //NOTE: extra space for arena number
-    infos[count] = UI_Alloc( strlen( info ) + strlen( "\\num\\" ) + strlen( va( "%d", MAX_ARENAS ) ) + 1 );
+    infos[count] = UI_Alloc( (int)strlen( info ) + (int)strlen( "\\num\\" ) + (int)strlen( va( "%d", MAX_ARENAS ) ) + 1 );
 
     if( infos[count] )
     {
@@ -179,7 +179,7 @@ void UI_LoadArenas( void )
 
   for( i = 0; i < numdirs; i++, dirptr += dirlen + 1 )
   {
-    dirlen = strlen( dirptr );
+    dirlen = (int)strlen( dirptr );
     strcpy( filename, "scripts/" );
     strcat( filename, dirptr );
     UI_LoadArenasFromFile( filename );
@@ -204,7 +204,7 @@ void UI_LoadArenas( void )
       break;
   }
 
-  qsort( uiInfo.mapList, uiInfo.mapCount, sizeof( mapInfo ), UI_MapNameCompare );
+  qsort( uiInfo.mapList, uiInfo.mapCount, (int)sizeof( mapInfo ), UI_MapNameCompare );
 }
 
 
@@ -274,7 +274,7 @@ void UI_LoadBots( void )
 
   for( i = 0; i < numdirs; i++, dirptr += dirlen + 1 )
   {
-    dirlen = strlen( dirptr );
+    dirlen = (int)strlen( dirptr );
     strcpy( filename, "scripts/" );
     strcat( filename, dirptr );
     UI_LoadBotsFromFile( filename );
@@ -345,7 +345,7 @@ void UI_ServerInfo( void )
 
   info[0] = '\0';
 
-  if( trap_GetConfigString( CS_SERVERINFO, info, sizeof( info ) ) )
+  if( trap_GetConfigString( CS_SERVERINFO, info, (int)sizeof( info ) ) )
   {
     trap_Cvar_Set( "ui_serverinfo_mapname",
                    Info_ValueForKey( info, "mapname" ) );
@@ -354,7 +354,7 @@ void UI_ServerInfo( void )
     trap_Cvar_Set( "ui_serverinfo_sd",
                    Info_ValueForKey( info, "g_suddenDeathTime" ) );
     UI_EscapeEmoticons( hostname, Info_ValueForKey( info, "sv_hostname" ),
-                        sizeof( hostname ) );
+                        (int)sizeof( hostname ) );
     trap_Cvar_Set( "ui_serverinfo_hostname", hostname );
     trap_Cvar_Set( "ui_serverinfo_maxclients",
                    Info_ValueForKey( info, "sv_maxclients" ) );

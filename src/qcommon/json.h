@@ -218,7 +218,7 @@ const char *JSON_ArrayGetValue(const char *json, const char *jsonEnd, unsigned i
 
 const char *JSON_ObjectGetNamedValue(const char *json, const char *jsonEnd, const char *name)
 {
-	unsigned int nameLen = strlen(name);
+	unsigned int nameLen = (int)strlen(name);
 
 	for (json = JSON_ArrayGetFirstValue(json, jsonEnd); json; json = JSON_ArrayGetNextValue(json, jsonEnd))
 	{

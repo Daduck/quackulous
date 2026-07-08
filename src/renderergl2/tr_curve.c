@@ -331,7 +331,7 @@ static void InvertErrorTable( float errorTable[2][MAX_GRID_SIZE], int width, int
 	int		i;
 	float	copy[2][MAX_GRID_SIZE];
 
-	Com_Memcpy( copy, errorTable, sizeof( copy ) );
+	Com_Memcpy( copy, errorTable, (int)sizeof( copy ) );
 
 	for ( i = 0 ; i < width ; i++ ) {
 		errorTable[1][i] = copy[0][i];	//[width-1-i];
@@ -385,7 +385,7 @@ srfBspSurface_t *R_CreateSurfaceGridMesh(int width, int height,
 	srfBspSurface_t *grid;
 
 	// copy the results out to a grid
-	size = (width * height - 1) * sizeof( srfVert_t ) + sizeof( *grid );
+	size = (width * height - 1) * (int)sizeof( srfVert_t ) + (int)sizeof( *grid );
 
 #ifdef PATCH_STITCHING
 	grid = /*ri.Hunk_Alloc*/ ri.Malloc( size );
@@ -398,11 +398,11 @@ srfBspSurface_t *R_CreateSurfaceGridMesh(int width, int height,
 	Com_Memcpy( grid->heightLodError, errorTable[1], height * 4 );
 
 	grid->numIndexes = numIndexes;
-	grid->indexes = ri.Malloc(grid->numIndexes * sizeof(glIndex_t));
-	Com_Memcpy(grid->indexes, indexes, numIndexes * sizeof(glIndex_t));
+	grid->indexes = ri.Malloc(grid->numIndexes * (int)sizeof(glIndex_t));
+	Com_Memcpy(grid->indexes, indexes, numIndexes * (int)sizeof(glIndex_t));
 
 	grid->numVerts = (width * height);
-	grid->verts = ri.Malloc(grid->numVerts * sizeof(srfVert_t));
+	grid->verts = ri.Malloc(grid->numVerts * (int)sizeof(srfVert_t));
 #else
 	grid = ri.Hunk_Alloc( size );
 	Com_Memset(grid, 0, size);
@@ -414,11 +414,11 @@ srfBspSurface_t *R_CreateSurfaceGridMesh(int width, int height,
 	Com_Memcpy( grid->heightLodError, errorTable[1], height * 4 );
 
 	grid->numIndexes = numIndexes;
-	grid->indexes = ri.Hunk_Alloc(grid->numIndexes * sizeof(glIndex_t), h_low);
-	Com_Memcpy(grid->indexes, indexes, numIndexes * sizeof(glIndex_t));
+	grid->indexes = ri.Hunk_Alloc(grid->numIndexes * (int)sizeof(glIndex_t), h_low);
+	Com_Memcpy(grid->indexes, indexes, numIndexes * (int)sizeof(glIndex_t));
 
 	grid->numVerts = (width * height);
-	grid->verts = ri.Hunk_Alloc(grid->numVerts * sizeof(srfVert_t), h_low);
+	grid->verts = ri.Hunk_Alloc(grid->numVerts * (int)sizeof(srfVert_t), h_low);
 #endif
 
 	grid->width = width;

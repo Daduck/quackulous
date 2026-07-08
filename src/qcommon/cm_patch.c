@@ -1085,7 +1085,7 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 				Com_Error( ERR_DROP, "MAX_FACETS" );
 			}
 			facet = &facets[numFacets];
-			Com_Memset( facet, 0, sizeof( *facet ) );
+			Com_Memset( facet, 0, (int)sizeof( *facet ) );
 
 			if ( gridPlanes[i][j][0] == gridPlanes[i][j][1] ) {
 				if ( gridPlanes[i][j][0] == -1 ) {
@@ -1131,7 +1131,7 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 					Com_Error( ERR_DROP, "MAX_FACETS" );
 				}
 				facet = &facets[numFacets];
-				Com_Memset( facet, 0, sizeof( *facet ) );
+				Com_Memset( facet, 0, (int)sizeof( *facet ) );
 
 				facet->surfacePlane = gridPlanes[i][j][1];
 				facet->numBorders = 3;
@@ -1158,10 +1158,10 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 	// copy the results out
 	pf->numPlanes = numPlanes;
 	pf->numFacets = numFacets;
-	pf->facets = Hunk_Alloc( numFacets * sizeof( *pf->facets ), h_high );
-	Com_Memcpy( pf->facets, facets, numFacets * sizeof( *pf->facets ) );
-	pf->planes = Hunk_Alloc( numPlanes * sizeof( *pf->planes ), h_high );
-	Com_Memcpy( pf->planes, planes, numPlanes * sizeof( *pf->planes ) );
+	pf->facets = Hunk_Alloc( numFacets * (int)sizeof( *pf->facets ), h_high );
+	Com_Memcpy( pf->facets, facets, numFacets * (int)sizeof( *pf->facets ) );
+	pf->planes = Hunk_Alloc( numPlanes * (int)sizeof( *pf->planes ), h_high );
+	Com_Memcpy( pf->planes, planes, numPlanes * (int)sizeof( *pf->planes ) );
 }
 
 
@@ -1218,7 +1218,7 @@ struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, vec3_t *p
 	// we now have a grid of points exactly on the curve
 	// the aproximate surface defined by these points will be
 	// collided against
-	pf = Hunk_Alloc( sizeof( *pf ), h_high );
+	pf = Hunk_Alloc( (int)sizeof( *pf ), h_high );
 	ClearBounds( pf->bounds[0], pf->bounds[1] );
 	for ( i = 0 ; i < grid.width ; i++ ) {
 		for ( j = 0 ; j < grid.height ; j++ ) {

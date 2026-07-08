@@ -348,7 +348,7 @@ void QDECL G_Printf( const char *fmt, ... )
   char    text[ 1024 ];
 
   va_start( argptr, fmt );
-  Q_vsnprintf( text, sizeof( text ), fmt, argptr );
+  Q_vsnprintf( text, (int)sizeof( text ), fmt, argptr );
   va_end( argptr );
 
   trap_Print( text );
@@ -360,7 +360,7 @@ void QDECL G_Error( const char *fmt, ... )
   char    text[ 1024 ];
 
   va_start( argptr, fmt );
-  Q_vsnprintf( text, sizeof( text ), fmt, argptr );
+  Q_vsnprintf( text, (int)sizeof( text ), fmt, argptr );
   va_end( argptr );
 
   trap_Error( text );
@@ -549,7 +549,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   BG_InitMemory( );
 
   // set some level globals
-  memset( &level, 0, sizeof( level ) );
+  memset( &level, 0, (int)sizeof( level ) );
   level.time = levelTime;
   level.startTime = levelTime;
   level.alienStage2Time = level.alienStage3Time =
@@ -571,7 +571,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
       char serverinfo[ MAX_INFO_STRING ];
       qtime_t qt;
 
-      trap_GetServerinfo( serverinfo, sizeof( serverinfo ) );
+      trap_GetServerinfo( serverinfo, (int)sizeof( serverinfo ) );
 
       G_LogPrintf( "------------------------------------------------------------\n" );
       G_LogPrintf( "InitGame: %s\n", serverinfo );
@@ -589,7 +589,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   {
     char map[ MAX_CVAR_VALUE_STRING ] = {""};
 
-    trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+    trap_Cvar_VariableStringBuffer( "mapname", map, (int)sizeof( map ) );
     G_MapConfigs( map );
   }
 
@@ -601,12 +601,12 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   G_LoadCensors( );
 
   // initialize all entities for this game
-  memset( g_entities, 0, MAX_GENTITIES * sizeof( g_entities[ 0 ] ) );
+  memset( g_entities, 0, MAX_GENTITIES * (int)sizeof( g_entities[ 0 ] ) );
   level.gentities = g_entities;
 
   // initialize all clients for this game
   level.maxclients = g_maxclients.integer;
-  memset( g_clients, 0, MAX_CLIENTS * sizeof( g_clients[ 0 ] ) );
+  memset( g_clients, 0, MAX_CLIENTS * (int)sizeof( g_clients[ 0 ] ) );
   level.clients = g_clients;
 
   // set client fields on player ents
@@ -619,8 +619,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   level.num_entities = MAX_CLIENTS;
 
   // let the server system know where the entites are
-  trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
-    &level.clients[ 0 ].ps, sizeof( level.clients[ 0 ] ) );
+  trap_LocateGameData( level.gentities, level.num_entities, (int)sizeof( gentity_t ),
+    &level.clients[ 0 ].ps, (int)sizeof( level.clients[ 0 ] ) );
 
   level.emoticonCount = BG_LoadEmoticons( level.emoticons, MAX_EMOTICONS );
 
@@ -688,7 +688,7 @@ remove all currently active votes
 static void G_ClearVotes( void )
 {
   int i;
-  memset( level.voteTime, 0, sizeof( level.voteTime ) );
+  memset( level.voteTime, 0, (int)sizeof( level.voteTime ) );
   for( i = 0; i < NUM_TEAMS; i++ )
   {
     trap_SetConfigstring( CS_VOTE_TIME + i, "" );
@@ -742,7 +742,7 @@ void QDECL Com_Error( int level, const char *error, ... )
   char    text[ 1024 ];
 
   va_start( argptr, error );
-  Q_vsnprintf( text, sizeof( text ), error, argptr );
+  Q_vsnprintf( text, (int)sizeof( text ), error, argptr );
   va_end( argptr );
 
   G_Error( "%s", text );
@@ -754,7 +754,7 @@ void QDECL Com_Printf( const char *msg, ... )
   char    text[ 1024 ];
 
   va_start( argptr, msg );
-  Q_vsnprintf( text, sizeof( text ), msg, argptr );
+  Q_vsnprintf( text, (int)sizeof( text ), msg, argptr );
   va_end( argptr );
 
   G_Printf( "%s", text );
@@ -1425,7 +1425,7 @@ void CalculateRanks( void )
 
   level.numConnectedClients = 0;
   level.numPlayingClients = 0;
-  memset( level.numVotingClients, 0, sizeof( level.numVotingClients ) );
+  memset( level.numVotingClients, 0, (int)sizeof( level.numVotingClients ) );
   level.numAlienClients = 0;
   level.numHumanClients = 0;
   level.numLiveAlienClients = 0;
@@ -1471,7 +1471,7 @@ void CalculateRanks( void )
   trap_Cvar_Set( "P", P );
 
   qsort( level.sortedClients, level.numConnectedClients,
-    sizeof( level.sortedClients[ 0 ] ), SortRanks );
+    (int)sizeof( level.sortedClients[ 0 ] ), SortRanks );
 
   // see if it is time to end the level
   CheckExitRules( );
@@ -1530,7 +1530,7 @@ void MoveClientToIntermission( gentity_t *ent )
   ent->client->ps.pm_type = PM_INTERMISSION;
 
   // clean up powerup info
-  memset( ent->client->ps.misc, 0, sizeof( ent->client->ps.misc ) );
+  memset( ent->client->ps.misc, 0, (int)sizeof( ent->client->ps.misc ) );
 
   ent->client->ps.eFlags = 0;
   ent->s.eFlags = 0;
@@ -1681,7 +1681,7 @@ void G_AdminMessage( gentity_t *ent, const char *msg )
   char    string[ 1024 ];
   int     i;
 
-  Com_sprintf( string, sizeof( string ), "chat %d %d \"%s\"",
+  Com_sprintf( string, (int)sizeof( string ), "chat %d %d \"%s\"",
     (int)( ent ? ent - g_entities : -1 ),
     G_admin_permission( ent, ADMF_ADMINCHAT ) ? SAY_ADMINS : SAY_ADMINS_PUBLIC,
     msg );
@@ -1719,23 +1719,23 @@ void QDECL G_LogPrintf( const char *fmt, ... )
   tens = sec / 10;
   sec -= tens * 10;
 
-  Com_sprintf( string, sizeof( string ), "%3i:%i%i ", min, tens, sec );
+  Com_sprintf( string, (int)sizeof( string ), "%3i:%i%i ", min, tens, sec );
 
   va_start( argptr, fmt );
-  Q_vsnprintf( string + 7, sizeof( string ) - 7, fmt, argptr );
+  Q_vsnprintf( string + 7, (int)sizeof( string ) - 7, fmt, argptr );
   va_end( argptr );
 
   if( g_dedicated.integer )
   {
-    G_UnEscapeString( string, decolored, sizeof( decolored ) );
+    G_UnEscapeString( string, decolored, (int)sizeof( decolored ) );
     G_Printf( "%s", decolored + 7 );
   }
 
   if( !level.logFile )
     return;
 
-  G_DecolorString( string, decolored, sizeof( decolored ) );
-  trap_FS_Write( decolored, strlen( decolored ), level.logFile );
+  G_DecolorString( string, decolored, (int)sizeof( decolored ) );
+  trap_FS_Write( decolored, (int)strlen( decolored ), level.logFile );
 }
 
 /*
@@ -1756,7 +1756,7 @@ void G_SendGameStat( team_t team )
   if( g_cheats.integer )
     return;
 
-  trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+  trap_Cvar_VariableStringBuffer( "mapname", map, (int)sizeof( map ) );
 
   switch( team )
   {
@@ -1784,7 +1784,7 @@ void G_SendGameStat( team_t team )
       level.humanStage3Time - level.startTime,
       level.numConnectedClients );
 
-  dataLength = strlen( data );
+  dataLength = (int)strlen( data );
 
   for( i = 0; i < level.numConnectedClients; i++ )
   {
@@ -1813,7 +1813,7 @@ void G_SendGameStat( team_t team )
       ping,
       ( level.time - cl->pers.enterTime ) / 60000 );
 
-    entryLength = strlen( entry );
+    entryLength = (int)strlen( entry );
 
     if( dataLength + entryLength >= BIG_INFO_STRING )
       break;
@@ -1914,7 +1914,7 @@ void CheckIntermissionExit( void )
   // see which players are ready
   ready = 0;
   notReady = 0;
-  Com_Memset( &readyMasks, 0, sizeof( readyMasks ) );
+  Com_Memset( &readyMasks, 0, (int)sizeof( readyMasks ) );
   for( i = 0; i < g_maxclients.integer; i++ )
   {
     cl = level.clients + i;
@@ -2249,10 +2249,10 @@ void CheckCvars( void )
   if( g_humanRepeaterMaxZones.integer != lastNumZones )
   {
     buildPointZone_t  *newZones;
-    size_t            newsize = g_humanRepeaterMaxZones.integer * sizeof( buildPointZone_t );
-    size_t            oldsize = lastNumZones * sizeof( buildPointZone_t );
+    size_t            newsize = g_humanRepeaterMaxZones.integer * (int)sizeof( buildPointZone_t );
+    size_t            oldsize = lastNumZones * (int)sizeof( buildPointZone_t );
 
-    newZones = BG_Alloc( newsize );
+    newZones = BG_Alloc( (int)newsize );
     if( level.buildPointZones )
     {
       Com_Memcpy( newZones, level.buildPointZones, MIN( oldsize, newsize ) );

@@ -149,7 +149,7 @@ qboolean	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	snapshot->serverCommandSequence = clSnap->serverCommandNum;
 	snapshot->ping = clSnap->ping;
 	snapshot->serverTime = clSnap->serverTime;
-	Com_Memcpy( snapshot->areamask, clSnap->areamask, sizeof( snapshot->areamask ) );
+	Com_Memcpy( snapshot->areamask, clSnap->areamask, (int)sizeof( snapshot->areamask ) );
 	snapshot->ps = clSnap->ps;
 	count = clSnap->numEntities;
 	if ( count > MAX_ENTITIES_IN_SNAPSHOT ) {
@@ -214,7 +214,7 @@ void CL_ConfigstringModified( void ) {
 	// build the new gameState_t
 	oldGs = cl.gameState;
 
-	Com_Memset( &cl.gameState, 0, sizeof( cl.gameState ) );
+	Com_Memset( &cl.gameState, 0, (int)sizeof( cl.gameState ) );
 
 	// leave the first 0 for uninitialized strings
 	cl.gameState.dataCount = 1;
@@ -229,7 +229,7 @@ void CL_ConfigstringModified( void ) {
 			continue;		// leave with the default empty string
 		}
 
-		len = strlen( dup );
+		len = (int)strlen( dup );
 
 		if ( len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS ) {
 			Com_Error( ERR_DROP, "MAX_GAMESTATE_CHARS exceeded" );
@@ -303,7 +303,7 @@ rescan:
 
 	if ( !strcmp( cmd, "bcs1" ) ) {
 		s = Cmd_Argv(2);
-		if( strlen(bigConfigString) + strlen(s) >= BIG_INFO_STRING ) {
+		if( (int)strlen(bigConfigString) + (int)strlen(s) >= BIG_INFO_STRING ) {
 			Com_Error( ERR_DROP, "bcs exceeded BIG_INFO_STRING" );
 		}
 		strcat( bigConfigString, s );
@@ -312,7 +312,7 @@ rescan:
 
 	if ( !strcmp( cmd, "bcs2" ) ) {
 		s = Cmd_Argv(2);
-		if( strlen(bigConfigString) + strlen(s) + 1 >= BIG_INFO_STRING ) {
+		if( (int)strlen(bigConfigString) + (int)strlen(s) + 1 >= BIG_INFO_STRING ) {
 			Com_Error( ERR_DROP, "bcs exceeded BIG_INFO_STRING" );
 		}
 		strcat( bigConfigString, s );
@@ -334,7 +334,7 @@ rescan:
 		Con_ClearNotify();
 		// reparse the string, because Con_ClearNotify() may have done another Cmd_TokenizeString()
 		Cmd_TokenizeString( s );
-		Com_Memset( cl.cmds, 0, sizeof( cl.cmds ) );
+		Com_Memset( cl.cmds, 0, (int)sizeof( cl.cmds ) );
 		return qtrue;
 	}
 
@@ -763,7 +763,7 @@ void CL_InitCGame( void ) {
 	// find the current mapname
 	info = cl.gameState.stringData + cl.gameState.stringOffsets[ CS_SERVERINFO ];
 	mapname = Info_ValueForKey( info, "mapname" );
-	Com_sprintf( cl.mapname, sizeof( cl.mapname ), "maps/%s.bsp", mapname );
+	Com_sprintf( cl.mapname, (int)sizeof( cl.mapname ), "maps/%s.bsp", mapname );
 
 	// load the dll or bytecode
 	interpret = Cvar_VariableValue("vm_cgame");
@@ -982,7 +982,7 @@ void CL_FirstSnapshot( void ) {
 		clc.voipMuteAll = qfalse;
 		Cmd_AddCommand ("voip", CL_Voip_f);
 		Cvar_Set("cl_voipSendTarget", "spatial");
-		Com_Memset(clc.voipTargets, ~0, sizeof(clc.voipTargets));
+		Com_Memset(clc.voipTargets, ~0, (int)sizeof(clc.voipTargets));
 	}
 #endif
 }

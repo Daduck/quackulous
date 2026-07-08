@@ -58,7 +58,7 @@ Sys_SetBinaryPath
 */
 void Sys_SetBinaryPath(const char *path)
 {
-	Q_strncpyz(binaryPath, path, sizeof(binaryPath));
+	Q_strncpyz(binaryPath, path, (int)sizeof(binaryPath));
 }
 
 /*
@@ -78,7 +78,7 @@ Sys_SetDefaultInstallPath
 */
 void Sys_SetDefaultInstallPath(const char *path)
 {
-	Q_strncpyz(installPath, path, sizeof(installPath));
+	Q_strncpyz(installPath, path, (int)sizeof(installPath));
 }
 
 /*
@@ -143,10 +143,10 @@ char *Sys_GetClipboardData(void)
 
 	if ( ( cliptext = SDL_GetClipboardText() ) != NULL ) {
 		if ( cliptext[0] != '\0' ) {
-			size_t bufsize = strlen( cliptext ) + 1;
+			size_t bufsize = (int)strlen( cliptext ) + 1;
 
-			data = Z_Malloc( bufsize );
-			Q_strncpyz( data, cliptext, bufsize );
+			data = Z_Malloc( (int)bufsize );
+			Q_strncpyz( data, cliptext, (int)bufsize );
 
 			// find first listed char and set to '\0'
 			strtok( data, "\n\r\b" );
@@ -200,7 +200,7 @@ qboolean Sys_WritePIDFile( void )
 		char  pidBuffer[ 64 ] = { 0 };
 		int   pid;
 
-		pid = fread( pidBuffer, sizeof( char ), sizeof( pidBuffer ) - 1, f );
+		pid = (int)fread( pidBuffer, (int)sizeof( char ), (int)sizeof( pidBuffer ) - 1, f );
 		fclose( f );
 
 		if(pid > 0)
@@ -342,7 +342,7 @@ void Sys_AnsiColorPrint( const char *msg )
 			else
 			{
 				// Print the color code (reset first to clear potential inverse (black))
-				Com_sprintf( buffer, sizeof( buffer ), "\033[0m\033[%dm",
+				Com_sprintf( buffer, (int)sizeof( buffer ), "\033[0m\033[%dm",
 						q3ToAnsi[ ColorIndex( *( msg + 1 ) ) ] );
 				fputs( buffer, stderr );
 				msg += 2;
@@ -389,7 +389,7 @@ void Sys_Error( const char *error, ... )
 	char    string[1024];
 
 	va_start (argptr,error);
-	Q_vsnprintf (string, sizeof(string), error, argptr);
+	Q_vsnprintf (string, (int)sizeof(string), error, argptr);
 	va_end (argptr);
 
 	Sys_ErrorDialog( string );
@@ -409,7 +409,7 @@ static __attribute__ ((format (printf, 1, 2))) void Sys_Warn( char *warning, ...
 	char    string[1024];
 
 	va_start (argptr,warning);
-	Q_vsnprintf (string, sizeof(string), warning, argptr);
+	Q_vsnprintf (string, (int)sizeof(string), warning, argptr);
 	va_end (argptr);
 
 	CON_Print( va( "Warning: %s", string ) );
@@ -476,7 +476,7 @@ void *Sys_LoadDll(const char *name, qboolean useSystemLib)
 			topDir = ".";
 
 		Com_Printf("Trying to load \"%s\" from \"%s\"...\n", name, topDir);
-		Com_sprintf(libPath, sizeof(libPath), "%s%c%s", topDir, PATH_SEP, name);
+		Com_sprintf(libPath, (int)sizeof(libPath), "%s%c%s", topDir, PATH_SEP, name);
 
 		if(!(dllhandle = Sys_LoadLibrary(libPath)))
 		{
@@ -488,7 +488,7 @@ void *Sys_LoadDll(const char *name, qboolean useSystemLib)
 			if(FS_FilenameCompare(topDir, basePath))
 			{
 				Com_Printf("Trying to load \"%s\" from \"%s\"...\n", name, basePath);
-				Com_sprintf(libPath, sizeof(libPath), "%s%c%s", basePath, PATH_SEP, name);
+				Com_sprintf(libPath, (int)sizeof(libPath), "%s%c%s", basePath, PATH_SEP, name);
 				dllhandle = Sys_LoadLibrary(libPath);
 			}
 			
@@ -662,14 +662,14 @@ int main( int argc, char **argv )
 	{
 		const qboolean containsSpaces = strchr(argv[i], ' ') != NULL;
 		if (containsSpaces)
-			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
+			Q_strcat( commandLine, (int)sizeof( commandLine ), "\"" );
 
-		Q_strcat( commandLine, sizeof( commandLine ), argv[ i ] );
+		Q_strcat( commandLine, (int)sizeof( commandLine ), argv[ i ] );
 
 		if (containsSpaces)
-			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
+			Q_strcat( commandLine, (int)sizeof( commandLine ), "\"" );
 
-		Q_strcat( commandLine, sizeof( commandLine ), " " );
+		Q_strcat( commandLine, (int)sizeof( commandLine ), " " );
 	}
 
 	Com_Init( commandLine );

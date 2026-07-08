@@ -165,9 +165,9 @@ void SP_target_speaker( gentity_t *ent )
     ent->spawnflags |= 8;
 
   if( !strstr( s, ".wav" ) )
-    Com_sprintf( buffer, sizeof( buffer ), "%s.wav", s );
+    Com_sprintf( buffer, (int)sizeof( buffer ), "%s.wav", s );
   else
-    Q_strncpyz( buffer, s, sizeof( buffer ) );
+    Q_strncpyz( buffer, s, (int)sizeof( buffer ) );
 
   ent->noise_index = G_SoundIndex( buffer );
 

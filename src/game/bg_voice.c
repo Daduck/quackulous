@@ -70,7 +70,7 @@ static voice_t *BG_VoiceList( void )
   voice_t *top = NULL;
 
   numFiles = trap_FS_GetFileList( "voice", ".voice", fileList,
-    sizeof( fileList ) );
+    (int)sizeof( fileList ) );
 
   if( numFiles < 1 )
     return NULL;
@@ -83,8 +83,8 @@ static voice_t *BG_VoiceList( void )
     return NULL;
   }
       
-  voices = (voice_t*)BG_Alloc( sizeof( voice_t ) );
-  Q_strncpyz( voices->name, "default", sizeof( voices->name ) );
+  voices = (voice_t*)BG_Alloc( (int)sizeof( voice_t ) );
+  Q_strncpyz( voices->name, "default", (int)sizeof( voices->name ) );
   voices->cmds = NULL;
   voices->next = NULL;
   count = 1;
@@ -94,7 +94,7 @@ static voice_t *BG_VoiceList( void )
   filePtr = fileList;
   for( i = 0; i < numFiles; i++, filePtr += fileLen + 1 )
   {
-    fileLen = strlen( filePtr );
+    fileLen = (int)strlen( filePtr );
 
     // accounted for above
     if( !Q_stricmp( filePtr, "default.voice" ) )
@@ -124,10 +124,10 @@ static voice_t *BG_VoiceList( void )
       break;
     }
  
-    voices->next = (voice_t*)BG_Alloc( sizeof( voice_t ) );
+    voices->next = (voice_t*)BG_Alloc( (int)sizeof( voice_t ) );
     voices = voices->next;
 
-    Q_strncpyz( voices->name, filePtr, sizeof( voices->name ) );
+    Q_strncpyz( voices->name, filePtr, (int)sizeof( voices->name ) );
     // strip extension 
     voices->name[ fileLen - 6 ] = '\0';
     voices->cmds = NULL;
@@ -233,15 +233,15 @@ static qboolean BG_VoiceParseTrack( int handle, voiceTrack_t *voiceTrack )
           "missing \"text\" value" );
       }
       foundText = qtrue;
-      if( strlen( token.string ) >= MAX_SAY_TEXT )
+      if( (int)strlen( token.string ) >= MAX_SAY_TEXT )
       {
         BG_VoiceParseError( handle, va( "BG_VoiceParseTrack(): "
           "\"text\" value " "\"%s\" exceeds MAX_SAY_TEXT length",
           token.string ) );
       }
 
-      voiceTrack->text = (char *)BG_Alloc( strlen( token.string ) + 1 );
-      Q_strncpyz( voiceTrack->text, token.string, strlen( token.string ) + 1 );
+      voiceTrack->text = (char *)BG_Alloc( (int)strlen( token.string ) + 1 );
+      Q_strncpyz( voiceTrack->text, token.string, (int)strlen( token.string ) + 1 );
       foundToken = trap_Parse_ReadToken( handle, &token );
       continue;
     }
@@ -305,12 +305,12 @@ static voiceTrack_t *BG_VoiceParseCommand( int handle )
 
     if( top == NULL )
     {
-      voiceTracks = BG_Alloc( sizeof( voiceTrack_t ) );
+      voiceTracks = BG_Alloc( (int)sizeof( voiceTrack_t ) );
       top = voiceTracks;
     }
     else
     {
-      voiceTracks->next = BG_Alloc( sizeof( voiceCmd_t ) );
+      voiceTracks->next = BG_Alloc( (int)sizeof( voiceCmd_t ) );
       voiceTracks = voiceTracks->next;
     }
     
@@ -382,7 +382,7 @@ static voiceCmd_t *BG_VoiceParse( char *name )
       }
     }
       
-    if( strlen( token.string ) >= MAX_VOICE_CMD_LEN )
+    if( (int)strlen( token.string ) >= MAX_VOICE_CMD_LEN )
     {
         int line;
         char filename[ MAX_QPATH ];
@@ -395,16 +395,16 @@ static voiceCmd_t *BG_VoiceParse( char *name )
    
     if( top == NULL )
     {
-      voiceCmds = BG_Alloc( sizeof( voiceCmd_t ) );
+      voiceCmds = BG_Alloc( (int)sizeof( voiceCmd_t ) );
       top = voiceCmds;
     }
     else
     {
-      voiceCmds->next = BG_Alloc( sizeof( voiceCmd_t ) );
+      voiceCmds->next = BG_Alloc( (int)sizeof( voiceCmd_t ) );
       voiceCmds = voiceCmds->next;
     }
 
-    Q_strncpyz( voiceCmds->cmd, token.string, sizeof( voiceCmds->cmd ) );
+    Q_strncpyz( voiceCmds->cmd, token.string, (int)sizeof( voiceCmds->cmd ) );
     voiceCmds->next = NULL;
     parsingCmd = qtrue;
 

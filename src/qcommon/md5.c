@@ -253,7 +253,7 @@ static void MD5Final(struct MD5Context *ctx, unsigned char *digest)
     
     if (digest!=NULL)
 	    memcpy(digest, ctx->buf, 16);
-    memset(ctx, 0, sizeof(*ctx));	/* In case it's sensitive */
+    memset(ctx, 0, (int)sizeof(*ctx));	/* In case it's sensitive */
 }
 
 
@@ -269,7 +269,7 @@ char *Com_MD5File( const char *fn, int length, const char *prefix, int prefix_le
 	int r = 0;
 	int total = 0;
 
-	Q_strncpyz( final, "", sizeof( final ) );
+	Q_strncpyz( final, "", (int)sizeof( final ) );
 
 	filelen = FS_SV_FOpenFileRead( fn, &f );
 
@@ -290,21 +290,21 @@ char *Com_MD5File( const char *fn, int length, const char *prefix, int prefix_le
 		MD5Update(&md5 , (unsigned char *)prefix, prefix_len);
 
 	for(;;) {
-		r = FS_Read2(buffer, sizeof(buffer), f);
+		r = FS_Read2(buffer, (int)sizeof(buffer), f);
 		if(r < 1)
 			break;
 		if(r + total > length)
 			r = length - total;
 		total += r;
 		MD5Update(&md5 , buffer, r);
-		if(r < sizeof(buffer) || total >= length)
+		if(r < (int)sizeof(buffer) || total >= length)
 			break;
 	}
 	FS_FCloseFile(f);
 	MD5Final(&md5, digest);
 	final[0] = '\0';
 	for(i = 0; i < 16; i++) {
-		Q_strcat(final, sizeof(final), va("%02X", digest[i]));
+		Q_strcat(final, (int)sizeof(final), va("%02X", digest[i]));
 	}
 	return final;
 }

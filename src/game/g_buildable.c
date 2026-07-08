@@ -637,7 +637,7 @@ static qboolean G_IsCreepHere( vec3_t origin )
 {
   gentity_t dummy;
 
-  memset( &dummy, 0, sizeof( gentity_t ) );
+  memset( &dummy, 0, (int)sizeof( gentity_t ) );
 
   dummy.parentNode = NULL;
   dummy.s.modelindex = BA_NONE;
@@ -2676,7 +2676,7 @@ void G_BuildableTouchTriggers( gentity_t *ent )
     if( !trap_EntityContact( mins, maxs, hit ) )
       continue;
 
-    memset( &trace, 0, sizeof( trace ) );
+    memset( &trace, 0, (int)sizeof( trace ) );
 
     if( hit->touch )
       hit->touch( hit, ent, &trace );
@@ -3244,7 +3244,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   // Sort the list
   cmpBuildable = buildable;
   VectorCopy( origin, cmpOrigin );
-  qsort( level.markedBuildables, numBuildables, sizeof( level.markedBuildables[ 0 ] ),
+  qsort( level.markedBuildables, numBuildables, (int)sizeof( level.markedBuildables[ 0 ] ),
          G_CompareBuildablesForRemoval );
 
   // Determine if there are enough markees to yield the required BP
@@ -3275,7 +3275,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
       memmove( &level.markedBuildables[ numRequired ],
                &level.markedBuildables[ numRequired + 1 ],
                ( level.numBuildablesForRemoval - numRequired ) 
-                 * sizeof( gentity_t * ) );
+                 * (int)sizeof( gentity_t * ) );
       level.numBuildablesForRemoval--;
       changed = qtrue;
     }
@@ -3514,8 +3514,8 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable,
     log = NULL;
 
   // Free existing buildables
-  G_FreeMarkedBuildables( builder, readable, sizeof( readable ),
-    buildnums, sizeof( buildnums ) );
+  G_FreeMarkedBuildables( builder, readable, (int)sizeof( readable ),
+    buildnums, (int)sizeof( buildnums ) );
 
   // Spawn the buildable
   built = G_Spawn();
@@ -3909,13 +3909,13 @@ void G_LayoutSave( char *name )
   gentity_t *ent;
   char *s;
 
-  trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+  trap_Cvar_VariableStringBuffer( "mapname", map, (int)sizeof( map ) );
   if( !map[ 0 ] )
   {
     G_Printf( "LayoutSave( ): no map is loaded\n" );
     return;
   }
-  Com_sprintf( fileName, sizeof( fileName ), "layouts/%s/%s.dat", map, name );
+  Com_sprintf( fileName, (int)sizeof( fileName ), "layouts/%s/%s.dat", map, name );
 
   len = trap_FS_FOpenFile( fileName, &f, FS_WRITE );
   if( len < 0 )
@@ -3946,7 +3946,7 @@ void G_LayoutSave( char *name )
       ent->s.angles2[ 0 ],
       ent->s.angles2[ 1 ],
       ent->s.angles2[ 2 ] );
-    trap_FS_Write( s, strlen( s ), f );
+    trap_FS_Write( s, (int)strlen( s ), f );
   }
   trap_FS_FCloseFile( f );
 }
@@ -3965,23 +3965,23 @@ int G_LayoutList( const char *map, char *list, int len )
   int  count = 0;
   char *filePtr;
 
-  Q_strcat( layouts, sizeof( layouts ), "*BUILTIN* " );
+  Q_strcat( layouts, (int)sizeof( layouts ), "*BUILTIN* " );
   numFiles = trap_FS_GetFileList( va( "layouts/%s", map ), ".dat",
-    fileList, sizeof( fileList ) );
+    fileList, (int)sizeof( fileList ) );
   filePtr = fileList;
   for( i = 0; i < numFiles; i++, filePtr += fileLen + 1 )
   {
-    fileLen = strlen( filePtr );
-    listLen = strlen( layouts );
+    fileLen = (int)strlen( filePtr );
+    listLen = (int)strlen( layouts );
     if( fileLen < 5 )
       continue;
 
     // list is full, stop trying to add to it
-    if( ( listLen + fileLen ) >= sizeof( layouts ) )
+    if( ( listLen + fileLen ) >= (int)sizeof( layouts ) )
       break;
 
-    Q_strcat( layouts,  sizeof( layouts ), filePtr );
-    listLen = strlen( layouts );
+    Q_strcat( layouts,  (int)sizeof( layouts ), filePtr );
+    listLen = (int)strlen( layouts );
 
     // strip extension and add space delimiter
     layouts[ listLen - 4 ] = ' ';
@@ -4016,8 +4016,8 @@ void G_LayoutSelect( void )
   int cnt = 0;
   int layoutNum;
 
-  Q_strncpyz( layouts, g_layouts.string, sizeof( layouts ) );
-  trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+  Q_strncpyz( layouts, g_layouts.string, (int)sizeof( layouts ) );
+  trap_Cvar_VariableStringBuffer( "mapname", map, (int)sizeof( map ) );
 
   // one time use cvar
   trap_Cvar_Set( "g_layouts", "" );
@@ -4025,13 +4025,13 @@ void G_LayoutSelect( void )
   // pick an included layout at random if no list has been provided
   if( !layouts[ 0 ] && g_layoutAuto.integer )
   {
-    G_LayoutList( map, layouts, sizeof( layouts ) );
+    G_LayoutList( map, layouts, (int)sizeof( layouts ) );
   }
 
   if( !layouts[ 0 ] )
     return;
 
-  Q_strncpyz( layouts2, layouts, sizeof( layouts2 ) );
+  Q_strncpyz( layouts2, layouts, (int)sizeof( layouts2 ) );
   l = &layouts2[ 0 ];
   layouts[ 0 ] = '\0';
   while( 1 )
@@ -4042,17 +4042,17 @@ void G_LayoutSelect( void )
 
     if( !Q_stricmp( s, "*BUILTIN*" ) )
     {
-      Q_strcat( layouts, sizeof( layouts ), s );
-      Q_strcat( layouts, sizeof( layouts ), " " );
+      Q_strcat( layouts, (int)sizeof( layouts ), s );
+      Q_strcat( layouts, (int)sizeof( layouts ), " " );
       cnt++;
       continue;
     }
 
-    Com_sprintf( fileName, sizeof( fileName ), "layouts/%s/%s.dat", map, s );
+    Com_sprintf( fileName, (int)sizeof( fileName ), "layouts/%s/%s.dat", map, s );
     if( trap_FS_FOpenFile( fileName, NULL, FS_READ ) > 0 )
     {
-      Q_strcat( layouts, sizeof( layouts ), s );
-      Q_strcat( layouts, sizeof( layouts ), " " );
+      Q_strcat( layouts, (int)sizeof( layouts ), s );
+      Q_strcat( layouts, (int)sizeof( layouts ), " " );
       cnt++;
     }
     else
@@ -4067,7 +4067,7 @@ void G_LayoutSelect( void )
   layoutNum = rand( ) / ( RAND_MAX / cnt + 1 ) + 1;
   cnt = 0;
 
-  Q_strncpyz( layouts2, layouts, sizeof( layouts2 ) );
+  Q_strncpyz( layouts2, layouts, (int)sizeof( layouts2 ) );
   l = &layouts2[ 0 ];
   while( 1 )
   {
@@ -4075,7 +4075,7 @@ void G_LayoutSelect( void )
     if( !*s )
       break;
 
-    Q_strncpyz( level.layout, s, sizeof( level.layout ) );
+    Q_strncpyz( level.layout, s, (int)sizeof( level.layout ) );
     cnt++;
     if( cnt >= layoutNum )
       break;
@@ -4128,7 +4128,7 @@ void G_LayoutLoad( void )
   if( !level.layout[ 0 ] || !Q_stricmp( level.layout, "*BUILTIN*" ) )
     return;
 
-  trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+  trap_Cvar_VariableStringBuffer( "mapname", map, (int)sizeof( map ) );
   len = trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, level.layout ),
     &f, FS_READ );
   if( len < 0 )
@@ -4142,7 +4142,7 @@ void G_LayoutLoad( void )
   trap_FS_FCloseFile( f );
   while( *layout )
   {
-    if( i >= sizeof( line ) - 1 )
+    if( i >= (int)sizeof( line ) - 1 )
     {
       G_Printf( S_COLOR_RED "ERROR: line overflow in %s before \"%s\"\n",
        va( "layouts/%s/%s.dat", map, level.layout ), line );

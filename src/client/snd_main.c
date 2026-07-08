@@ -551,7 +551,7 @@ void S_Shutdown( void )
 		si.Shutdown( );
 	}
 
-	Com_Memset( &si, 0, sizeof( soundInterface_t ) );
+	Com_Memset( &si, 0, (int)sizeof( soundInterface_t ) );
 
 	Cmd_RemoveCommand( "play" );
 	Cmd_RemoveCommand( "music");

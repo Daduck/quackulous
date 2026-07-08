@@ -46,7 +46,7 @@ void MSG_Init( msg_t *buf, byte *data, int length ) {
 	if (!msgInit) {
 		MSG_initHuffman();
 	}
-	Com_Memset (buf, 0, sizeof(*buf));
+	Com_Memset (buf, 0, (int)sizeof(*buf));
 	buf->data = data;
 	buf->maxsize = length;
 }
@@ -55,7 +55,7 @@ void MSG_InitOOB( msg_t *buf, byte *data, int length ) {
 	if (!msgInit) {
 		MSG_initHuffman();
 	}
-	Com_Memset (buf, 0, sizeof(*buf));
+	Com_Memset (buf, 0, (int)sizeof(*buf));
 	buf->data = data;
 	buf->maxsize = length;
 	buf->oob = qtrue;
@@ -89,7 +89,7 @@ void MSG_Copy(msg_t *buf, byte *data, int length, msg_t *src)
 	if (length<src->cursize) {
 		Com_Error( ERR_DROP, "MSG_Copy: can't copy into a smaller msg_t buffer");
 	}
-	Com_Memcpy(buf, src, sizeof(msg_t));
+	Com_Memcpy(buf, src, (int)sizeof(msg_t));
 	buf->data = data;
 	Com_Memcpy(buf->data, src->data, src->cursize);
 }
@@ -315,13 +315,13 @@ void MSG_WriteString( msg_t *sb, const char *s ) {
 		int		l,i;
 		char	string[MAX_STRING_CHARS];
 
-		l = strlen( s );
+		l = (int)strlen( s );
 		if ( l >= MAX_STRING_CHARS ) {
 			Com_Printf( "MSG_WriteString: MAX_STRING_CHARS" );
 			MSG_WriteData (sb, "", 1);
 			return;
 		}
-		Q_strncpyz( string, s, sizeof( string ) );
+		Q_strncpyz( string, s, (int)sizeof( string ) );
 
 		// get rid of 0x80+ chars, because old clients don't like them
 		for ( i = 0 ; i < l ; i++ ) {
@@ -341,13 +341,13 @@ void MSG_WriteBigString( msg_t *sb, const char *s ) {
 		int		l,i;
 		char	string[BIG_INFO_STRING];
 
-		l = strlen( s );
+		l = (int)strlen( s );
 		if ( l >= BIG_INFO_STRING ) {
 			Com_Printf( "MSG_WriteString: BIG_INFO_STRING" );
 			MSG_WriteData (sb, "", 1);
 			return;
 		}
-		Q_strncpyz( string, s, sizeof( string ) );
+		Q_strncpyz( string, s, (int)sizeof( string ) );
 
 		// get rid of 0x80+ chars, because old clients don't like them
 		for ( i = 0 ; i < l ; i++ ) {
@@ -458,7 +458,7 @@ char *MSG_ReadString( msg_t *msg ) {
 
 		string[l] = c;
 		l++;
-	} while (l < sizeof(string)-1);
+	} while (l < (int)sizeof(string)-1);
 	
 	string[l] = 0;
 	
@@ -482,7 +482,7 @@ char *MSG_ReadBigString( msg_t *msg ) {
 
 		string[l] = c;
 		l++;
-	} while (l < sizeof(string)-1);
+	} while (l < (int)sizeof(string)-1);
 	
 	string[l] = 0;
 	
@@ -506,7 +506,7 @@ char *MSG_ReadStringLine( msg_t *msg ) {
 
 		string[l] = c;
 		l++;
-	} while (l < sizeof(string)-1);
+	} while (l < (int)sizeof(string)-1);
 	
 	string[l] = 0;
 	
@@ -763,7 +763,7 @@ typedef struct {
 } netField_t;
 
 // using the stringizing operator to save typing...
-#define	NETF(x) #x,(size_t)&((entityState_t*)0)->x
+#define NETF(x) #x,(int)(size_t)&((entityState_t*)0)->x
 
 netField_t	entityStateFields[] = 
 {
@@ -853,7 +853,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 	// the "number" field is not part of the field list
 	// if this assert fails, someone added a field to the entityState_t
 	// struct without updating the message fields
-	assert( numFields + 1 == sizeof( *from )/4 );
+	assert( numFields + 1 == (int)sizeof( *from )/4 );
 
 	// a NULL to is a delta remove message
 	if ( to == NULL ) {
@@ -977,7 +977,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 
 	// check for a remove
 	if ( MSG_ReadBits( msg, 1 ) == 1 ) {
-		Com_Memset( to, 0, sizeof( *to ) );	
+		Com_Memset( to, 0, (int)sizeof( *to ) );	
 		to->number = MAX_GENTITIES - 1;
 		if ( cl_shownet && ( cl_shownet->integer >= 2 || cl_shownet->integer == -1 ) ) {
 			Com_Printf( "%3i: #%-3i remove\n", msg->readcount, number );
@@ -1081,7 +1081,7 @@ plyer_state_t communication
 */
 
 // using the stringizing operator to save typing...
-#define	PSF(x) #x,(size_t)&((playerState_t*)0)->x
+#define PSF(x) #x,(int)(size_t)&((playerState_t*)0)->x
 
 netField_t	playerStateFields[] = 
 {
@@ -1159,7 +1159,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 
 	if (!from) {
 		from = &dummy;
-		Com_Memset (&dummy, 0, sizeof(dummy));
+		Com_Memset (&dummy, 0, (int)sizeof(dummy));
 	}
 
 	numFields = ARRAY_LEN( playerStateFields );
@@ -1292,7 +1292,7 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 
 	if ( !from ) {
 		from = &dummy;
-		Com_Memset( &dummy, 0, sizeof( dummy ) );
+		Com_Memset( &dummy, 0, (int)sizeof( dummy ) );
 	}
 	*to = *from;
 

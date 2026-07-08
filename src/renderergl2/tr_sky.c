@@ -468,7 +468,7 @@ static void DrawSkySide( struct image_s *image, const int mins[2], const int max
 
 	R_DrawElementsVao(tess.numIndexes - tess.firstIndex, tess.firstIndex, tess.minIndex, tess.maxIndex);
 
-	//qglDrawElements(GL_TRIANGLES, tess.numIndexes - tess.firstIndex, GL_INDEX_TYPE, BUFFER_OFFSET(tess.firstIndex * sizeof(glIndex_t)));
+	//qglDrawElements(GL_TRIANGLES, tess.numIndexes - tess.firstIndex, GL_INDEX_TYPE, BUFFER_OFFSET(tess.firstIndex * (int)sizeof(glIndex_t)));
 	
 	//R_BindNullVBO();
 	//R_BindNullIBO();
@@ -487,7 +487,7 @@ static void DrawSkyBox( shader_t *shader )
 	sky_min = 0;
 	sky_max = 1;
 
-	Com_Memset( s_skyTexCoords, 0, sizeof( s_skyTexCoords ) );
+	Com_Memset( s_skyTexCoords, 0, (int)sizeof( s_skyTexCoords ) );
 
 	for (i=0 ; i<6 ; i++)
 	{

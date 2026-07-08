@@ -1,3 +1,6 @@
+#ifdef _MSC_VER
+#pragma warning(disable: 4267)
+#endif
 /*
  * jdatadst.c
  *

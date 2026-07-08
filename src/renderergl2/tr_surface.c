@@ -433,8 +433,8 @@ static qboolean RB_SurfaceVao(vao_t *vao, int numVerts, int numIndexes, int firs
 	// merge this into any existing multidraw primitives
 	mergeForward = -1;
 	mergeBack = -1;
-	firstIndexOffset = BUFFER_OFFSET(firstIndex * sizeof(glIndex_t));
-	lastIndexOffset  = BUFFER_OFFSET((firstIndex + numIndexes) * sizeof(glIndex_t));
+	firstIndexOffset = BUFFER_OFFSET(firstIndex * (int)sizeof(glIndex_t));
+	lastIndexOffset  = BUFFER_OFFSET((firstIndex + numIndexes) * (int)sizeof(glIndex_t));
 
 	if (tess.multiDrawPrimitives && r_mergeMultidraws->integer)
 	{

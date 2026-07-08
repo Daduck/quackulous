@@ -1097,7 +1097,7 @@ void VM_Compile(vm_t *vm, vmHeader_t *header)
 	// table targets
 	pc = -1; // a bogus value to be printed in out-of-bounds error messages
 	for( i = 0; i < vm->numJumpTableTargets; i++ ) {
-		JUSED( *(int *)(vm->jumpTableTargets + ( i * sizeof( int ) ) ) );
+		JUSED( *(int *)(vm->jumpTableTargets + ( i * (int)sizeof( int ) ) ) );
 	}
 
 	// Start buffer with x86-VM specific procedures

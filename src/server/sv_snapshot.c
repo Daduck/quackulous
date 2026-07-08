@@ -460,7 +460,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 
 	// clear everything in this snapshot
 	entityNumbers.numSnapshotEntities = 0;
-	Com_Memset( frame->areabits, 0, sizeof( frame->areabits ) );
+	Com_Memset( frame->areabits, 0, (int)sizeof( frame->areabits ) );
 
   // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=62
 	frame->num_entities = 0;
@@ -497,7 +497,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	// to work correctly.  This also catches the error condition
 	// of an entity being included twice.
 	qsort( entityNumbers.snapshotEntities, entityNumbers.numSnapshotEntities, 
-		sizeof( entityNumbers.snapshotEntities[0] ), SV_QsortEntityNumbers );
+		(int)sizeof( entityNumbers.snapshotEntities[0] ), SV_QsortEntityNumbers );
 
 	// now that all viewpoint's areabits have been OR'd together, invert
 	// all of them to make it a mask vector, which is what the renderer wants
@@ -602,7 +602,7 @@ void SV_SendClientSnapshot( client_t *client ) {
 	// build the snapshot
 	SV_BuildClientSnapshot( client );
 
-	MSG_Init (&msg, msg_buf, sizeof(msg_buf));
+	MSG_Init (&msg, msg_buf, (int)sizeof(msg_buf));
 	msg.allowoverflow = qtrue;
 
 	// NOTE, MRE: all server->client messages now acknowledge

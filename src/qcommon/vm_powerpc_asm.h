@@ -150,7 +150,7 @@ asm_instruction( powerpc_iname_t, const int, const long int * );
 #define IN( inst, args... ) \
 ({\
 	const long int argv[] = { args };\
-	const int argc = sizeof( argv ) / sizeof( argv[0] ); \
+	const int argc = (int)sizeof( argv ) / (int)sizeof( argv[0] ); \
 	asm_instruction( inst, argc, argv );\
 })
 

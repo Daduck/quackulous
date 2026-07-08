@@ -110,11 +110,11 @@ typedef struct md3Tag_s {
 ** md3Surface_t
 **
 ** CHUNK			SIZE
-** header			sizeof( md3Surface_t )
-** shaders			sizeof( md3Shader_t ) * numShaders
-** triangles[0]		sizeof( md3Triangle_t ) * numTriangles
-** st				sizeof( md3St_t ) * numVerts
-** XyzNormals		sizeof( md3XyzNormal_t ) * numVerts * numFrames
+** header			(int)sizeof( md3Surface_t )
+** shaders			(int)sizeof( md3Shader_t ) * numShaders
+** triangles[0]		(int)sizeof( md3Triangle_t ) * numTriangles
+** st				(int)sizeof( md3St_t ) * numVerts
+** XyzNormals		(int)sizeof( md3XyzNormal_t ) * numVerts * numFrames
 */
 typedef struct {
 	int		ident;				// 

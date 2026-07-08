@@ -100,7 +100,7 @@ int G_ClientNumberFromString( char *s, char *err, int len )
     return i;
   }
 
-  G_SanitiseString( s, s2, sizeof( s2 ) );
+  G_SanitiseString( s, s2, (int)sizeof( s2 ) );
   if( !s2[ 0 ] )
   {
     if( p )
@@ -113,7 +113,7 @@ int G_ClientNumberFromString( char *s, char *err, int len )
   {
     Q_strncpyz( p, "more than one player name matches. "
                 "be more specific or use the slot #:\n", l2 );
-    l = strlen( p );
+    l = (int)strlen( p );
     p += l;
     l2 -= l;
   }
@@ -124,7 +124,7 @@ int G_ClientNumberFromString( char *s, char *err, int len )
     if( cl->pers.connected == CON_DISCONNECTED )
       continue;
 
-    G_SanitiseString( cl->pers.netname, n2, sizeof( n2 ) );
+    G_SanitiseString( cl->pers.netname, n2, (int)sizeof( n2 ) );
 
     if( !strcmp( n2, s2 ) )
       return i;
@@ -194,7 +194,7 @@ int G_ClientNumbersFromString( char *s, int *plist, int max )
   }
 
   // now look for name matches
-  G_SanitiseString( s, s2, sizeof( s2 ) );
+  G_SanitiseString( s, s2, (int)sizeof( s2 ) );
   if( !s2[ 0 ] )
     return 0;
   for( i = 0; i < level.maxclients && found < max; i++ )
@@ -204,7 +204,7 @@ int G_ClientNumbersFromString( char *s, int *plist, int max )
     {
       continue;
     }
-    G_SanitiseString( p->pers.netname, n2, sizeof( n2 ) );
+    G_SanitiseString( p->pers.netname, n2, (int)sizeof( n2 ) );
     if( strstr( n2, s2 ) )
     {
       *plist++ = i;
@@ -273,13 +273,13 @@ void ScoreboardMessage( gentity_t *ent )
       upgrade = UP_NONE;
     }
 
-    Com_sprintf( entry, sizeof( entry ),
+    Com_sprintf( entry, (int)sizeof( entry ),
       " %d %d %d %d %d %d", level.sortedClients[ i ], cl->ps.persistant[ PERS_SCORE ],
       ping, ( level.time - cl->pers.enterTime ) / 60000, weapon, upgrade );
 
-    j = strlen( entry );
+    j = (int)strlen( entry );
 
-    if( stringlength + j >= sizeof( string ) )
+    if( stringlength + j >= (int)sizeof( string ) )
       break;
 
     strcpy( string + stringlength, entry );
@@ -308,8 +308,8 @@ char *ConcatArgs( int start )
 
   for( i = start; i < c; i++ )
   {
-    trap_Argv( i, arg, sizeof( arg ) );
-    tlen = strlen( arg );
+    trap_Argv( i, arg, (int)sizeof( arg ) );
+    tlen = (int)strlen( arg );
 
     if( len + tlen >= MAX_STRING_CHARS - 1 )
       break;
@@ -353,10 +353,10 @@ char *ConcatArgsPrintable( int start )
   for( i = start; i < c; i++ )
   {
     printArg = arg;
-    trap_Argv( i, arg, sizeof( arg ) );
+    trap_Argv( i, arg, (int)sizeof( arg ) );
     if( strchr( arg, ' ' ) )
       printArg = va( "\"%s\"", arg );
-    tlen = strlen( printArg );
+    tlen = (int)strlen( printArg );
 
     if( len + tlen >= MAX_STRING_CHARS - 1 )
       break;
@@ -625,7 +625,7 @@ void Cmd_Team_f( gentity_t *ent )
     return;
   }
 
-  trap_Argv( 1, s, sizeof( s ) );
+  trap_Argv( 1, s, (int)sizeof( s ) );
 
   if( !s[ 0 ] )
   {
@@ -737,7 +737,7 @@ void G_LoadCensors( void )
       g_censorship.string );
     return;
   }
-  if( len == 0 || len >= sizeof( text ) - 1 )
+  if( len == 0 || len >= (int)sizeof( text ) - 1 )
   {
     trap_FS_FCloseFile( f );
     Com_Printf( S_COLOR_RED "ERROR: Censors file %s is %s\n",
@@ -754,16 +754,16 @@ void G_LoadCensors( void )
   while( 1 )
   {
     token = COM_Parse( &text_p );
-    if( !*token || sizeof( censors ) - ( term - censors ) < 4 )
+    if( !*token || (int)sizeof( censors ) - ( term - censors ) < 4 )
       break;
-    Q_strncpyz( term, token, sizeof( censors ) - ( term - censors ) );
+    Q_strncpyz( term, token, (int)sizeof( censors ) - ( term - censors ) );
     Q_strlwr( term );
-    term += strlen( term ) + 1;
-    if( sizeof( censors ) - ( term - censors ) == 0 )
+    term += (int)strlen( term ) + 1;
+    if( (int)sizeof( censors ) - ( term - censors ) == 0 )
       break;
     token = COM_ParseExt( &text_p, qfalse );
-    Q_strncpyz( term, token, sizeof( censors ) - ( term - censors ) );
-    term += strlen( term ) + 1;
+    Q_strncpyz( term, token, (int)sizeof( censors ) - ( term - censors ) );
+    term += (int)strlen( term ) + 1;
     numcensors++;
   }
   G_Printf( "Parsed %d string replacements\n", numcensors );
@@ -933,7 +933,7 @@ void G_Say( gentity_t *ent, saymode_t mode, const char *chatText )
       break;
   }
 
-  G_CensorString( text, chatText, sizeof( text ), ent );
+  G_CensorString( text, chatText, (int)sizeof( text ), ent );
 
   // send it to all the apropriate clients
   for( j = 0; j < level.maxclients; j++ )
@@ -1003,7 +1003,7 @@ static void Cmd_Say_f( gentity_t *ent )
   if( trap_Argc( ) < 2 )
     return;
 
-  trap_Argv( 0, cmd, sizeof( cmd ) );
+  trap_Argv( 0, cmd, (int)sizeof( cmd ) );
   if( Q_stricmp( cmd, "say_team" ) == 0 )
     mode = SAY_TEAM;
 
@@ -1035,7 +1035,7 @@ void Cmd_VSay_f( gentity_t *ent )
   if( !ent || !ent->client )
     Com_Error( ERR_FATAL, "Cmd_VSay_f() called by non-client entity\n" );
 
-  trap_Argv( 0, arg, sizeof( arg ) );
+  trap_Argv( 0, arg, (int)sizeof( arg ) );
   if( trap_Argc( ) < 2 )
   {
     trap_SendServerCommand( ent-g_entities, va(
@@ -1063,10 +1063,10 @@ void Cmd_VSay_f( gentity_t *ent )
     vchan = VOICE_CHAN_LOCAL;
   else
     return;
-  Q_strncpyz( vsay, arg, sizeof( vsay ) );
+  Q_strncpyz( vsay, arg, (int)sizeof( vsay ) );
 
   if( ent->client->pers.voice[ 0 ] )
-    Q_strncpyz( voiceName, ent->client->pers.voice, sizeof( voiceName ) );
+    Q_strncpyz( voiceName, ent->client->pers.voice, (int)sizeof( voiceName ) );
   voice = BG_VoiceByName( level.voices, voiceName );
   if( !voice )
   {
@@ -1075,7 +1075,7 @@ void Cmd_VSay_f( gentity_t *ent )
     return;
   }
 
-  trap_Argv( 1, voiceCmd, sizeof( voiceCmd ) ) ;
+  trap_Argv( 1, voiceCmd, (int)sizeof( voiceCmd ) ) ;
   cmd = BG_VoiceCmdFind( voice->cmds, voiceCmd, &cmdNum );
   if( !cmd )
   {
@@ -1110,11 +1110,11 @@ void Cmd_VSay_f( gentity_t *ent )
     ent->client->voiceEnthusiasm++;
 
   Q_strncpyz( ent->client->lastVoiceCmd, cmd->cmd,
-    sizeof( ent->client->lastVoiceCmd ) );
+    (int)sizeof( ent->client->lastVoiceCmd ) );
 
   // optional user supplied text
-  trap_Argv( 2, arg, sizeof( arg ) );
-  G_CensorString( text, arg, sizeof( text ), ent );
+  trap_Argv( 2, arg, (int)sizeof( arg ) );
+  G_CensorString( text, arg, (int)sizeof( text ), ent );
 
   switch( vchan )
   {
@@ -1167,11 +1167,11 @@ void Cmd_CallVote_f( gentity_t *ent )
   int    id = -1;
   team_t team;
 
-  trap_Argv( 0, cmd, sizeof( cmd ) );
-  trap_Argv( 1, vote, sizeof( vote ) );
-  trap_Argv( 2, arg, sizeof( arg ) );
+  trap_Argv( 0, cmd, (int)sizeof( cmd ) );
+  trap_Argv( 1, vote, (int)sizeof( vote ) );
+  trap_Argv( 2, arg, (int)sizeof( arg ) );
   creason = ConcatArgs( 3 );
-  G_DecolorString( creason, reason, sizeof( reason ) );
+  G_DecolorString( creason, reason, (int)sizeof( reason ) );
 
   if( !Q_stricmp( cmd, "callteamvote" ) )
     team = ent->client->pers.teamSelection;
@@ -1223,7 +1223,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     }
 
     // with a little extra work only players from the right team are considered
-    clientNum = G_ClientNumberFromString( arg, err, sizeof( err ) );
+    clientNum = G_ClientNumberFromString( arg, err, (int)sizeof( err ) );
 
     if( clientNum == -1 )
     {
@@ -1231,7 +1231,7 @@ void Cmd_CallVote_f( gentity_t *ent )
       return;
     }
 
-    G_DecolorString( level.clients[ clientNum ].pers.netname, name, sizeof( name ) );
+    G_DecolorString( level.clients[ clientNum ].pers.netname, name, (int)sizeof( name ) );
     id = level.clients[ clientNum ].pers.namelog->id;
 
     if( !Q_stricmp( vote, "kick" ) || !Q_stricmp( vote, "mute" ) ||
@@ -1278,15 +1278,15 @@ void Cmd_CallVote_f( gentity_t *ent )
       return;
     }
 
-    Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
+    Com_sprintf( level.voteString[ team ], (int)sizeof( level.voteString[ team ] ),
       "ban %s \"1s%s\" vote kick (%s)", level.clients[ clientNum ].pers.ip.str,
       g_adminTempBan.string, reason );
     Com_sprintf( level.voteDisplayString[ team ],
-      sizeof( level.voteDisplayString[ team ] ), "Kick player '%s'", name );
+      (int)sizeof( level.voteDisplayString[ team ] ), "Kick player '%s'", name );
     if( reason[ 0 ] )
     {
       Q_strcat( level.voteDisplayString[ team ],
-        sizeof( level.voteDisplayString[ team ] ), va( " for '%s'", reason ) );
+        (int)sizeof( level.voteDisplayString[ team ] ), va( " for '%s'", reason ) );
     }
   }
   else if( team == TEAM_NONE )
@@ -1300,15 +1300,15 @@ void Cmd_CallVote_f( gentity_t *ent )
         return;
       }
 
-      Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
+      Com_sprintf( level.voteString[ team ], (int)sizeof( level.voteString[ team ] ),
         "mute %d", id );
       Com_sprintf( level.voteDisplayString[ team ],
-        sizeof( level.voteDisplayString[ team ] ),
+        (int)sizeof( level.voteDisplayString[ team ] ),
         "Mute player '%s'", name );
       if( reason[ 0 ] )
       {
         Q_strcat( level.voteDisplayString[ team ],
-          sizeof( level.voteDisplayString[ team ] ), va( " for '%s'", reason ) );
+          (int)sizeof( level.voteDisplayString[ team ] ), va( " for '%s'", reason ) );
       }
     }
     else if( !Q_stricmp( vote, "unmute" ) )
@@ -1320,10 +1320,10 @@ void Cmd_CallVote_f( gentity_t *ent )
         return;
       }
 
-      Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
+      Com_sprintf( level.voteString[ team ], (int)sizeof( level.voteString[ team ] ),
         "unmute %d", id );
       Com_sprintf( level.voteDisplayString[ team ],
-        sizeof( level.voteDisplayString[ team ] ),
+        (int)sizeof( level.voteDisplayString[ team ] ),
         "Unmute player '%s'", name );
     }
     else if( !Q_stricmp( vote, "map_restart" ) )
@@ -1342,10 +1342,10 @@ void Cmd_CallVote_f( gentity_t *ent )
         return;
       }
 
-      Com_sprintf( level.voteString[ team ], sizeof( level.voteString ),
+      Com_sprintf( level.voteString[ team ], (int)sizeof( level.voteString ),
         "%s \"%s\"", vote, arg );
       Com_sprintf( level.voteDisplayString[ team ],
-        sizeof( level.voteDisplayString[ team ] ),
+        (int)sizeof( level.voteDisplayString[ team ] ),
         "Change to map '%s'", arg );
       level.voteDelay[ team ] = 3000;
     }
@@ -1367,10 +1367,10 @@ void Cmd_CallVote_f( gentity_t *ent )
         return;
       }
 
-      Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
+      Com_sprintf( level.voteString[ team ], (int)sizeof( level.voteString[ team ] ),
         "set g_nextMap \"%s\"", arg );
       Com_sprintf( level.voteDisplayString[ team ],
-        sizeof( level.voteDisplayString[ team ] ),
+        (int)sizeof( level.voteDisplayString[ team ] ),
         "Set the next map to '%s'", arg );
     }
     else if( !Q_stricmp( vote, "draw" ) )
@@ -1401,10 +1401,10 @@ void Cmd_CallVote_f( gentity_t *ent )
         return;
       }
       level.voteThreshold[ team ] = g_suddenDeathVotePercent.integer;
-      Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
+      Com_sprintf( level.voteString[ team ], (int)sizeof( level.voteString[ team ] ),
         "suddendeath %d", g_suddenDeathVoteDelay.integer );
       Com_sprintf( level.voteDisplayString[ team ],
-                   sizeof( level.voteDisplayString[ team ] ),
+                   (int)sizeof( level.voteDisplayString[ team ] ),
                    "Begin sudden death in %d seconds",
                    g_suddenDeathVoteDelay.integer );
     }
@@ -1425,15 +1425,15 @@ void Cmd_CallVote_f( gentity_t *ent )
       return;
     }
 
-    Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
+    Com_sprintf( level.voteString[ team ], (int)sizeof( level.voteString[ team ] ),
       "denybuild %d", id );
     Com_sprintf( level.voteDisplayString[ team ],
-      sizeof( level.voteDisplayString[ team ] ),
+      (int)sizeof( level.voteDisplayString[ team ] ),
       "Take away building rights from '%s'", name );
     if( reason[ 0 ] )
     {
       Q_strcat( level.voteDisplayString[ team ],
-        sizeof( level.voteDisplayString[ team ] ), va( " for '%s'", reason ) );
+        (int)sizeof( level.voteDisplayString[ team ] ), va( " for '%s'", reason ) );
     }
   }
   else if( !Q_stricmp( vote, "allowbuild" ) )
@@ -1445,15 +1445,15 @@ void Cmd_CallVote_f( gentity_t *ent )
       return;
     }
 
-    Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
+    Com_sprintf( level.voteString[ team ], (int)sizeof( level.voteString[ team ] ),
       "allowbuild %d", id );
     Com_sprintf( level.voteDisplayString[ team ],
-      sizeof( level.voteDisplayString[ team ] ),
+      (int)sizeof( level.voteDisplayString[ team ] ),
       "Allow '%s' to build", name );
   }
   else if( !Q_stricmp( vote, "admitdefeat" ) )
   {
-    Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
+    Com_sprintf( level.voteString[ team ], (int)sizeof( level.voteString[ team ] ),
       "admitdefeat %d", team );
     strcpy( level.voteDisplayString[ team ], "Admit Defeat" );
     level.voteDelay[ team ] = 3000;
@@ -1504,7 +1504,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     }
   }
 
-  G_DecolorString( ent->client->pers.netname, caller, sizeof( caller ) );
+  G_DecolorString( ent->client->pers.netname, caller, (int)sizeof( caller ) );
 
   level.voteTime[ team ] = level.time;
   trap_SetConfigstring( CS_VOTE_TIME + team,
@@ -1529,7 +1529,7 @@ void Cmd_Vote_f( gentity_t *ent )
   char cmd[ MAX_TOKEN_CHARS ], vote[ MAX_TOKEN_CHARS ];
   team_t team = ent->client->pers.teamSelection;
 
-  trap_Argv( 0, cmd, sizeof( cmd ) );
+  trap_Argv( 0, cmd, (int)sizeof( cmd ) );
   if( Q_stricmp( cmd, "teamvote" ) )
     team = TEAM_NONE;
 
@@ -1550,7 +1550,7 @@ void Cmd_Vote_f( gentity_t *ent )
   trap_SendServerCommand( ent-g_entities,
     va( "print \"%s: vote cast\n\"", cmd ) );
 
-  trap_Argv( 1, vote, sizeof( vote ) );
+  trap_Argv( 1, vote, (int)sizeof( vote ) );
   if( vote[ 0 ] == 'y' )
     ent->client->pers.vote |= 1 << team;
   else
@@ -1580,11 +1580,11 @@ void Cmd_SetViewpos_f( gentity_t *ent )
 
   for( i = 0; i < 3; i++ )
   {
-    trap_Argv( i + 1, buffer, sizeof( buffer ) );
+    trap_Argv( i + 1, buffer, (int)sizeof( buffer ) );
     origin[ i ] = atof( buffer );
   }
 
-  trap_Argv( 4, buffer, sizeof( buffer ) );
+  trap_Argv( 4, buffer, (int)sizeof( buffer ) );
   angles[ YAW ] = atof( buffer );
 
   TeleportPlayer( ent, origin, angles );
@@ -1672,7 +1672,7 @@ void Cmd_Class_f( gentity_t *ent )
   vec3_t    oldVel;
 
   clientNum = ent->client - level.clients;
-  trap_Argv( 1, s, sizeof( s ) );
+  trap_Argv( 1, s, (int)sizeof( s ) );
   newClass = BG_ClassByName( s )->number;
 
   if( ent->client->sess.spectatorState != SPECTATOR_NOT )
@@ -1862,7 +1862,7 @@ void Cmd_Destroy_f( gentity_t *ent )
     return;
   }
 
-  trap_Argv( 0, cmd, sizeof( cmd ) );
+  trap_Argv( 0, cmd, (int)sizeof( cmd ) );
   if( Q_stricmp( cmd, "destroy" ) == 0 )
     deconstruct = qfalse;
 
@@ -1975,7 +1975,7 @@ void Cmd_ActivateItem_f( gentity_t *ent )
   char  s[ MAX_TOKEN_CHARS ];
   int   upgrade, weapon;
 
-  trap_Argv( 1, s, sizeof( s ) );
+  trap_Argv( 1, s, (int)sizeof( s ) );
 
   // "weapon" aliased to whatever weapon you have
   if( !Q_stricmp( "weapon", s ) )
@@ -2015,7 +2015,7 @@ void Cmd_DeActivateItem_f( gentity_t *ent )
   char      s[ MAX_TOKEN_CHARS ];
   upgrade_t upgrade;
 
-  trap_Argv( 1, s, sizeof( s ) );
+  trap_Argv( 1, s, (int)sizeof( s ) );
   upgrade = BG_UpgradeByName( s )->number;
 
   if( BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
@@ -2036,7 +2036,7 @@ void Cmd_ToggleItem_f( gentity_t *ent )
   weapon_t  weapon;
   upgrade_t upgrade;
 
-  trap_Argv( 1, s, sizeof( s ) );
+  trap_Argv( 1, s, (int)sizeof( s ) );
   upgrade = BG_UpgradeByName( s )->number;
   weapon = BG_WeaponByName( s )->number;
 
@@ -2077,7 +2077,7 @@ void Cmd_Buy_f( gentity_t *ent )
   upgrade_t upgrade;
   qboolean  energyOnly;
 
-  trap_Argv( 1, s, sizeof( s ) );
+  trap_Argv( 1, s, (int)sizeof( s ) );
 
   weapon = BG_WeaponByName( s )->number;
   upgrade = BG_UpgradeByName( s )->number;
@@ -2261,7 +2261,7 @@ void Cmd_Sell_f( gentity_t *ent )
   weapon_t  weapon;
   upgrade_t upgrade;
 
-  trap_Argv( 1, s, sizeof( s ) );
+  trap_Argv( 1, s, (int)sizeof( s ) );
 
   //no armoury nearby
   if( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) )
@@ -2422,7 +2422,7 @@ void Cmd_Build_f( gentity_t *ent )
     return;
   }
 
-  trap_Argv( 1, s, sizeof( s ) );
+  trap_Argv( 1, s, (int)sizeof( s ) );
 
   buildable = BG_BuildableByName( s )->number;
 
@@ -2764,9 +2764,9 @@ void Cmd_Follow_f( gentity_t *ent )
   else
   {
     char err[ MAX_STRING_CHARS ];
-    trap_Argv( 1, arg, sizeof( arg ) );
+    trap_Argv( 1, arg, (int)sizeof( arg ) );
 
-    i = G_ClientNumberFromString( arg, err, sizeof( err ) );
+    i = G_ClientNumberFromString( arg, err, (int)sizeof( err ) );
 
     if( i == -1 )
     {
@@ -2805,7 +2805,7 @@ void Cmd_FollowCycle_f( gentity_t *ent )
   char args[ 11 ];
   int  dir = 1;
 
-  trap_Argv( 0, args, sizeof( args ) );
+  trap_Argv( 0, args, (int)sizeof( args ) );
   if( Q_stricmp( args, "followprev" ) == 0 )
     dir = -1;
 
@@ -2825,7 +2825,7 @@ static void Cmd_Ignore_f( gentity_t *ent )
   int i;
   qboolean ignore = qfalse;
 
-  trap_Argv( 0, cmd, sizeof( cmd ) );
+  trap_Argv( 0, cmd, (int)sizeof( cmd ) );
   if( Q_stricmp( cmd, "ignore" ) == 0 )
     ignore = qtrue;
 
@@ -2836,7 +2836,7 @@ static void Cmd_Ignore_f( gentity_t *ent )
     return;
   }
 
-  Q_strncpyz( name, ConcatArgs( 1 ), sizeof( name ) );
+  Q_strncpyz( name, ConcatArgs( 1 ), (int)sizeof( name ) );
   matches = G_ClientNumbersFromString( name, pids, MAX_CLIENTS );
   if( matches < 1 )
   {
@@ -2916,7 +2916,7 @@ void Cmd_ListMaps_f( gentity_t *ent )
 
   if( trap_Argc( ) > 1 )
   {
-    trap_Argv( 1, search, sizeof( search ) );
+    trap_Argv( 1, search, (int)sizeof( search ) );
     for( p = search; ( *p ) && isdigit( *p ); p++ );
     if( !( *p ) )
     {
@@ -2926,7 +2926,7 @@ void Cmd_ListMaps_f( gentity_t *ent )
     else if( trap_Argc( ) > 2 )
     {
       char lp[ 8 ];
-      trap_Argv( 2, lp, sizeof( lp ) );
+      trap_Argv( 2, lp, (int)sizeof( lp ) );
       page = atoi( lp );
     }
 
@@ -2937,11 +2937,11 @@ void Cmd_ListMaps_f( gentity_t *ent )
   }
 
   numFiles = trap_FS_GetFileList( "maps/", ".bsp",
-                                  fileList, sizeof( fileList ) );
+                                  fileList, (int)sizeof( fileList ) );
   filePtr = fileList;
   for( i = 0; i < numFiles && count < MAX_MAPLIST_MAPS; i++, filePtr += fileLen + 1 )
   {
-    fileLen = strlen( filePtr );
+    fileLen = (int)strlen( filePtr );
     if ( fileLen < 5 )
       continue;
 
@@ -2953,7 +2953,7 @@ void Cmd_ListMaps_f( gentity_t *ent )
     fileSort[ count ] = filePtr;
     count++;
   }
-  qsort( fileSort, count, sizeof( fileSort[ 0 ] ), SortMaps );
+  qsort( fileSort, count, (int)sizeof( fileSort[ 0 ] ), SortMaps );
 
   rows = ( count + 2 ) / 3;
   pages = MAX( 1, ( rows + MAX_MAPLIST_ROWS - 1 ) / MAX_MAPLIST_ROWS );
@@ -3016,16 +3016,16 @@ void Cmd_Damage_f( gentity_t *ent )
 
   if( trap_Argc() > 1 )
   {
-    trap_Argv( 1, arg, sizeof( arg ) );
+    trap_Argv( 1, arg, (int)sizeof( arg ) );
     damage = atoi( arg );
   }
   if( trap_Argc() > 4 )
   {
-    trap_Argv( 2, arg, sizeof( arg ) );
+    trap_Argv( 2, arg, (int)sizeof( arg ) );
     dx = atof( arg );
-    trap_Argv( 3, arg, sizeof( arg ) );
+    trap_Argv( 3, arg, (int)sizeof( arg ) );
     dy = atof( arg );
-    trap_Argv( 4, arg, sizeof( arg ) );
+    trap_Argv( 4, arg, (int)sizeof( arg ) );
     dz = atof( arg );
     nonloc = qfalse;
   }
@@ -3133,9 +3133,9 @@ void ClientCommand( int clientNum )
   if( !ent->client || ent->client->pers.connected != CON_CONNECTED )
     return;   // not fully in game yet
 
-  trap_Argv( 0, cmd, sizeof( cmd ) );
+  trap_Argv( 0, cmd, (int)sizeof( cmd ) );
 
-  command = bsearch( cmd, cmds, numCmds, sizeof( cmds[ 0 ] ), cmdcmp );
+  command = bsearch( cmd, cmds, numCmds, (int)sizeof( cmds[ 0 ] ), cmdcmp );
 
   if( !command )
   {
@@ -3221,8 +3221,8 @@ void G_ListCommands( gentity_t *ent )
     if( cmds[ i ].cmdFlags & CMD_CHEAT )
       continue;
 
-    len = strlen( cmds[ i ].cmdName ) + 1;
-    if( len + outlen >= sizeof( out ) - 1 )
+    len = (int)strlen( cmds[ i ].cmdName ) + 1;
+    if( len + outlen >= (int)sizeof( out ) - 1 )
     {
       trap_SendServerCommand( ent - g_entities, va( "cmds%s\n", out ) );
       outlen = 0;
@@ -3294,7 +3294,7 @@ void Cmd_PrivateMessage_f( gentity_t *ent )
     return;
   }
 
-  trap_Argv( 0, cmd, sizeof( cmd ) );
+  trap_Argv( 0, cmd, (int)sizeof( cmd ) );
   if( trap_Argc( ) < 3 )
   {
     ADMP( va( "usage: %s [name|slot#] [message]\n", cmd ) );
@@ -3304,11 +3304,11 @@ void Cmd_PrivateMessage_f( gentity_t *ent )
   if( !Q_stricmp( cmd, "mt" ) )
     teamonly = qtrue;
 
-  trap_Argv( 1, name, sizeof( name ) );
+  trap_Argv( 1, name, (int)sizeof( name ) );
   msg = ConcatArgs( 2 );
   pcount = G_ClientNumbersFromString( name, pids, MAX_CLIENTS );
 
-  G_CensorString( text, msg, sizeof( text ), ent );
+  G_CensorString( text, msg, (int)sizeof( text ), ent );
 
   // send the message
   for( i = 0; i < pcount; i++ )
@@ -3317,7 +3317,7 @@ void Cmd_PrivateMessage_f( gentity_t *ent )
         teamonly ? SAY_TPRIVMSG : SAY_PRIVMSG, text ) )
     {
       count++;
-      Q_strcat( recipients, sizeof( recipients ), va( "%s" S_COLOR_WHITE ", ",
+      Q_strcat( recipients, (int)sizeof( recipients ), va( "%s" S_COLOR_WHITE ", ",
         level.clients[ pids[ i ] ].pers.netname ) );
     }
   }
@@ -3332,7 +3332,7 @@ void Cmd_PrivateMessage_f( gentity_t *ent )
   {
     ADMP( va( "^%cPrivate message: ^7%s\n", color, text ) );
     // remove trailing ", "
-    recipients[ strlen( recipients ) - 2 ] = '\0';
+    recipients[ (int)strlen( recipients ) - 2 ] = '\0';
     ADMP( va( "^%csent to %i player%s: " S_COLOR_WHITE "%s\n", color, count,
       count == 1 ? "" : "s", recipients ) );
 

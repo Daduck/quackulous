@@ -95,7 +95,7 @@ void R_RemapShader(const char *shaderName, const char *newShaderName, const char
 
 	// remap all the shaders with the given name
 	// even tho they might have different lightmaps
-	COM_StripExtension(shaderName, strippedName, sizeof(strippedName));
+	COM_StripExtension(shaderName, strippedName, (int)sizeof(strippedName));
 	hash = generateHashValue(strippedName, FILE_HASH_SIZE);
 	for (sh = hashTable[hash]; sh; sh = sh->next) {
 		if (Q_stricmp(sh->name, strippedName) == 0) {
@@ -1324,8 +1324,8 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				token = COM_ParseExt( text, qfalse );
 				if ( token[0] == 0 )
 					break;
-				Q_strcat( buffer, sizeof (buffer), token );
-				Q_strcat( buffer, sizeof (buffer), " " );
+				Q_strcat( buffer, (int)sizeof(buffer), token );
+				Q_strcat( buffer, (int)sizeof(buffer), " " );
 			}
 
 			ParseTexMod( buffer, stage );
@@ -1569,7 +1569,7 @@ static void ParseSkyParms( char **text ) {
 	}
 	if ( strcmp( token, "-" ) ) {
 		for (i=0 ; i<6 ; i++) {
-			Com_sprintf( pathname, sizeof(pathname), "%s_%s.tga"
+			Com_sprintf( pathname, (int)sizeof(pathname), "%s_%s.tga"
 				, token, suf[i] );
 			shader.sky.outerbox[i] = R_FindImageFile( ( char * ) pathname, IMGTYPE_COLORALPHA, imgFlags | IMGFLAG_CLAMPTOEDGE );
 
@@ -1600,7 +1600,7 @@ static void ParseSkyParms( char **text ) {
 	}
 	if ( strcmp( token, "-" ) ) {
 		for (i=0 ; i<6 ; i++) {
-			Com_sprintf( pathname, sizeof(pathname), "%s_%s.tga"
+			Com_sprintf( pathname, (int)sizeof(pathname), "%s_%s.tga"
 				, token, suf[i] );
 			shader.sky.innerbox[i] = R_FindImageFile( ( char * ) pathname, IMGTYPE_COLORALPHA, imgFlags );
 			if ( !shader.sky.innerbox[i] ) {
@@ -2618,7 +2618,7 @@ static void FixRenderCommandList( int newShader ) {
 		const void *curCmd = cmdList->cmds;
 
 		while ( 1 ) {
-			curCmd = PADP(curCmd, sizeof(void *));
+			curCmd = PADP(curCmd, (int)sizeof(void *));
 
 			switch ( *(const int *)curCmd ) {
 			case RC_SET_COLOR:
@@ -2727,7 +2727,7 @@ static shader_t *GeneratePermanentShader( void ) {
 		return tr.defaultShader;
 	}
 
-	newShader = ri.Hunk_Alloc( sizeof( shader_t ), h_low );
+	newShader = ri.Hunk_Alloc( (int)sizeof( shader_t ), h_low );
 
 	*newShader = shader;
 
@@ -2749,11 +2749,11 @@ static shader_t *GeneratePermanentShader( void ) {
 		if ( !stages[i].active ) {
 			break;
 		}
-		newShader->stages[i] = ri.Hunk_Alloc( sizeof( stages[i] ), h_low );
+		newShader->stages[i] = ri.Hunk_Alloc( (int)sizeof( stages[i] ), h_low );
 		*newShader->stages[i] = stages[i];
 
 		for ( b = 0 ; b < NUM_TEXTURE_BUNDLES ; b++ ) {
-			size = newShader->stages[i]->bundle[b].numTexMods * sizeof( texModInfo_t );
+			size = newShader->stages[i]->bundle[b].numTexMods * (int)sizeof( texModInfo_t );
 			newShader->stages[i]->bundle[b].texMods = ri.Hunk_Alloc( size, h_low );
 			Com_Memcpy( newShader->stages[i]->bundle[b].texMods, stages[i].bundle[b].texMods, size );
 		}
@@ -2853,7 +2853,7 @@ static void VertexLightingCollapse( void ) {
 			break;
 		}
 
-		Com_Memset( pStage, 0, sizeof( *pStage ) );
+		Com_Memset( pStage, 0, (int)sizeof( *pStage ) );
 	}
 }
 
@@ -2866,10 +2866,10 @@ static void InitShader( const char *name, int lightmapIndex ) {
 	int i;
 
 	// clear the global shader
-	Com_Memset( &shader, 0, sizeof( shader ) );
-	Com_Memset( &stages, 0, sizeof( stages ) );
+	Com_Memset( &shader, 0, (int)sizeof( shader ) );
+	Com_Memset( &stages, 0, (int)sizeof( stages ) );
 
-	Q_strncpyz( shader.name, name, sizeof( shader.name ) );
+	Q_strncpyz( shader.name, name, (int)sizeof( shader.name ) );
 	shader.lightmapIndex = lightmapIndex;
 
 	for ( i = 0 ; i < MAX_SHADER_STAGES ; i++ ) {
@@ -2953,13 +2953,13 @@ static shader_t *FinishShader( void ) {
 			}
 			
 			if(index < MAX_SHADER_STAGES)
-				memmove(pStage, pStage + 1, sizeof(*pStage) * (index - stage));
+				memmove(pStage, pStage + 1, (int)sizeof(*pStage) * (index - stage));
 			else
 			{
 				if(stage + 1 < MAX_SHADER_STAGES)
-					memmove(pStage, pStage + 1, sizeof(*pStage) * (index - stage - 1));
+					memmove(pStage, pStage + 1, (int)sizeof(*pStage) * (index - stage - 1));
 				
-				Com_Memset(&stages[index - 1], 0, sizeof(*stages));
+				Com_Memset(&stages[index - 1], 0, (int)sizeof(*stages));
 			}
 			
 			continue;
@@ -3161,7 +3161,7 @@ shader_t *R_FindShaderByName( const char *name ) {
 		return tr.defaultShader;
 	}
 
-	COM_StripExtension(name, strippedName, sizeof(strippedName));
+	COM_StripExtension(name, strippedName, (int)sizeof(strippedName));
 
 	hash = generateHashValue(strippedName, FILE_HASH_SIZE);
 
@@ -3232,7 +3232,7 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 		lightmapIndex = LIGHTMAP_BY_VERTEX;
 	}
 
-	COM_StripExtension(name, strippedName, sizeof(strippedName));
+	COM_StripExtension(name, strippedName, (int)sizeof(strippedName));
 
 	hash = generateHashValue(strippedName, FILE_HASH_SIZE);
 
@@ -3458,7 +3458,7 @@ way to ask for different implicit lighting modes (vertex, lightmap, etc)
 qhandle_t RE_RegisterShaderLightMap( const char *name, int lightmapIndex ) {
 	shader_t	*sh;
 
-	if ( strlen( name ) >= MAX_QPATH ) {
+	if ( (int)strlen( name ) >= MAX_QPATH ) {
 		ri.Printf( PRINT_ALL, "Shader name exceeds MAX_QPATH\n" );
 		return 0;
 	}
@@ -3492,7 +3492,7 @@ way to ask for different implicit lighting modes (vertex, lightmap, etc)
 qhandle_t RE_RegisterShader( const char *name ) {
 	shader_t	*sh;
 
-	if ( strlen( name ) >= MAX_QPATH ) {
+	if ( (int)strlen( name ) >= MAX_QPATH ) {
 		ri.Printf( PRINT_ALL, "Shader name exceeds MAX_QPATH\n" );
 		return 0;
 	}
@@ -3522,7 +3522,7 @@ For menu graphics that should never be picmiped
 qhandle_t RE_RegisterShaderNoMip( const char *name ) {
 	shader_t	*sh;
 
-	if ( strlen( name ) >= MAX_QPATH ) {
+	if ( (int)strlen( name ) >= MAX_QPATH ) {
 		ri.Printf( PRINT_ALL, "Shader name exceeds MAX_QPATH\n" );
 		return 0;
 	}
@@ -3659,7 +3659,7 @@ static void ScanAndLoadShaderFiles( void )
 		// look for a .mtr file first
 		{
 			char *ext;
-			Com_sprintf( filename, sizeof( filename ), "scripts/%s", shaderFiles[i] );
+			Com_sprintf( filename, (int)sizeof( filename ), "scripts/%s", shaderFiles[i] );
 			if ( (ext = strrchr(filename, '.')) )
 			{
 				strcpy(ext, ".mtr");
@@ -3667,7 +3667,7 @@ static void ScanAndLoadShaderFiles( void )
 
 			if ( ri.FS_ReadFile( filename, NULL ) <= 0 )
 			{
-				Com_sprintf( filename, sizeof( filename ), "scripts/%s", shaderFiles[i] );
+				Com_sprintf( filename, (int)sizeof( filename ), "scripts/%s", shaderFiles[i] );
 			}
 		}
 		
@@ -3687,7 +3687,7 @@ static void ScanAndLoadShaderFiles( void )
 			if(!*token)
 				break;
 
-			Q_strncpyz(shaderName, token, sizeof(shaderName));
+			Q_strncpyz(shaderName, token, (int)sizeof(shaderName));
 			shaderLine = COM_GetCurrentParseLine();
 
 			token = COM_ParseExt(&p, qtrue);
@@ -3733,7 +3733,7 @@ static void ScanAndLoadShaderFiles( void )
 
 		strcat( textEnd, buffers[i] );
 		strcat( textEnd, "\n" );
-		textEnd += strlen( textEnd );
+		textEnd += (int)strlen( textEnd );
 		ri.FS_FreeFile( buffers[i] );
 	}
 
@@ -3742,7 +3742,7 @@ static void ScanAndLoadShaderFiles( void )
 	// free up memory
 	ri.FS_FreeFileList( shaderFiles );
 
-	Com_Memset(shaderTextHashTableSizes, 0, sizeof(shaderTextHashTableSizes));
+	Com_Memset(shaderTextHashTableSizes, 0, (int)sizeof(shaderTextHashTableSizes));
 	size = 0;
 
 	p = s_shaderText;
@@ -3761,14 +3761,14 @@ static void ScanAndLoadShaderFiles( void )
 
 	size += MAX_SHADERTEXT_HASH;
 
-	hashMem = ri.Hunk_Alloc( size * sizeof(char *), h_low );
+	hashMem = ri.Hunk_Alloc( size * (int)sizeof(char *), h_low );
 
 	for (i = 0; i < MAX_SHADERTEXT_HASH; i++) {
 		shaderTextHashTable[i] = (char **) hashMem;
-		hashMem = ((char *) hashMem) + ((shaderTextHashTableSizes[i] + 1) * sizeof(char *));
+		hashMem = ((char *) hashMem) + ((shaderTextHashTableSizes[i] + 1) * (int)sizeof(char *));
 	}
 
-	Com_Memset(shaderTextHashTableSizes, 0, sizeof(shaderTextHashTableSizes));
+	Com_Memset(shaderTextHashTableSizes, 0, (int)sizeof(shaderTextHashTableSizes));
 
 	p = s_shaderText;
 	// look for shader names
@@ -3806,7 +3806,7 @@ static void CreateInternalShaders( void ) {
 	tr.defaultShader = FinishShader();
 
 	// shadow shader is just a marker
-	Q_strncpyz( shader.name, "<stencil shadow>", sizeof( shader.name ) );
+	Q_strncpyz( shader.name, "<stencil shadow>", (int)sizeof( shader.name ) );
 	shader.sort = SS_STENCIL_SHADOW;
 	tr.shadowShader = FinishShader();
 }
@@ -3859,7 +3859,7 @@ R_InitShaders
 void R_InitShaders( void ) {
 	ri.Printf( PRINT_ALL, "Initializing Shaders\n" );
 
-	Com_Memset(hashTable, 0, sizeof(hashTable));
+	Com_Memset(hashTable, 0, (int)sizeof(hashTable));
 
 	CreateInternalShaders();
 

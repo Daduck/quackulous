@@ -285,7 +285,7 @@ static void CG_General( centity_t *cent )
   if( !s1->modelindex )
     return;
 
-  memset( &ent, 0, sizeof( ent ) );
+  memset( &ent, 0, (int)sizeof( ent ) );
 
   // set frame
 
@@ -431,7 +431,7 @@ static void CG_Missile( centity_t *cent )
   }
 
   // create the render entity
-  memset( &ent, 0, sizeof( ent ) );
+  memset( &ent, 0, (int)sizeof( ent ) );
   VectorCopy( cent->lerpOrigin, ent.origin );
   VectorCopy( cent->lerpOrigin, ent.oldorigin );
 
@@ -501,7 +501,7 @@ static void CG_Mover( centity_t *cent )
   s1 = &cent->currentState;
 
   // create the render entity
-  memset( &ent, 0, sizeof( ent ) );
+  memset( &ent, 0, (int)sizeof( ent ) );
   VectorCopy( cent->lerpOrigin, ent.origin );
   VectorCopy( cent->lerpOrigin, ent.oldorigin );
   AnglesToAxis( cent->lerpAngles, ent.axis );
@@ -545,7 +545,7 @@ void CG_Beam( centity_t *cent )
   s1 = &cent->currentState;
 
   // create the render entity
-  memset( &ent, 0, sizeof( ent ) );
+  memset( &ent, 0, (int)sizeof( ent ) );
   VectorCopy( s1->pos.trBase, ent.origin );
   VectorCopy( s1->origin2, ent.oldorigin );
   AxisClear( ent.axis );
@@ -571,7 +571,7 @@ static void CG_Portal( centity_t *cent )
   s1 = &cent->currentState;
 
   // create the render entity
-  memset( &ent, 0, sizeof( ent ) );
+  memset( &ent, 0, (int)sizeof( ent ) );
   VectorCopy( cent->lerpOrigin, ent.origin );
   VectorCopy( s1->origin2, ent.oldorigin );
   ByteToDir( s1->eventParm, ent.axis[ 0 ] );
@@ -642,7 +642,7 @@ static void CG_LightFlare( centity_t *cent )
   if( tr.fraction < 1.0f || tr.allsolid )
     return;
 
-  memset( &flare, 0, sizeof( flare ) );
+  memset( &flare, 0, (int)sizeof( flare ) );
 
   flare.reType = RT_SPRITE;
   flare.customShader = cgs.gameShaders[ es->modelindex ];

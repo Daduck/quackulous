@@ -108,7 +108,7 @@ CON_HistAdd
 static void CON_HistAdd( void )
 {
 	Q_strncpyz( qconsole_history[ qconsole_history_oldest ], qconsole_line,
-		sizeof( qconsole_history[ qconsole_history_oldest ] ) );
+		(int)sizeof( qconsole_history[ qconsole_history_oldest ] ) );
 
 	if( qconsole_history_lines < QCONSOLE_HISTORY )
 		qconsole_history_lines++;
@@ -139,8 +139,8 @@ static void CON_HistPrev( void )
 
 	qconsole_history_pos = pos;
 	Q_strncpyz( qconsole_line, qconsole_history[ qconsole_history_pos ], 
-		sizeof( qconsole_line ) );
-	qconsole_linelen = strlen( qconsole_line );
+		(int)sizeof( qconsole_line ) );
+	qconsole_linelen = (int)strlen( qconsole_line );
 	qconsole_cursor = qconsole_linelen;
 }
 
@@ -172,8 +172,8 @@ static void CON_HistNext( void )
 
 	qconsole_history_pos = pos;
 	Q_strncpyz( qconsole_line, qconsole_history[ qconsole_history_pos ],
-		sizeof( qconsole_line ) );
-	qconsole_linelen = strlen( qconsole_line );
+		(int)sizeof( qconsole_line ) );
+	qconsole_linelen = (int)strlen( qconsole_line );
 	qconsole_cursor = qconsole_linelen;
 }
 
@@ -413,16 +413,16 @@ char *CON_Input( void )
 			field_t f;
 
 			Q_strncpyz( f.buffer, qconsole_line,
-				sizeof( f.buffer ) );
+				(int)sizeof( f.buffer ) );
 			Field_AutoComplete( &f );
 			Q_strncpyz( qconsole_line, f.buffer,
-				sizeof( qconsole_line ) );
-			qconsole_linelen = strlen( qconsole_line );
+				(int)sizeof( qconsole_line ) );
+			qconsole_linelen = (int)strlen( qconsole_line );
 			qconsole_cursor = qconsole_linelen;
 			break;
 		}
 
-		if( qconsole_linelen < sizeof( qconsole_line ) - 1 )
+		if( qconsole_linelen < (int)sizeof( qconsole_line ) - 1 )
 		{
 			char c = buff[ i ].Event.KeyEvent.uChar.AsciiChar;
 

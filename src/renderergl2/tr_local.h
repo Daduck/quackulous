@@ -979,7 +979,7 @@ typedef enum {
 	SF_VAO_MDVMESH,
 
 	SF_NUM_SURFACE_TYPES,
-	SF_MAX = 0x7fffffff			// ensures that sizeof( surfaceType_t ) == sizeof( int )
+	SF_MAX = 0x7fffffff			// ensures that (int)sizeof( surfaceType_t ) == (int)sizeof( int )
 } surfaceType_t;
 
 typedef struct drawSurf_s {

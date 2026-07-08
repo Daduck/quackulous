@@ -124,8 +124,8 @@ void Con_Dump_f (void)
 		return;
 	}
 
-	Q_strncpyz( filename, Cmd_Argv( 1 ), sizeof( filename ) );
-	COM_DefaultExtension( filename, sizeof( filename ), ".txt" );
+	Q_strncpyz( filename, Cmd_Argv( 1 ), (int)sizeof( filename ) );
+	COM_DefaultExtension( filename, (int)sizeof( filename ), ".txt" );
 
 	f = FS_FOpenFileWrite( filename );
 	if (!f)
@@ -148,9 +148,9 @@ void Con_Dump_f (void)
 	}
 
 #ifdef _WIN32
-	bufferlen = con.linewidth + 3 * sizeof ( char );
+	bufferlen = con.linewidth + 3 * (int)sizeof( char );
 #else
-	bufferlen = con.linewidth + 2 * sizeof ( char );
+	bufferlen = con.linewidth + 2 * (int)sizeof( char );
 #endif
 
 	buffer = Hunk_AllocateTempMemory( bufferlen );
@@ -174,7 +174,7 @@ void Con_Dump_f (void)
 #else
 		Q_strcat(buffer, bufferlen, "\n");
 #endif
-		FS_Write(buffer, strlen(buffer), f);
+		FS_Write(buffer, (int)strlen(buffer), f);
 	}
 
 	Hunk_FreeTempMemory( buffer );
@@ -236,7 +236,7 @@ void Con_CheckResize (void)
 		if (con.linewidth < numchars)
 			numchars = con.linewidth;
 
-		Com_Memcpy (tbuf, con.text, CON_TEXTSIZE * sizeof(short));
+		Com_Memcpy (tbuf, con.text, CON_TEXTSIZE * (int)sizeof(short));
 		for(i=0; i<CON_TEXTSIZE; i++)
 
 			con.text[i] = (ColorIndex(COLOR_WHITE)<<8) | ' ';
@@ -499,7 +499,7 @@ void Con_DrawSolidConsole( float frac ) {
 
 	re.SetColor( g_color_table[ColorIndex(COLOR_RED)] );
 
-	i = strlen( Q3_VERSION );
+	i = (int)strlen( Q3_VERSION );
 
 	for (x=0 ; x<i ; x++) {
 		SCR_DrawSmallChar( cls.glconfig.vidWidth - ( i - x + 1 ) * SMALLCHAR_WIDTH,

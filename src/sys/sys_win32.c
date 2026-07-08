@@ -117,12 +117,12 @@ char *Sys_DefaultHomePath( void )
 			return NULL;
 		}
 		
-		Com_sprintf(homePath, sizeof(homePath), "%s%c", szPath, PATH_SEP);
+		Com_sprintf(homePath, (int)sizeof(homePath), "%s%c", szPath, PATH_SEP);
 
 		if(com_homepath->string[0])
-			Q_strcat(homePath, sizeof(homePath), com_homepath->string);
+			Q_strcat(homePath, (int)sizeof(homePath), com_homepath->string);
 		else
-			Q_strcat(homePath, sizeof(homePath), HOMEPATH_NAME_WIN);
+			Q_strcat(homePath, (int)sizeof(homePath), HOMEPATH_NAME_WIN);
 	}
 
 	FreeLibrary(shfolder);
@@ -180,7 +180,7 @@ Sys_GetCurrentUser
 char *Sys_GetCurrentUser( void )
 {
 	static char s_userName[1024];
-	unsigned long size = sizeof( s_userName );
+	unsigned long size = (int)sizeof( s_userName );
 
 	if( !GetUserName( s_userName, &size ) )
 		strcpy( s_userName, "player" );
@@ -217,7 +217,7 @@ const char *Sys_Basename( char *path )
 	static char base[ MAX_OSPATH ] = { 0 };
 	int length;
 
-	length = strlen( path ) - 1;
+	length = (int)strlen( path ) - 1;
 
 	// Skip trailing slashes
 	while( length > 0 && path[ length ] == '\\' )
@@ -226,9 +226,9 @@ const char *Sys_Basename( char *path )
 	while( length > 0 && path[ length - 1 ] != '\\' )
 		length--;
 
-	Q_strncpyz( base, &path[ length ], sizeof( base ) );
+	Q_strncpyz( base, &path[ length ], (int)sizeof( base ) );
 
-	length = strlen( base ) - 1;
+	length = (int)strlen( base ) - 1;
 
 	// Strip trailing slashes
 	while( length > 0 && base[ length ] == '\\' )
@@ -247,8 +247,8 @@ const char *Sys_Dirname( char *path )
 	static char dir[ MAX_OSPATH ] = { 0 };
 	int length;
 
-	Q_strncpyz( dir, path, sizeof( dir ) );
-	length = strlen( dir ) - 1;
+	Q_strncpyz( dir, path, (int)sizeof( dir ) );
+	length = (int)strlen( dir ) - 1;
 
 	while( length > 0 && dir[ length ] != '\\' )
 		length--;
@@ -302,7 +302,7 @@ Sys_Cwd
 char *Sys_Cwd( void ) {
 	static char cwd[MAX_OSPATH];
 
-	_getcwd( cwd, sizeof( cwd ) - 1 );
+	_getcwd( cwd, (int)sizeof( cwd ) - 1 );
 	cwd[MAX_OSPATH-1] = 0;
 
 	return cwd;
@@ -334,11 +334,11 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 		return;
 	}
 
-	if (strlen(subdirs)) {
-		Com_sprintf( search, sizeof(search), "%s\\%s\\*", basedir, subdirs );
+	if ((int)strlen(subdirs)) {
+		Com_sprintf( search, (int)sizeof(search), "%s\\%s\\*", basedir, subdirs );
 	}
 	else {
-		Com_sprintf( search, sizeof(search), "%s\\*", basedir );
+		Com_sprintf( search, (int)sizeof(search), "%s\\*", basedir );
 	}
 
 	findhandle = _findfirst (search, &findinfo);
@@ -349,11 +349,11 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 	do {
 		if (findinfo.attrib & _A_SUBDIR) {
 			if (Q_stricmp(findinfo.name, ".") && Q_stricmp(findinfo.name, "..")) {
-				if (strlen(subdirs)) {
-					Com_sprintf( newsubdirs, sizeof(newsubdirs), "%s\\%s", subdirs, findinfo.name);
+				if ((int)strlen(subdirs)) {
+					Com_sprintf( newsubdirs, (int)sizeof(newsubdirs), "%s\\%s", subdirs, findinfo.name);
 				}
 				else {
-					Com_sprintf( newsubdirs, sizeof(newsubdirs), "%s", findinfo.name);
+					Com_sprintf( newsubdirs, (int)sizeof(newsubdirs), "%s", findinfo.name);
 				}
 				Sys_ListFilteredFiles( basedir, newsubdirs, filter, list, numfiles );
 			}
@@ -361,7 +361,7 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 		if ( *numfiles >= MAX_FOUND_FILES - 1 ) {
 			break;
 		}
-		Com_sprintf( filename, sizeof(filename), "%s\\%s", subdirs, findinfo.name );
+		Com_sprintf( filename, (int)sizeof(filename), "%s\\%s", subdirs, findinfo.name );
 		if (!Com_FilterPath( filter, filename, qfalse ))
 			continue;
 		list[ *numfiles ] = CopyString( filename );
@@ -380,8 +380,8 @@ static qboolean strgtr(const char *s0, const char *s1)
 {
 	int l0, l1, i;
 
-	l0 = strlen(s0);
-	l1 = strlen(s1);
+	l0 = (int)strlen(s0);
+	l1 = (int)strlen(s1);
 
 	if (l1<l0) {
 		l0 = l1;
@@ -426,7 +426,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 		if (!nfiles)
 			return NULL;
 
-		listCopy = Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
+		listCopy = Z_Malloc( ( nfiles + 1 ) * (int)sizeof( *listCopy ) );
 		for ( i = 0 ; i < nfiles ; i++ ) {
 			listCopy[i] = list[i];
 		}
@@ -447,9 +447,9 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 		flag = _A_SUBDIR;
 	}
 
-	extLen = strlen( extension );
+	extLen = (int)strlen( extension );
 
-	Com_sprintf( search, sizeof(search), "%s\\*%s", directory, extension );
+	Com_sprintf( search, (int)sizeof(search), "%s\\*%s", directory, extension );
 
 	// search
 	nfiles = 0;
@@ -463,9 +463,9 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	do {
 		if ( (!wantsubs && flag ^ ( findinfo.attrib & _A_SUBDIR )) || (wantsubs && findinfo.attrib & _A_SUBDIR) ) {
 			if (*extension) {
-				if ( strlen( findinfo.name ) < extLen ||
+				if ( (int)strlen( findinfo.name ) < extLen ||
 					Q_stricmp(
-						findinfo.name + strlen( findinfo.name ) - extLen,
+						findinfo.name + (int)strlen( findinfo.name ) - extLen,
 						extension ) ) {
 					continue; // didn't match
 				}
@@ -489,7 +489,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 		return NULL;
 	}
 
-	listCopy = Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
+	listCopy = Z_Malloc( ( nfiles + 1 ) * (int)sizeof( *listCopy ) );
 	for ( i = 0 ; i < nfiles ; i++ ) {
 		listCopy[i] = list[i];
 	}
@@ -581,7 +581,7 @@ void Sys_ErrorDialog( const char *error )
 			char buffer[ 1024 ];
 			unsigned int size;
 
-			while( ( size = CON_LogRead( buffer, sizeof( buffer ) ) ) > 0 )
+			while( ( size = CON_LogRead( buffer, (int)sizeof( buffer ) ) ) > 0 )
 			{
 				Com_Memcpy( p, buffer, size );
 				p += size;
@@ -667,7 +667,7 @@ void Sys_PlatformInit( void )
 	Sys_SetFloatEnv();
 
 #ifndef DEDICATED
-	if(timeGetDevCaps(&ptc, sizeof(ptc)) == MMSYSERR_NOERROR)
+	if(timeGetDevCaps(&ptc, (int)sizeof(ptc)) == MMSYSERR_NOERROR)
 	{
 		timerResolution = ptc.wPeriodMin;
 
@@ -735,10 +735,10 @@ qboolean Sys_PIDIsRunning( int pid )
 	DWORD numBytes, numProcesses;
 	int i;
 
-	if( !EnumProcesses( processes, sizeof( processes ), &numBytes ) )
+	if( !EnumProcesses( processes, (int)sizeof( processes ), &numBytes ) )
 		return qfalse; // Assume it's not running
 
-	numProcesses = numBytes / sizeof( DWORD );
+	numProcesses = numBytes / (int)sizeof( DWORD );
 
 	// Search for the pid
 	for( i = 0; i < numProcesses; i++ )

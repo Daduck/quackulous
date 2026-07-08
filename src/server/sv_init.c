@@ -44,7 +44,7 @@ static void SV_SendConfigstring(client_t *client, int index)
 		return;
 	}
 
-	len = strlen(sv.configstrings[index].s);
+	len = (int)strlen(sv.configstrings[index].s);
 
 	if( len >= maxChunkSize ) {
 		int		sent = 0;
@@ -213,8 +213,8 @@ void SV_SetUserinfo( int index, const char *val ) {
 		val = "";
 	}
 
-	Q_strncpyz( svs.clients[index].userinfo, val, sizeof( svs.clients[ index ].userinfo ) );
-	Q_strncpyz( svs.clients[index].name, Info_ValueForKey( val, "name" ), sizeof(svs.clients[index].name) );
+	Q_strncpyz( svs.clients[index].userinfo, val, (int)sizeof( svs.clients[ index ].userinfo ) );
+	Q_strncpyz( svs.clients[index].name, Info_ValueForKey( val, "name" ), (int)sizeof(svs.clients[index].name) );
 }
 
 
@@ -300,7 +300,7 @@ static void SV_Startup( void ) {
 	}
 	SV_BoundMaxClients( 1 );
 
-	svs.clients = Z_Malloc (sizeof(client_t) * sv_maxclients->integer );
+	svs.clients = Z_Malloc ((int)sizeof(client_t) * sv_maxclients->integer );
 	if ( com_dedicated->integer ) {
 		svs.numSnapshotEntities = sv_maxclients->integer * PACKET_BACKUP * MAX_SNAPSHOT_ENTITIES;
 	} else {
@@ -350,14 +350,14 @@ void SV_ChangeMaxClients( void ) {
 		return;
 	}
 
-	oldClients = Hunk_AllocateTempMemory( count * sizeof(client_t) );
+	oldClients = Hunk_AllocateTempMemory( count * (int)sizeof(client_t) );
 	// copy the clients to hunk memory
 	for ( i = 0 ; i < count ; i++ ) {
 		if ( svs.clients[i].state >= CS_CONNECTED ) {
 			oldClients[i] = svs.clients[i];
 		}
 		else {
-			Com_Memset(&oldClients[i], 0, sizeof(client_t));
+			Com_Memset(&oldClients[i], 0, (int)sizeof(client_t));
 		}
 	}
 
@@ -365,8 +365,8 @@ void SV_ChangeMaxClients( void ) {
 	Z_Free( svs.clients );
 
 	// allocate new clients
-	svs.clients = Z_Malloc ( sv_maxclients->integer * sizeof(client_t) );
-	Com_Memset( svs.clients, 0, sv_maxclients->integer * sizeof(client_t) );
+	svs.clients = Z_Malloc ( sv_maxclients->integer * (int)sizeof(client_t) );
+	Com_Memset( svs.clients, 0, sv_maxclients->integer * (int)sizeof(client_t) );
 
 	// copy the clients over
 	for ( i = 0 ; i < count ; i++ ) {
@@ -400,7 +400,7 @@ static void SV_ClearServer(void) {
 			Z_Free( sv.configstrings[i].s );
 		}
 	}
-	Com_Memset (&sv, 0, sizeof(sv));
+	Com_Memset (&sv, 0, (int)sizeof(sv));
 }
 
 /*
@@ -414,7 +414,7 @@ static void SV_TouchCGame(void) {
 	fileHandle_t	f;
 	char filename[MAX_QPATH];
 
-	Com_sprintf( filename, sizeof(filename), "vm/%s.qvm", "cgame" );
+	Com_sprintf( filename, (int)sizeof(filename), "vm/%s.qvm", "cgame" );
 	FS_FOpenFileRead( filename, &f, qfalse );
 	if ( f ) {
 		FS_FCloseFile( f );
@@ -469,7 +469,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	FS_ClearPakReferences(0);
 
 	// allocate the snapshot entities on the hunk
-	svs.snapshotEntities = Hunk_Alloc( sizeof(entityState_t)*svs.numSnapshotEntities, h_high );
+	svs.snapshotEntities = Hunk_Alloc( (int)sizeof(entityState_t)*svs.numSnapshotEntities, h_high );
 	svs.nextSnapshotEntities = 0;
 
 	// toggle the server bit so clients can detect that a
@@ -488,7 +488,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
 		sv.configstrings[i].s = CopyString("");
 		sv.configstrings[i].restricted = qfalse;
-		Com_Memset(&sv.configstrings[i].clientList, 0, sizeof(clientList_t));
+		Com_Memset(&sv.configstrings[i].clientList, 0, (int)sizeof(clientList_t));
 	}
 
 	// make sure we are not paused
@@ -562,7 +562,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		// load pk3s also loaded at the server
 		p = FS_LoadedPakChecksums();
 		Cvar_Set( "sv_paks", p );
-		if (strlen(p) == 0) {
+		if ((int)strlen(p) == 0) {
 			Com_Printf( "WARNING: sv_pure set but no PK3 files loaded\n" );
 		}
 		p = FS_LoadedPakNames();
@@ -586,7 +586,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	Cvar_Set( "sv_referencedPakNames", p );
 
 	// save systeminfo and serverinfo strings
-	Q_strncpyz( systemInfo, Cvar_InfoString_Big( CVAR_SYSTEMINFO ), sizeof( systemInfo ) );
+	Q_strncpyz( systemInfo, Cvar_InfoString_Big( CVAR_SYSTEMINFO ), (int)sizeof( systemInfo ) );
 	cvar_modifiedFlags &= ~CVAR_SYSTEMINFO;
 	SV_SetConfigstring( CS_SYSTEMINFO, systemInfo );
 
@@ -749,7 +749,7 @@ void SV_Shutdown( char *finalmsg ) {
 		
 		Z_Free(svs.clients);
 	}
-	Com_Memset( &svs, 0, sizeof( svs ) );
+	Com_Memset( &svs, 0, (int)sizeof( svs ) );
 
 	Cvar_Set( "sv_running", "0" );
 	Cvar_Set("ui_singlePlayerActive", "0");

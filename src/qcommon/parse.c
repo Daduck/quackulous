@@ -330,8 +330,8 @@ static void Parse_CreatePunctuationTable(script_t *script, punctuation_t *punctu
 
   //get memory for the table
   if (!script->punctuationtable) script->punctuationtable = (punctuation_t **)
-                        Z_Malloc(256 * sizeof(punctuation_t *));
-  Com_Memset(script->punctuationtable, 0, 256 * sizeof(punctuation_t *));
+                        Z_Malloc(256 * (int)sizeof(punctuation_t *));
+  Com_Memset(script->punctuationtable, 0, 256 * (int)sizeof(punctuation_t *));
   //add the punctuations in the list to the punctuation table
   for (i = 0; punctuations[i].p; i++)
   {
@@ -340,7 +340,7 @@ static void Parse_CreatePunctuationTable(script_t *script, punctuation_t *punctu
     //sort the punctuations in this table entry on length (longer punctuations first)
     for (p = script->punctuationtable[(unsigned int) newp->p[0]]; p; p = p->next)
     {
-      if (strlen(p->p) < strlen(newp->p))
+      if ((int)strlen(p->p) < (int)strlen(newp->p))
       {
         newp->next = p;
         if (lastp) lastp->next = newp;
@@ -853,7 +853,7 @@ static int Parse_ReadPunctuation(script_t *script, token_t *token)
   for (punc = script->punctuationtable[(unsigned int)*script->script_p]; punc; punc = punc->next)
   {
     p = punc->p;
-    len = strlen(p);
+    len = (int)strlen(p);
     //if the script contains at least as much characters as the punctuation
     if (script->script_p + len <= script->end_p)
     {
@@ -893,7 +893,7 @@ static int Parse_ReadPrimitive(script_t *script, token_t *token)
   }
   token->string[len] = 0;
   //copy the token into the script structure
-  Com_Memcpy(&script->token, token, sizeof(token_t));
+  Com_Memcpy(&script->token, token, (int)sizeof(token_t));
   //primitive reading successfull
   return 1;
 }
@@ -909,7 +909,7 @@ static int Parse_ReadScriptToken(script_t *script, token_t *token)
   if (script->tokenavailable)
   {
     script->tokenavailable = 0;
-    Com_Memcpy(token, &script->token, sizeof(token_t));
+    Com_Memcpy(token, &script->token, (int)sizeof(token_t));
     return 1;
   }
   //save script pointer
@@ -917,7 +917,7 @@ static int Parse_ReadScriptToken(script_t *script, token_t *token)
   //save line counter
   script->lastline = script->line;
   //clear the token stuff
-  Com_Memset(token, 0, sizeof(token_t));
+  Com_Memset(token, 0, (int)sizeof(token_t));
   //start of the white space
   script->whitespace_p = script->script_p;
   token->whitespace_p = script->script_p;
@@ -967,7 +967,7 @@ static int Parse_ReadScriptToken(script_t *script, token_t *token)
     return 0;
   }
   //copy the token into the script structure
-  Com_Memcpy(&script->token, token, sizeof(token_t));
+  Com_Memcpy(&script->token, token, (int)sizeof(token_t));
   //succesfully read a token
   return 1;
 }
@@ -981,11 +981,11 @@ static void Parse_StripDoubleQuotes(char *string)
 {
   if (*string == '\"')
   {
-    memmove( string, string + 1, strlen( string ) + 1 );
+    memmove( string, string + 1, (int)strlen( string ) + 1 );
   }
-  if (string[strlen(string)-1] == '\"')
+  if (string[(int)strlen(string)-1] == '\"')
   {
-    string[strlen(string)-1] = '\0';
+    string[(int)strlen(string)-1] = '\0';
   }
 }
 
@@ -1014,13 +1014,13 @@ static script_t *Parse_LoadScriptFile(const char *filename)
   length = FS_FOpenFileRead( filename, &fp, qfalse );
   if (!fp) return NULL;
 
-  buffer = Z_Malloc(sizeof(script_t) + length + 1);
-  Com_Memset( buffer, 0, sizeof(script_t) + length + 1 );
+  buffer = Z_Malloc((int)sizeof(script_t) + length + 1);
+  Com_Memset( buffer, 0, (int)sizeof(script_t) + length + 1 );
 
   script = (script_t *) buffer;
-  Com_Memset(script, 0, sizeof(script_t));
+  Com_Memset(script, 0, (int)sizeof(script_t));
   strcpy(script->filename, filename);
-  script->buffer = (char *) buffer + sizeof(script_t);
+  script->buffer = (char *) buffer + (int)sizeof(script_t);
   script->buffer[length] = 0;
   script->length = length;
   //pointer in script buffer
@@ -1054,13 +1054,13 @@ static script_t *Parse_LoadScriptMemory(char *ptr, int length, char *name)
   void *buffer;
   script_t *script;
 
-  buffer = Z_Malloc(sizeof(script_t) + length + 1);
-  Com_Memset( buffer, 0, sizeof(script_t) + length + 1 );
+  buffer = Z_Malloc((int)sizeof(script_t) + length + 1);
+  Com_Memset( buffer, 0, (int)sizeof(script_t) + length + 1 );
 
   script = (script_t *) buffer;
-  Com_Memset(script, 0, sizeof(script_t));
+  Com_Memset(script, 0, (int)sizeof(script_t));
   strcpy(script->filename, name);
-  script->buffer = (char *) buffer + sizeof(script_t);
+  script->buffer = (char *) buffer + (int)sizeof(script_t);
   script->buffer[length] = 0;
   script->length = length;
   //pointer in script buffer
@@ -1134,7 +1134,7 @@ static void Parse_PushIndent(source_t *source, int type, int skip)
 {
   indent_t *indent;
 
-  indent = (indent_t *) Z_Malloc(sizeof(indent_t));
+  indent = (indent_t *) Z_Malloc((int)sizeof(indent_t));
   indent->type = type;
   indent->script = source->scriptstack;
   indent->skip = (skip != 0);
@@ -1199,8 +1199,8 @@ static token_t *Parse_CopyToken(token_t *token)
 {
   token_t *t;
 
-//  t = (token_t *) malloc(sizeof(token_t));
-  t = (token_t *) Z_Malloc(sizeof(token_t));
+//  t = (token_t *) malloc((int)sizeof(token_t));
+  t = (token_t *) Z_Malloc((int)sizeof(token_t));
 //  t = freetokens;
   if (!t)
   {
@@ -1208,7 +1208,7 @@ static token_t *Parse_CopyToken(token_t *token)
     return NULL;
   }
 //  freetokens = freetokens->next;
-  Com_Memcpy(t, token, sizeof(token_t));
+  Com_Memcpy(t, token, (int)sizeof(token_t));
   t->next = NULL;
   numtokens++;
   return t;
@@ -1272,7 +1272,7 @@ static int Parse_ReadSourceToken(source_t *source, token_t *token)
     Parse_FreeScript(script);
   }
   //copy the already available token
-  Com_Memcpy(token, source->tokens, sizeof(token_t));
+  Com_Memcpy(token, source->tokens, (int)sizeof(token_t));
   //free the read token
   t = source->tokens;
   source->tokens = source->tokens->next;
@@ -1410,9 +1410,9 @@ static int Parse_StringizeTokens(token_t *tokens, token_t *token)
   strcat(token->string, "\"");
   for (t = tokens; t; t = t->next)
   {
-    strncat(token->string, t->string, MAX_TOKEN_CHARS - strlen(token->string));
+    strncat(token->string, t->string, MAX_TOKEN_CHARS - (int)strlen(token->string));
   }
-  strncat(token->string, "\"", MAX_TOKEN_CHARS - strlen(token->string));
+  strncat(token->string, "\"", MAX_TOKEN_CHARS - (int)strlen(token->string));
   return qtrue;
 }
 
@@ -1433,7 +1433,7 @@ static int Parse_MergeTokens(token_t *t1, token_t *t2)
   if (t1->type == TT_STRING && t2->type == TT_STRING)
   {
     //remove trailing double quote
-    t1->string[strlen(t1->string)-1] = '\0';
+    t1->string[(int)strlen(t1->string)-1] = '\0';
     //concat without leading double quote
     strcat(t1->string, &t2->string[1]);
     return qtrue;
@@ -1570,7 +1570,7 @@ static int Parse_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define
     {
       strcpy(token->string, source->scriptstack->filename);
       token->type = TT_NAME;
-      token->subtype = strlen(token->string);
+      token->subtype = (int)strlen(token->string);
       *firsttoken = token;
       *lasttoken = token;
       break;
@@ -1585,7 +1585,7 @@ static int Parse_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define
       strcat(token->string, "\"");
       free(curtime);
       token->type = TT_NAME;
-      token->subtype = strlen(token->string);
+      token->subtype = (int)strlen(token->string);
       *firsttoken = token;
       *lasttoken = token;
       break;
@@ -1599,7 +1599,7 @@ static int Parse_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define
       strcat(token->string, "\"");
       free(curtime);
       token->type = TT_NAME;
-      token->subtype = strlen(token->string);
+      token->subtype = (int)strlen(token->string);
       *firsttoken = token;
       *lasttoken = token;
       break;
@@ -1778,7 +1778,7 @@ static void Parse_ConvertPath(char *path)
     if ((*ptr == '\\' || *ptr == '/') &&
         (*(ptr+1) == '\\' || *(ptr+1) == '/'))
     {
-      memmove(ptr, ptr+1, strlen(ptr));
+      memmove(ptr, ptr+1, (int)strlen(ptr));
     }
     else
     {
@@ -1957,7 +1957,7 @@ static int Parse_EvaluateTokens(source_t *source, token_t *tokens, signed long i
           error = 1;
           break;
         }
-        //v = (value_t *) Z_Malloc(sizeof(value_t));
+        //v = (value_t *) Z_Malloc((int)sizeof(value_t));
         AllocValue(v);
         if (Parse_FindHashedDefine(source->definehash, t->string))
         {
@@ -1998,7 +1998,7 @@ static int Parse_EvaluateTokens(source_t *source, token_t *tokens, signed long i
           error = 1;
           break;
         }
-        //v = (value_t *) Z_Malloc(sizeof(value_t));
+        //v = (value_t *) Z_Malloc((int)sizeof(value_t));
         AllocValue(v);
         if (negativevalue)
         {
@@ -2128,7 +2128,7 @@ static int Parse_EvaluateTokens(source_t *source, token_t *tokens, signed long i
         }
         if (!error && !negativevalue)
         {
-          //o = (operator_t *) Z_Malloc(sizeof(operator_t));
+          //o = (operator_t *) Z_Malloc((int)sizeof(operator_t));
           AllocOperator(o);
           o->operator = t->subtype;
           o->priority = Parse_OperatorPriority(t->subtype);
@@ -2561,7 +2561,7 @@ static int Parse_Directive_include(source_t *source)
     {
       Parse_SourceWarning(source, "#include missing trailing >");
     }
-    if (!strlen(path))
+    if (!(int)strlen(path))
     {
       Parse_SourceError(source, "#include without file name between < >");
       return qfalse;
@@ -3041,9 +3041,9 @@ static int Parse_Directive_define(source_t *source)
     define = Parse_FindHashedDefine(source->definehash, token.string);
   }
   //allocate define
-  define = (define_t *) Z_Malloc(sizeof(define_t) + strlen(token.string) + 1);
-  Com_Memset(define, 0, sizeof(define_t));
-  define->name = (char *) define + sizeof(define_t);
+  define = (define_t *) Z_Malloc((int)sizeof(define_t) + (int)strlen(token.string) + 1);
+  Com_Memset(define, 0, (int)sizeof(define_t));
+  define->name = (char *) define + (int)sizeof(define_t);
   strcpy(define->name, token.string);
   //add the define to the source
   Parse_AddDefineToHash(define, source->definehash);
@@ -3377,8 +3377,8 @@ static int Parse_ReadToken(source_t *source, token_t *token)
       {
         if (newtoken.type == TT_STRING)
         {
-          token->string[strlen(token->string)-1] = '\0';
-          if (strlen(token->string) + strlen(newtoken.string+1) + 1 >= MAX_TOKEN_CHARS)
+          token->string[(int)strlen(token->string)-1] = '\0';
+          if ((int)strlen(token->string) + (int)strlen(newtoken.string+1) + 1 >= MAX_TOKEN_CHARS)
           {
             Parse_SourceError(source, "string longer than MAX_TOKEN_CHARS %d\n", MAX_TOKEN_CHARS);
             return qfalse;
@@ -3407,7 +3407,7 @@ static int Parse_ReadToken(source_t *source, token_t *token)
       }
     }
     //copy token for unreading
-    Com_Memcpy(&source->token, token, sizeof(token_t));
+    Com_Memcpy(&source->token, token, (int)sizeof(token_t));
     //found a token
     return qtrue;
   }
@@ -3426,13 +3426,13 @@ static define_t *Parse_DefineFromString(char *string)
   int res, i;
   define_t *def;
 
-  script = Parse_LoadScriptMemory(string, strlen(string), "*extern");
+  script = Parse_LoadScriptMemory(string, (int)strlen(string), "*extern");
   //create a new source
-  Com_Memset(&src, 0, sizeof(source_t));
+  Com_Memset(&src, 0, (int)sizeof(source_t));
   strncpy(src.filename, "*extern", MAX_QPATH);
   src.scriptstack = script;
-  src.definehash = Z_Malloc(DEFINEHASHSIZE * sizeof(define_t *));
-  Com_Memset( src.definehash, 0, DEFINEHASHSIZE * sizeof(define_t *));
+  src.definehash = Z_Malloc(DEFINEHASHSIZE * (int)sizeof(define_t *));
+  Com_Memset( src.definehash, 0, DEFINEHASHSIZE * (int)sizeof(define_t *));
   //create a define from the source
   res = Parse_Directive_define(&src);
   //free any tokens if left
@@ -3470,7 +3470,7 @@ Parse_AddDefineToSourceFromString
 static qboolean Parse_AddDefineToSourceFromString( source_t *source,
                                                    char *string )
 {
-  Parse_PushScript( source, Parse_LoadScriptMemory( string, strlen( string ),
+  Parse_PushScript( source, Parse_LoadScriptMemory( string, (int)strlen( string ),
                                                     "*extern" ) );
   return Parse_Directive_define( source );
 }
@@ -3503,9 +3503,9 @@ static define_t *Parse_CopyDefine(source_t *source, define_t *define)
   define_t *newdefine;
   token_t *token, *newtoken, *lasttoken;
 
-  newdefine = (define_t *) Z_Malloc(sizeof(define_t) + strlen(define->name) + 1);
+  newdefine = (define_t *) Z_Malloc((int)sizeof(define_t) + (int)strlen(define->name) + 1);
   //copy the define name
-  newdefine->name = (char *) newdefine + sizeof(define_t);
+  newdefine->name = (char *) newdefine + (int)sizeof(define_t);
   strcpy(newdefine->name, define->name);
   newdefine->flags = define->flags;
   newdefine->builtin = define->builtin;
@@ -3567,8 +3567,8 @@ static source_t *Parse_LoadSourceFile(const char *filename)
 
   script->next = NULL;
 
-  source = (source_t *) Z_Malloc(sizeof(source_t));
-  Com_Memset(source, 0, sizeof(source_t));
+  source = (source_t *) Z_Malloc((int)sizeof(source_t));
+  Com_Memset(source, 0, (int)sizeof(source_t));
 
   strncpy(source->filename, filename, MAX_QPATH);
   source->scriptstack = script;
@@ -3577,8 +3577,8 @@ static source_t *Parse_LoadSourceFile(const char *filename)
   source->indentstack = NULL;
   source->skip = 0;
 
-  source->definehash = Z_Malloc(DEFINEHASHSIZE * sizeof(define_t *));
-  Com_Memset( source->definehash, 0, DEFINEHASHSIZE * sizeof(define_t *));
+  source->definehash = Z_Malloc(DEFINEHASHSIZE * (int)sizeof(define_t *));
+  Com_Memset( source->definehash, 0, DEFINEHASHSIZE * (int)sizeof(define_t *));
   Parse_AddGlobalDefinesToSource(source);
   return source;
 }

@@ -145,7 +145,7 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
     //FIXME: the + 1 may be unnecessary
     if( !p->valid && cg.clientFrame > p->frameWhenInvalidated + 1 )
     {
-      memset( p, 0, sizeof( particle_t ) );
+      memset( p, 0, (int)sizeof( particle_t ) );
 
       //found a free slot
       p->class = bp;
@@ -406,7 +406,7 @@ static particleEjector_t *CG_SpawnNewParticleEjector( baseParticleEjector_t *bpe
 
     if( !pe->valid )
     {
-      memset( pe, 0, sizeof( particleEjector_t ) );
+      memset( pe, 0, (int)sizeof( particleEjector_t ) );
 
       //found a free slot
       pe->class = bpe;
@@ -459,7 +459,7 @@ particleSystem_t *CG_SpawnNewParticleSystem( qhandle_t psHandle )
 
     if( !ps->valid )
     {
-      memset( ps, 0, sizeof( particleSystem_t ) );
+      memset( ps, 0, (int)sizeof( particleSystem_t ) );
 
       //found a free slot
       ps->class = bps;
@@ -573,7 +573,7 @@ static void CG_ParseValueAndVariance( char *token, float *value, float *variance
   float localValue = 0.0f;
   float localVariance = 0.0f;
 
-  Q_strncpyz( valueBuffer, token, sizeof( valueBuffer ) );
+  Q_strncpyz( valueBuffer, token, (int)sizeof( valueBuffer ) );
 
   variancePtr = strchr( valueBuffer, '~' );
 
@@ -652,7 +652,7 @@ static void CG_CopyLine( int *i, char *toks, size_t num, size_t size, char **tex
     if( !*token )
       break;
 
-    Q_strncpyz( toks, token, size );
+    Q_strncpyz( toks, token, (int)size );
     ( *i )++;
 
     toks += size;
@@ -1146,7 +1146,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
 
         if( !Q_stricmp( token, "-" ) )
         {
-          memcpy( bp->finalColor, bp->initialColor, sizeof( bp->finalColor ) );
+          memcpy( bp->finalColor, bp->initialColor, (int)sizeof( bp->finalColor ) );
         }
         else if( !Q_stricmp( token, "{" ) )
         {
@@ -1247,10 +1247,10 @@ CG_InitialiseBaseParticle
 */
 static void CG_InitialiseBaseParticle( baseParticle_t *bp )
 {
-  memset( bp, 0, sizeof( baseParticle_t ) );
+  memset( bp, 0, (int)sizeof( baseParticle_t ) );
 
-  memset( bp->initialColor, 0xFF, sizeof( bp->initialColor ) );
-  memset( bp->finalColor, 0xFF, sizeof( bp->finalColor ) );
+  memset( bp->initialColor, 0xFF, (int)sizeof( bp->initialColor ) );
+  memset( bp->finalColor, 0xFF, (int)sizeof( bp->finalColor ) );
 }
 
 /*
@@ -1466,7 +1466,7 @@ static qboolean CG_ParseParticleFile( const char *fileName )
   if( len < 0 )
     return qfalse;
 
-  if( len == 0 || len >= sizeof( text ) - 1 )
+  if( len == 0 || len >= (int)sizeof( text ) - 1 )
   {
     trap_FS_FCloseFile( f );
     CG_Printf( S_COLOR_RED "ERROR: particle file %s is %s\n", fileName,
@@ -1521,7 +1521,7 @@ static qboolean CG_ParseParticleFile( const char *fileName )
     }
     else if( !psNameSet )
     {
-      Q_strncpyz( psName, token, sizeof( psName ) );
+      Q_strncpyz( psName, token, (int)sizeof( psName ) );
       
       //check for name space clashes
       for( i = 0; i < numBaseParticleSystems; i++ )
@@ -1573,19 +1573,19 @@ void CG_LoadParticleSystems( void )
   for( i = 0; i < MAX_BASEPARTICLE_SYSTEMS; i++ )
   {
     baseParticleSystem_t  *bps = &baseParticleSystems[ i ];
-    memset( bps, 0, sizeof( baseParticleSystem_t ) );
+    memset( bps, 0, (int)sizeof( baseParticleSystem_t ) );
   }
 
   for( i = 0; i < MAX_BASEPARTICLE_EJECTORS; i++ )
   {
     baseParticleEjector_t  *bpe = &baseParticleEjectors[ i ];
-    memset( bpe, 0, sizeof( baseParticleEjector_t ) );
+    memset( bpe, 0, (int)sizeof( baseParticleEjector_t ) );
   }
 
   for( i = 0; i < MAX_BASEPARTICLES; i++ )
   {
     baseParticle_t  *bp = &baseParticles[ i ];
-    memset( bp, 0, sizeof( baseParticle_t ) );
+    memset( bp, 0, (int)sizeof( baseParticle_t ) );
   }
 
 
@@ -1596,7 +1596,7 @@ void CG_LoadParticleSystems( void )
 
   for( i = 0; i < numFiles; i++, filePtr += fileLen + 1 )
   {
-    fileLen = strlen( filePtr );
+    fileLen = (int)strlen( filePtr );
     strcpy( fileName, "scripts/" );
     strcat( fileName, filePtr );
     CG_Printf( "...loading '%s'\n", fileName );
@@ -2046,7 +2046,7 @@ static void CG_Radix( int bits, int size, particle_t **source, particle_t **dest
   int index[ 256 ];
   int i;
 
-  memset( count, 0, sizeof( count ) );
+  memset( count, 0, (int)sizeof( count ) );
 
   for( i = 0; i < size; i++ )
     count[ GETKEY( source[ i ]->sortKey, bits ) ]++;
@@ -2149,7 +2149,7 @@ static void CG_RenderParticle( particle_t *p )
   int                   i;
   vec3_t                up = { 0.0f, 0.0f, 1.0f };
 
-  memset( &re, 0, sizeof( refEntity_t ) );
+  memset( &re, 0, (int)sizeof( refEntity_t ) );
 
   timeFrac = CG_CalculateTimeFrac( p->birthTime, p->lifeTime, 0 );
 

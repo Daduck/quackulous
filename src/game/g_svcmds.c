@@ -123,7 +123,7 @@ static gclient_t *ClientForString( char *s )
   int  idnum;
   char err[ MAX_STRING_CHARS ];
 
-  idnum = G_ClientNumberFromString( s, err, sizeof( err ) );
+  idnum = G_ClientNumberFromString( s, err, (int)sizeof( err ) );
   if( idnum == -1 )
   {
     G_Printf( "%s", err );
@@ -154,7 +154,7 @@ static void Svcmd_Status_f( void )
     else
       G_Printf( "%-4d ", cl->ps.ping );
 
-    trap_GetUserinfo( i, userinfo, sizeof( userinfo ) );
+    trap_GetUserinfo( i, userinfo, (int)sizeof( userinfo ) );
     G_Printf( "%-21s ", Info_ValueForKey( userinfo, "ip" ) );
     G_Printf( "%-8d ", atoi( Info_ValueForKey( userinfo, "rate" ) ) );
     G_Printf( "%s\n", cl->pers.netname ); // Info_ValueForKey( userinfo, "name" )
@@ -180,13 +180,13 @@ static void Svcmd_ForceTeam_f( void )
     return;
   }
 
-  trap_Argv( 1, str, sizeof( str ) );
+  trap_Argv( 1, str, (int)sizeof( str ) );
   cl = ClientForString( str );
 
   if( !cl )
     return;
 
-  trap_Argv( 2, str, sizeof( str ) );
+  trap_Argv( 2, str, (int)sizeof( str ) );
   team = G_TeamFromString( str );
   if( team == NUM_TEAMS )
   {
@@ -215,11 +215,11 @@ static void Svcmd_LayoutSave_f( void )
     G_Printf( "usage: layoutsave <name>\n" );
     return;
   }
-  trap_Argv( 1, str, sizeof( str ) );
+  trap_Argv( 1, str, (int)sizeof( str ) );
 
   // sanitize name
   s = &str[ 0 ];
-  while( *s && i < sizeof( str2 ) - 1 )
+  while( *s && i < (int)sizeof( str2 ) - 1 )
   {
     if( isalnum( *s ) || *s == '-' || *s == '_' )
     {
@@ -263,7 +263,7 @@ static void Svcmd_LayoutLoad_f( void )
   }
 
   s = ConcatArgs( 1 );
-  Q_strncpyz( layouts, s, sizeof( layouts ) );
+  Q_strncpyz( layouts, s, (int)sizeof( layouts ) );
   trap_Cvar_Set( "g_layouts", layouts ); 
   trap_SendConsoleCommand( EXEC_APPEND, "map_restart\n" );
   level.restarted = qtrue;
@@ -279,7 +279,7 @@ static void Svcmd_AdmitDefeat_f( void )
     G_Printf("admitdefeat: must provide a team\n");
     return;
   }
-  trap_Argv( 1, teamNum, sizeof( teamNum ) );
+  trap_Argv( 1, teamNum, (int)sizeof( teamNum ) );
   team = G_TeamFromString( teamNum );
   if( team == TEAM_ALIENS )
   {
@@ -304,7 +304,7 @@ static void Svcmd_TeamWin_f( void )
 {
   // this is largely made redundant by admitdefeat <team>
   char cmd[ 6 ];
-  trap_Argv( 0, cmd, sizeof( cmd ) );
+  trap_Argv( 0, cmd, (int)sizeof( cmd ) );
 
   switch( G_TeamFromString( cmd ) )
   {
@@ -341,7 +341,7 @@ static void Svcmd_MapRotation_f( void )
 
   G_ClearRotationStack( );
 
-  trap_Argv( 1, rotationName, sizeof( rotationName ) );
+  trap_Argv( 1, rotationName, (int)sizeof( rotationName ) );
   if( !G_StartMapRotation( rotationName, qfalse, qtrue, qfalse, 0 ) )
     G_Printf( "maprotation: invalid map rotation \"%s\"\n", rotationName );
 }
@@ -357,7 +357,7 @@ static void Svcmd_TeamMessage_f( void )
     return;
   }
 
-  trap_Argv( 1, teamNum, sizeof( teamNum ) );
+  trap_Argv( 1, teamNum, (int)sizeof( teamNum ) );
   team = G_TeamFromString( teamNum );
 
   if( team == NUM_TEAMS )
@@ -391,7 +391,7 @@ static void Svcmd_EjectClient_f( void )
     return;
   }
 
-  trap_Argv( 1, name, sizeof( name ) );
+  trap_Argv( 1, name, (int)sizeof( name ) );
   reason = ConcatArgs( 2 );
 
   if( atoi( name ) == -1 )
@@ -433,12 +433,12 @@ static void Svcmd_DumpUser_f( void )
     return;
   }
 
-  trap_Argv( 1, name, sizeof( name ) );
+  trap_Argv( 1, name, (int)sizeof( name ) );
   cl = ClientForString( name );
   if( !cl )
     return;
 
-  trap_GetUserinfo( cl-level.clients, userinfo, sizeof( userinfo ) );
+  trap_GetUserinfo( cl-level.clients, userinfo, (int)sizeof( userinfo ) );
   info = &userinfo[ 0 ];
   G_Printf( "userinfo\n--------\n" );
   //Info_Print( userinfo );
@@ -463,7 +463,7 @@ static void Svcmd_Pr_f( void )
     return;
   }
 
-  trap_Argv( 1, targ, sizeof( targ ) );
+  trap_Argv( 1, targ, (int)sizeof( targ ) );
   cl = atoi( targ );
 
   if( cl >= MAX_CLIENTS || cl < -1 )
@@ -485,7 +485,7 @@ static void Svcmd_PrintQueue_f( void )
     return;
   }
 
-  trap_Argv( 1, team, sizeof( team ) );
+  trap_Argv( 1, team, (int)sizeof( team ) );
 
   switch( G_TeamFromString( team ) )
   {
@@ -506,7 +506,7 @@ static void Svcmd_PrintQueue_f( void )
 static void Svcmd_MessageWrapper( void )
 {
   char cmd[ 5 ];
-  trap_Argv( 0, cmd, sizeof( cmd ) );
+  trap_Argv( 0, cmd, (int)sizeof( cmd ) );
 
   if( !Q_stricmp( cmd, "a" ) )
     Cmd_AdminMessage_f( NULL );
@@ -527,7 +527,7 @@ static void Svcmd_SuddenDeath_f( void )
 {
   char secs[ 5 ];
   int  offset;
-  trap_Argv( 1, secs, sizeof( secs ) );
+  trap_Argv( 1, secs, (int)sizeof( secs ) );
   offset = atoi( secs );
 
   level.suddenDeathBeginTime = level.time - level.startTime + offset * 1000;
@@ -586,10 +586,10 @@ qboolean  ConsoleCommand( void )
   char cmd[ MAX_TOKEN_CHARS ];
   struct svcmd *command;
 
-  trap_Argv( 0, cmd, sizeof( cmd ) );
+  trap_Argv( 0, cmd, (int)sizeof( cmd ) );
 
   command = bsearch( cmd, svcmds, ARRAY_LEN( svcmds ),
-    sizeof( struct svcmd ), cmdcmp );
+    (int)sizeof( struct svcmd ), cmdcmp );
 
   if( !command )
   {

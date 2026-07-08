@@ -203,7 +203,7 @@ void S_ChannelSetup( void ) {
 	channel_t *p, *q;
 
 	// clear all the sounds so they don't
-	Com_Memset( s_channels, 0, sizeof( s_channels ) );
+	Com_Memset( s_channels, 0, (int)sizeof( s_channels ) );
 
 	p = s_channels;;
 	q = p + MAX_CHANNELS;
@@ -267,7 +267,7 @@ static sfx_t *S_FindName( const char *name ) {
 		return NULL;
 	}
 
-	if (strlen(name) >= MAX_QPATH) {
+	if ((int)strlen(name) >= MAX_QPATH) {
 		Com_Printf( S_COLOR_YELLOW "WARNING: Sound name is too long: %s\n", name );
 		return NULL;
 	}
@@ -303,7 +303,7 @@ static sfx_t *S_FindName( const char *name ) {
 	}
 	
 	sfx = &s_knownSfx[i];
-	Com_Memset (sfx, 0, sizeof(*sfx));
+	Com_Memset (sfx, 0, (int)sizeof(*sfx));
 	strcpy (sfx->soundName, name);
 
 	sfx->next = sfxHash[hash];
@@ -413,8 +413,8 @@ void S_Base_BeginRegistration( void ) {
 	if (s_numSfx == 0) {
 		SND_setup();
 
-		Com_Memset(s_knownSfx, '\0', sizeof(s_knownSfx));
-		Com_Memset(sfxHash, '\0', sizeof(sfx_t *) * LOOP_HASH);
+		Com_Memset(s_knownSfx, '\0', (int)sizeof(s_knownSfx));
+		Com_Memset(sfxHash, '\0', (int)sizeof(sfx_t *) * LOOP_HASH);
 
 		S_Base_RegisterSound("sound/feedback/hit.wav", qfalse);		// changed to a sound in baseq3
 	}
@@ -709,13 +709,13 @@ void S_Base_ClearSoundBuffer( void ) {
 		return;
 
 	// stop looping sounds
-	Com_Memset(loopSounds, 0, MAX_GENTITIES*sizeof(loopSound_t));
-	Com_Memset(loop_channels, 0, MAX_CHANNELS*sizeof(channel_t));
+	Com_Memset(loopSounds, 0, MAX_GENTITIES*(int)sizeof(loopSound_t));
+	Com_Memset(loop_channels, 0, MAX_CHANNELS*(int)sizeof(channel_t));
 	numLoopChannels = 0;
 
 	S_ChannelSetup();
 
-	Com_Memset(s_rawend, '\0', sizeof (s_rawend));
+	Com_Memset(s_rawend, '\0', (int)sizeof(s_rawend));
 
 	if (dma.samplebits == 8)
 		clear = 0x80;
@@ -1440,7 +1440,7 @@ void S_Base_StartBackgroundTrack( const char *intro, const char *loop ){
 		return;
 	}
 
-	Q_strncpyz( s_backgroundLoop, loop, sizeof( s_backgroundLoop ) );
+	Q_strncpyz( s_backgroundLoop, loop, (int)sizeof( s_backgroundLoop ) );
 
 	S_OpenBackgroundStream( intro );
 }
@@ -1482,8 +1482,8 @@ void S_UpdateBackgroundTrack( void ) {
 
 		// our max buffer size
 		fileBytes = fileSamples * (s_backgroundStream->info.width * s_backgroundStream->info.channels);
-		if ( fileBytes > sizeof(raw) ) {
-			fileBytes = sizeof(raw);
+		if ( fileBytes > (int)sizeof(raw) ) {
+			fileBytes = (int)sizeof(raw);
 			fileSamples = fileBytes / (s_backgroundStream->info.width * s_backgroundStream->info.channels);
 		}
 
@@ -1598,7 +1598,7 @@ qboolean S_Base_Init( soundInterface_t *si ) {
 		s_soundMuted = 1;
 //		s_numSfx = 0;
 
-		Com_Memset(sfxHash, 0, sizeof(sfx_t *)*LOOP_HASH);
+		Com_Memset(sfxHash, 0, (int)sizeof(sfx_t *)*LOOP_HASH);
 
 		s_soundtime = 0;
 		s_paintedtime = 0;

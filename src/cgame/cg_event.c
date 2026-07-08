@@ -73,7 +73,7 @@ static void CG_Obituary( entityState_t *ent )
   if( !targetInfo )
     return;
 
-  Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), sizeof( targetName ));
+  Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), (int)sizeof( targetName ));
 
   message2 = "";
 
@@ -208,10 +208,10 @@ static void CG_Obituary( entityState_t *ent )
   }
   else
   {
-    Q_strncpyz( attackerName, Info_ValueForKey( attackerInfo, "n" ), sizeof( attackerName ));
+    Q_strncpyz( attackerName, Info_ValueForKey( attackerInfo, "n" ), (int)sizeof( attackerName ));
     // check for kill messages about the current clientNum
     if( target == cg.snap->ps.clientNum )
-      Q_strncpyz( cg.killerName, attackerName, sizeof( cg.killerName ) );
+      Q_strncpyz( cg.killerName, attackerName, (int)sizeof( cg.killerName ) );
   }
 
   if( attacker != ENTITYNUM_WORLD )

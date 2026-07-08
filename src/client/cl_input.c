@@ -579,7 +579,7 @@ usercmd_t CL_CreateCmd( void ) {
 	// keyboard angle adjustment
 	CL_AdjustAngles ();
 	
-	Com_Memset( &cmd, 0, sizeof( cmd ) );
+	Com_Memset( &cmd, 0, (int)sizeof( cmd ) );
 
 	CL_CmdButtons( &cmd );
 
@@ -750,10 +750,10 @@ void CL_WritePacket( void ) {
 		return;
 	}
 
-	Com_Memset( &nullcmd, 0, sizeof(nullcmd) );
+	Com_Memset( &nullcmd, 0, (int)sizeof(nullcmd) );
 	oldcmd = &nullcmd;
 
-	MSG_Init( &buf, data, sizeof(data) );
+	MSG_Init( &buf, data, (int)sizeof(data) );
 
 	MSG_Bitstream( &buf );
 	// write the current serverId so the server
@@ -793,13 +793,13 @@ void CL_WritePacket( void ) {
 #ifdef USE_VOIP
 	if (clc.voipOutgoingDataSize > 0)
 	{
-		if((clc.voipFlags & VOIP_SPATIAL) || Com_IsVoipTarget(clc.voipTargets, sizeof(clc.voipTargets), -1))
+		if((clc.voipFlags & VOIP_SPATIAL) || Com_IsVoipTarget(clc.voipTargets, (int)sizeof(clc.voipTargets), -1))
 		{
 			MSG_WriteByte (&buf, clc_voipOpus);
 			MSG_WriteByte (&buf, clc.voipOutgoingGeneration);
 			MSG_WriteLong (&buf, clc.voipOutgoingSequence);
 			MSG_WriteByte (&buf, clc.voipOutgoingDataFrames);
-			MSG_WriteData (&buf, clc.voipTargets, sizeof(clc.voipTargets));
+			MSG_WriteData (&buf, clc.voipTargets, (int)sizeof(clc.voipTargets));
 			MSG_WriteByte(&buf, clc.voipFlags);
 			MSG_WriteShort (&buf, clc.voipOutgoingDataSize);
 			MSG_WriteData (&buf, clc.voipOutgoingData, clc.voipOutgoingDataSize);
@@ -813,7 +813,7 @@ void CL_WritePacket( void ) {
 				const int voipSize = clc.voipOutgoingDataSize;
 				msg_t fakemsg;
 				byte fakedata[MAX_MSGLEN];
-				MSG_Init (&fakemsg, fakedata, sizeof (fakedata));
+				MSG_Init (&fakemsg, fakedata, (int)sizeof(fakedata));
 				MSG_Bitstream (&fakemsg);
 				MSG_WriteLong (&fakemsg, clc.reliableAcknowledge);
 				MSG_WriteByte (&fakemsg, svc_voipOpus);

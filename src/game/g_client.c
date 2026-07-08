@@ -769,7 +769,7 @@ static qboolean G_NonSegModel( const char *filename )
   if( len < 0 )
     return qfalse;
 
-  if( len == 0 || len >= sizeof( text ) - 1 )
+  if( len == 0 || len >= (int)sizeof( text ) - 1 )
   {
     trap_FS_FCloseFile( f );
     G_Printf( "File %s is %s\n", filename, len == 0 ? "empty" : "too long" );
@@ -827,7 +827,7 @@ char *ClientUserinfoChanged( int clientNum, qboolean forceName )
   ent = g_entities + clientNum;
   client = ent->client;
 
-  trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
+  trap_GetUserinfo( clientNum, userinfo, (int)sizeof( userinfo ) );
 
   // check for malformed or illegal info strings
   if( !Info_Validate(userinfo) )
@@ -849,9 +849,9 @@ char *ClientUserinfoChanged( int clientNum, qboolean forceName )
   client->pers.stickySpec = atoi( s ) != 0;
 
   // set name
-  Q_strncpyz( oldname, client->pers.netname, sizeof( oldname ) );
+  Q_strncpyz( oldname, client->pers.netname, (int)sizeof( oldname ) );
   s = Info_ValueForKey( userinfo, "name" );
-  G_ClientCleanName( s, newname, sizeof( newname ) );
+  G_ClientCleanName( s, newname, (int)sizeof( newname ) );
 
   if( strcmp( oldname, newname ) )
   {
@@ -878,7 +878,7 @@ char *ClientUserinfoChanged( int clientNum, qboolean forceName )
         "print \"You cannot change your name while you are muted\n\"" );
       revertName = qtrue;
     }
-    else if( !G_admin_name_check( ent, newname, err, sizeof( err ) ) )
+    else if( !G_admin_name_check( ent, newname, err, (int)sizeof( err ) ) )
     {
       trap_SendServerCommand( ent - g_entities, va( "print \"%s\n\"", err ) );
       revertName = qtrue;
@@ -887,14 +887,14 @@ char *ClientUserinfoChanged( int clientNum, qboolean forceName )
     if( revertName )
     {
       Q_strncpyz( client->pers.netname, *oldname ? oldname : "UnnamedPlayer",
-        sizeof( client->pers.netname ) );
+        (int)sizeof( client->pers.netname ) );
       Info_SetValueForKey( userinfo, "name", oldname );
       trap_SetUserinfo( clientNum, userinfo );
     }
     else
     {
       G_CensorString( client->pers.netname, newname,
-        sizeof( client->pers.netname ), ent );
+        (int)sizeof( client->pers.netname ), ent );
       if( !forceName && client->pers.connected == CON_CONNECTED )
       {
         client->pers.namelog->nameChangeTime = level.time;
@@ -926,7 +926,7 @@ char *ClientUserinfoChanged( int clientNum, qboolean forceName )
                                               BG_ClassConfig( client->pers.classSelection )->skinName );
 
     //model segmentation
-    Com_sprintf( filename, sizeof( filename ), "models/players/%s/animation.cfg",
+    Com_sprintf( filename, (int)sizeof( filename ), "models/players/%s/animation.cfg",
                  BG_ClassConfig( client->pers.classSelection )->modelName );
 
     if( G_NonSegModel( filename ) )
@@ -934,7 +934,7 @@ char *ClientUserinfoChanged( int clientNum, qboolean forceName )
     else
       client->ps.persistant[ PERS_STATE ] &= ~PS_NONSEGMODEL;
   }
-  Q_strncpyz( model, buffer, sizeof( model ) );
+  Q_strncpyz( model, buffer, (int)sizeof( model ) );
 
   // wallwalk follow
   s = Info_ValueForKey( userinfo, "cg_wwFollow" );
@@ -995,12 +995,12 @@ char *ClientUserinfoChanged( int clientNum, qboolean forceName )
     client->pers.useUnlagged = qfalse;
 
   Q_strncpyz( client->pers.voice, Info_ValueForKey( userinfo, "voice" ),
-    sizeof( client->pers.voice ) );
+    (int)sizeof( client->pers.voice ) );
 
   // send over a subset of the userinfo keys so other clients can
   // print scoreboards, display models, and play custom sounds
 
-  Com_sprintf( userinfo, sizeof( userinfo ),
+  Com_sprintf( userinfo, (int)sizeof( userinfo ),
     "n\\%s\\t\\%i\\model\\%s\\ig\\%16s\\v\\%s",
     client->pers.netname, client->pers.teamSelection, model,
     Com_ClientListString( &client->sess.ignoreList ),
@@ -1052,12 +1052,12 @@ char *ClientConnect( int clientNum, qboolean firstTime )
     return NULL;
 
   ent->client = client;
-  memset( client, 0, sizeof( *client ) );
+  memset( client, 0, (int)sizeof( *client ) );
 
-  trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
+  trap_GetUserinfo( clientNum, userinfo, (int)sizeof( userinfo ) );
 
   value = Info_ValueForKey( userinfo, "cl_guid" );
-  Q_strncpyz( client->pers.guid, value, sizeof( client->pers.guid ) );
+  Q_strncpyz( client->pers.guid, value, (int)sizeof( client->pers.guid ) );
 
   value = Info_ValueForKey( userinfo, "ip" );
   // check for local client
@@ -1068,7 +1068,7 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   client->pers.admin = G_admin_admin( client->pers.guid );
 
   // check for admin ban
-  if( G_admin_ban_check( ent, reason, sizeof( reason ) ) )
+  if( G_admin_ban_check( ent, reason, (int)sizeof( reason ) ) )
   {
     return va( "%s", reason );
   }
@@ -1081,10 +1081,10 @@ char *ClientConnect( int clientNum, qboolean firstTime )
     return "Invalid password";
 
   // add guid to session so we don't have to keep parsing userinfo everywhere
-  for( i = 0; i < sizeof( client->pers.guid ) - 1 &&
+  for( i = 0; i < (int)sizeof( client->pers.guid ) - 1 &&
               isxdigit( client->pers.guid[ i ] ); i++ );
 
-  if( i < sizeof( client->pers.guid ) - 1 )
+  if( i < (int)sizeof( client->pers.guid ) - 1 )
     return "Invalid GUID";
 
   for( i = 0; i < level.maxclients; i++ )
@@ -1185,8 +1185,8 @@ void ClientBegin( int clientNum )
   // so the viewpoint doesn't interpolate through the
   // world to the new position
   flags = client->ps.eFlags;
-  memset( &client->ps, 0, sizeof( client->ps ) );
-  memset( &client->pmext, 0, sizeof( client->pmext ) );
+  memset( &client->ps, 0, (int)sizeof( client->ps ) );
+  memset( &client->pmext, 0, (int)sizeof( client->pmext ) );
   client->ps.eFlags = flags;
 
   // locate ent at a spawn point
@@ -1309,7 +1309,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     persistant[ i ] = client->ps.persistant[ i ];
 
   eventSequence = client->ps.eventSequence;
-  memset( client, 0, sizeof( *client ) );
+  memset( client, 0, (int)sizeof( *client ) );
 
   client->pers = saved;
   client->sess = savedSess;
@@ -1327,7 +1327,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
 
   client->airOutTime = level.time + 12000;
 
-  trap_GetUserinfo( index, userinfo, sizeof( userinfo ) );
+  trap_GetUserinfo( index, userinfo, (int)sizeof( userinfo ) );
   client->ps.eFlags = flags;
 
   //Com_Printf( "ent->client->pers->pclass = %i\n", ent->client->pers.classSelection );

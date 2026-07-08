@@ -257,7 +257,7 @@ int S_AdpcmMemoryNeeded( const wavinfo_t *info ) {
 	}
 
 	// calc memory needed to store the block headers
-	headerMemory = blockCount * sizeof(adpcm_state_t);
+	headerMemory = blockCount * (int)sizeof(adpcm_state_t);
 
 	return sampleMemory + headerMemory;
 }

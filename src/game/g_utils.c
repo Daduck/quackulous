@@ -73,7 +73,7 @@ const char *BuildShaderStateConfig( void )
   {
     Com_sprintf( out, ( MAX_QPATH * 2 ) + 5, "%s=%s:%5.2f@", remappedShaders[ i ].oldShader,
                  remappedShaders[ i ].newShader, remappedShaders[ i ].timeOffset );
-    Q_strcat( buff, sizeof( buff ), out );
+    Q_strcat( buff, (int)sizeof( buff ), out );
   }
   return buff;
 }
@@ -103,7 +103,7 @@ int G_FindConfigstringIndex( char *name, int start, int max, qboolean create )
 
   for( i = 1; i < max; i++ )
   {
-    trap_GetConfigstring( start + i, s, sizeof( s ) );
+    trap_GetConfigstring( start + i, s, (int)sizeof( s ) );
     if( !s[ 0 ] )
       break;
 
@@ -446,8 +446,8 @@ gentity_t *G_Spawn( void )
   level.num_entities++;
 
   // let the server system know that there are more entities
-  trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
-    &level.clients[ 0 ].ps, sizeof( level.clients[ 0 ] ) );
+  trap_LocateGameData( level.gentities, level.num_entities, (int)sizeof( gentity_t ),
+    &level.clients[ 0 ].ps, (int)sizeof( level.clients[ 0 ] ) );
 
   G_InitGentity( e );
   return e;
@@ -493,7 +493,7 @@ void G_FreeEntity( gentity_t *ent )
   if( ent->neverFree )
     return;
 
-  memset( ent, 0, sizeof( *ent ) );
+  memset( ent, 0, (int)sizeof( *ent ) );
   ent->classname = "freent";
   ent->freetime = level.time;
   ent->inuse = qfalse;
@@ -805,7 +805,7 @@ void G_TriggerMenu( int clientNum, dynMenu_t menu )
 {
   char buffer[ 32 ];
 
-  Com_sprintf( buffer, sizeof( buffer ), "servermenu %d", menu );
+  Com_sprintf( buffer, (int)sizeof( buffer ), "servermenu %d", menu );
   trap_SendServerCommand( clientNum, buffer );
 }
 
@@ -820,7 +820,7 @@ void G_TriggerMenuArgs( int clientNum, dynMenu_t menu, int arg )
 {
   char buffer[ 64 ];
 
-  Com_sprintf( buffer, sizeof( buffer ), "servermenu %d %d", menu, arg );
+  Com_sprintf( buffer, (int)sizeof( buffer ), "servermenu %d %d", menu, arg );
   trap_SendServerCommand( clientNum, buffer );
 }
 
@@ -852,7 +852,7 @@ static const char *addr4parse( const char *str, addr_t *addr )
   int i;
   int octet = 0;
   int num = 0;
-  memset( addr, 0, sizeof( addr_t ) );
+  memset( addr, 0, (int)sizeof( addr_t ) );
   addr->type = IPv4;
   for( i = 0; octet < 4; i++ )
   {
@@ -938,7 +938,7 @@ static const char *addr6parse( const char *str, addr_t *addr )
   }
   else if( before + after < 8 ) // require exactly 8 hexadectets
     return NULL;
-  memset( addr, 0, sizeof( addr_t ) );
+  memset( addr, 0, (int)sizeof( addr_t ) );
   addr->type = IPv6;
   if( before )
     memcpy( addr->addr, a, before * 2 );
@@ -963,7 +963,7 @@ qboolean G_AddressParse( const char *str, addr_t *addr )
   }
   else
     return qfalse;
-  Q_strncpyz( addr->str, str, sizeof( addr->str ) );
+  Q_strncpyz( addr->str, str, (int)sizeof( addr->str ) );
   if( !p )
     return qfalse;
   if( *p == '/' )

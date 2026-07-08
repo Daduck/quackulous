@@ -110,7 +110,7 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
   if( len < 0 )
     return qfalse;
 
-  if( len == 0 || len >= sizeof( text ) - 1 )
+  if( len == 0 || len >= (int)sizeof( text ) - 1 )
   {
     CG_Printf( "File %s is %s\n", filename, len == 0 ? "empty" : "too long" );
     trap_FS_FCloseFile( f );
@@ -289,10 +289,10 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
       return qfalse;
     }
     // crouch backward animation
-    memcpy( &animations[ LEGS_BACKCR ], &animations[ LEGS_WALKCR ], sizeof( animation_t ) );
+    memcpy( &animations[ LEGS_BACKCR ], &animations[ LEGS_WALKCR ], (int)sizeof( animation_t ) );
     animations[ LEGS_BACKCR ].reversed = qtrue;
     // walk backward animation
-    memcpy( &animations[ LEGS_BACKWALK ], &animations[ LEGS_WALK ], sizeof( animation_t ) );
+    memcpy( &animations[ LEGS_BACKWALK ], &animations[ LEGS_WALK ], (int)sizeof( animation_t ) );
     animations[ LEGS_BACKWALK ].reversed = qtrue;
     // flag moving fast
     animations[ FLAG_RUN ].firstFrame = 0;
@@ -370,7 +370,7 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
     }
 
     // walk backward animation
-    memcpy( &animations[ NSPA_WALKBACK ], &animations[ NSPA_WALK ], sizeof( animation_t ) );
+    memcpy( &animations[ NSPA_WALKBACK ], &animations[ NSPA_WALK ], (int)sizeof( animation_t ) );
     animations[ NSPA_WALKBACK ].reversed = qtrue;
   }
 
@@ -388,17 +388,17 @@ static qboolean CG_RegisterClientSkin( clientInfo_t *ci, const char *modelName, 
 
   if( !ci->nonsegmented )
   {
-    Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower_%s.skin", modelName, skinName );
+    Com_sprintf( filename, (int)sizeof( filename ), "models/players/%s/lower_%s.skin", modelName, skinName );
     ci->legsSkin = trap_R_RegisterSkin( filename );
     if( !ci->legsSkin )
       Com_Printf( "Leg skin load failure: %s\n", filename );
 
-    Com_sprintf( filename, sizeof( filename ), "models/players/%s/upper_%s.skin", modelName, skinName );
+    Com_sprintf( filename, (int)sizeof( filename ), "models/players/%s/upper_%s.skin", modelName, skinName );
     ci->torsoSkin = trap_R_RegisterSkin( filename );
     if( !ci->torsoSkin )
       Com_Printf( "Torso skin load failure: %s\n", filename );
 
-    Com_sprintf( filename, sizeof( filename ), "models/players/%s/head_%s.skin", modelName, skinName );
+    Com_sprintf( filename, (int)sizeof( filename ), "models/players/%s/head_%s.skin", modelName, skinName );
     ci->headSkin = trap_R_RegisterSkin( filename );
     if( !ci->headSkin )
       Com_Printf( "Head skin load failure: %s\n", filename );
@@ -408,7 +408,7 @@ static qboolean CG_RegisterClientSkin( clientInfo_t *ci, const char *modelName, 
   }
   else
   {
-    Com_sprintf( filename, sizeof( filename ), "models/players/%s/nonseg_%s.skin", modelName, skinName );
+    Com_sprintf( filename, (int)sizeof( filename ), "models/players/%s/nonseg_%s.skin", modelName, skinName );
     ci->nonSegSkin = trap_R_RegisterSkin( filename );
     if( !ci->nonSegSkin )
       Com_Printf( "Non-segmented skin load failure: %s\n", filename );
@@ -431,7 +431,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 
   // do this first so the nonsegmented property is set
   // load the animations
-  Com_sprintf( filename, sizeof( filename ), "models/players/%s/animation.cfg", modelName );
+  Com_sprintf( filename, (int)sizeof( filename ), "models/players/%s/animation.cfg", modelName );
   if( !CG_ParseAnimationFile( filename, ci ) )
   {
     Com_Printf( "Failed to load animation file %s\n", filename );
@@ -442,7 +442,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 
   if( !ci->nonsegmented )
   {
-    Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower.md3", modelName );
+    Com_sprintf( filename, (int)sizeof( filename ), "models/players/%s/lower.md3", modelName );
     ci->legsModel = trap_R_RegisterModel( filename );
     if( !ci->legsModel )
     {
@@ -450,7 +450,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
       return qfalse;
     }
 
-    Com_sprintf( filename, sizeof( filename ), "models/players/%s/upper.md3", modelName );
+    Com_sprintf( filename, (int)sizeof( filename ), "models/players/%s/upper.md3", modelName );
     ci->torsoModel = trap_R_RegisterModel( filename );
     if( !ci->torsoModel )
     {
@@ -458,7 +458,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
       return qfalse;
     }
 
-    Com_sprintf( filename, sizeof( filename ), "models/players/%s/head.md3", modelName );
+    Com_sprintf( filename, (int)sizeof( filename ), "models/players/%s/head.md3", modelName );
     ci->headModel = trap_R_RegisterModel( filename );
     if( !ci->headModel )
     {
@@ -468,7 +468,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
   }
   else
   {
-    Com_sprintf( filename, sizeof( filename ), "models/players/%s/nonseg.md3", modelName );
+    Com_sprintf( filename, (int)sizeof( filename ), "models/players/%s/nonseg.md3", modelName );
     ci->nonSegModel = trap_R_RegisterModel( filename );
     if( !ci->nonSegModel )
     {
@@ -587,10 +587,10 @@ static void CG_CopyClientInfoModel( clientInfo_t *from, clientInfo_t *to )
   to->nonsegmented = from->nonsegmented;
   to->modelIcon = from->modelIcon;
 
-  memcpy( to->animations, from->animations, sizeof( to->animations ) );
-  memcpy( to->sounds, from->sounds, sizeof( to->sounds ) );
-  memcpy( to->customFootsteps, from->customFootsteps, sizeof( to->customFootsteps ) );
-  memcpy( to->customMetalFootsteps, from->customMetalFootsteps, sizeof( to->customMetalFootsteps ) );
+  memcpy( to->animations, from->animations, (int)sizeof( to->animations ) );
+  memcpy( to->sounds, from->sounds, (int)sizeof( to->sounds ) );
+  memcpy( to->customFootsteps, from->customFootsteps, (int)sizeof( to->customFootsteps ) );
+  memcpy( to->customMetalFootsteps, from->customMetalFootsteps, (int)sizeof( to->customMetalFootsteps ) );
 }
 
 
@@ -674,16 +674,16 @@ void CG_PrecacheClientInfo( class_t class, char *model, char *skin )
   ci = &cgs.corpseinfo[ class ];
 
   // the old value
-  memset( &newInfo, 0, sizeof( newInfo ) );
+  memset( &newInfo, 0, (int)sizeof( newInfo ) );
 
   // model
-  Q_strncpyz( newInfo.modelName, model, sizeof( newInfo.modelName ) );
+  Q_strncpyz( newInfo.modelName, model, (int)sizeof( newInfo.modelName ) );
 
   // modelName did not include a skin name
   if( !skin )
-    Q_strncpyz( newInfo.skinName, "default", sizeof( newInfo.skinName ) );
+    Q_strncpyz( newInfo.skinName, "default", (int)sizeof( newInfo.skinName ) );
   else
-    Q_strncpyz( newInfo.skinName, skin, sizeof( newInfo.skinName ) );
+    Q_strncpyz( newInfo.skinName, skin, (int)sizeof( newInfo.skinName ) );
 
   newInfo.infoValid = qtrue;
 
@@ -739,12 +739,12 @@ void CG_NewClientInfo( int clientNum )
   configstring = CG_ConfigString( clientNum + CS_PLAYERS );
   if( !configstring[ 0 ] )
   {
-    memset( ci, 0, sizeof( *ci ) );
+    memset( ci, 0, (int)sizeof( *ci ) );
     return;   // player just left
   }
 
   // the old value
-  memset( &newInfo, 0, sizeof( newInfo ) );
+  memset( &newInfo, 0, (int)sizeof( newInfo ) );
  
   // grab our own ignoreList 
   if( clientNum == cg.predictedPlayerState.clientNum )
@@ -755,7 +755,7 @@ void CG_NewClientInfo( int clientNum )
 
   // isolate the player's name
   v = Info_ValueForKey( configstring, "n" );
-  Q_strncpyz( newInfo.name, v, sizeof( newInfo.name ) );
+  Q_strncpyz( newInfo.name, v, (int)sizeof( newInfo.name ) );
 
   // team
   v = Info_ValueForKey( configstring, "t" );
@@ -776,7 +776,7 @@ void CG_NewClientInfo( int clientNum )
 
     trap_Cvar_VariableStringBuffer(
       va( "cg_%sConfig", BG_TeamName( newInfo.team ) ),
-      config, sizeof( config ) );
+      config, (int)sizeof( config ) );
 
     if( config[ 0 ] )
       trap_SendConsoleCommand( va( "exec \"%s\"\n", config ) );
@@ -784,25 +784,25 @@ void CG_NewClientInfo( int clientNum )
 
   // model
   v = Info_ValueForKey( configstring, "model" );
-  Q_strncpyz( newInfo.modelName, v, sizeof( newInfo.modelName ) );
+  Q_strncpyz( newInfo.modelName, v, (int)sizeof( newInfo.modelName ) );
 
   slash = strchr( newInfo.modelName, '/' );
 
   if( !slash )
   {
     // modelName didn not include a skin name
-    Q_strncpyz( newInfo.skinName, "default", sizeof( newInfo.skinName ) );
+    Q_strncpyz( newInfo.skinName, "default", (int)sizeof( newInfo.skinName ) );
   }
   else
   {
-    Q_strncpyz( newInfo.skinName, slash + 1, sizeof( newInfo.skinName ) );
+    Q_strncpyz( newInfo.skinName, slash + 1, (int)sizeof( newInfo.skinName ) );
     // truncate modelName
     *slash = 0;
   }
 
   // voice
   v = Info_ValueForKey( configstring, "v" );
-  Q_strncpyz( newInfo.voice, v, sizeof( newInfo.voice ) );
+  Q_strncpyz( newInfo.voice, v, (int)sizeof( newInfo.voice ) );
 
   CG_StatusMessages( &newInfo, ci );
 
@@ -1430,7 +1430,7 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
 
   if( held & ( 1 << UP_JETPACK ) )
   {
-    memset( &jetpack, 0, sizeof( jetpack ) );
+    memset( &jetpack, 0, (int)sizeof( jetpack ) );
     VectorCopy( torso->lightingOrigin, jetpack.lightingOrigin );
     jetpack.shadowPlane = torso->shadowPlane;
     jetpack.renderfx = torso->renderfx;
@@ -1490,7 +1490,7 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
                                 vec3_origin, cgs.media.jetpackIdleSound );
       }
 
-      memset( &flash, 0, sizeof( flash ) );
+      memset( &flash, 0, (int)sizeof( flash ) );
       VectorCopy( torso->lightingOrigin, flash.lightingOrigin );
       flash.shadowPlane = torso->shadowPlane;
       flash.renderfx = torso->renderfx;
@@ -1526,7 +1526,7 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
 
   if( held & ( 1 << UP_BATTPACK ) )
   {
-    memset( &battpack, 0, sizeof( battpack ) );
+    memset( &battpack, 0, (int)sizeof( battpack ) );
     VectorCopy( torso->lightingOrigin, battpack.lightingOrigin );
     battpack.shadowPlane = torso->shadowPlane;
     battpack.renderfx = torso->renderfx;
@@ -1580,7 +1580,7 @@ static void CG_PlayerFloatSprite( centity_t *cent, qhandle_t shader )
   else
     rf = 0;
 
-  memset( &ent, 0, sizeof( ent ) );
+  memset( &ent, 0, (int)sizeof( ent ) );
   VectorCopy( cent->lerpOrigin, ent.origin );
   ent.origin[ 2 ] += 48;
   ent.reType = RT_SPRITE;
@@ -1923,9 +1923,9 @@ void CG_Player( centity_t *cent )
     CG_DrawBoundingBox( cent->lerpOrigin, mins, maxs );
   }
 
-  memset( &legs,    0, sizeof( legs ) );
-  memset( &torso,   0, sizeof( torso ) );
-  memset( &head,    0, sizeof( head ) );
+  memset( &legs,    0, (int)sizeof( legs ) );
+  memset( &torso,   0, (int)sizeof( torso ) );
+  memset( &head,    0, (int)sizeof( head ) );
 
   VectorCopy( cent->lerpAngles, angles );
   AnglesToAxis( cent->lerpAngles, tempAxis );
@@ -2175,9 +2175,9 @@ void CG_Corpse( centity_t *cent )
   if( !ci->infoValid )
     return;
 
-  memset( &legs, 0, sizeof( legs ) );
-  memset( &torso, 0, sizeof( torso ) );
-  memset( &head, 0, sizeof( head ) );
+  memset( &legs, 0, (int)sizeof( legs ) );
+  memset( &torso, 0, (int)sizeof( torso ) );
+  memset( &head, 0, (int)sizeof( head ) );
 
   VectorCopy( cent->lerpOrigin, origin );
   BG_ClassBoundingBox( es->clientNum, liveZ, NULL, NULL, deadZ, NULL );
@@ -2196,13 +2196,13 @@ void CG_Corpse( centity_t *cent )
     legs.oldframe = legs.frame = torso.oldframe = torso.frame = 0;
   else if( !ci->nonsegmented )
   {
-    memset( &cent->pe.legs, 0, sizeof( lerpFrame_t ) );
+    memset( &cent->pe.legs, 0, (int)sizeof( lerpFrame_t ) );
     CG_RunPlayerLerpFrame( ci, &cent->pe.legs, es->legsAnim, 1 );
     legs.oldframe = cent->pe.legs.oldFrame;
     legs.frame = cent->pe.legs.frame;
     legs.backlerp = cent->pe.legs.backlerp;
 
-    memset( &cent->pe.torso, 0, sizeof( lerpFrame_t ) );
+    memset( &cent->pe.torso, 0, (int)sizeof( lerpFrame_t ) );
     CG_RunPlayerLerpFrame( ci, &cent->pe.torso, es->torsoAnim, 1 );
     torso.oldframe = cent->pe.torso.oldFrame;
     torso.frame = cent->pe.torso.frame;
@@ -2210,7 +2210,7 @@ void CG_Corpse( centity_t *cent )
   }
   else
   {
-    memset( &cent->pe.nonseg, 0, sizeof( lerpFrame_t ) );
+    memset( &cent->pe.nonseg, 0, (int)sizeof( lerpFrame_t ) );
     CG_RunPlayerLerpFrame( ci, &cent->pe.nonseg, es->legsAnim, 1 );
     legs.oldframe = cent->pe.nonseg.oldFrame;
     legs.frame = cent->pe.nonseg.frame;
@@ -2336,19 +2336,19 @@ void CG_ResetPlayerEntity( centity_t *cent )
   VectorCopy( cent->lerpOrigin, cent->rawOrigin );
   VectorCopy( cent->lerpAngles, cent->rawAngles );
 
-  memset( &cent->pe.legs, 0, sizeof( cent->pe.legs ) );
+  memset( &cent->pe.legs, 0, (int)sizeof( cent->pe.legs ) );
   cent->pe.legs.yawAngle = cent->rawAngles[ YAW ];
   cent->pe.legs.yawing = qfalse;
   cent->pe.legs.pitchAngle = 0;
   cent->pe.legs.pitching = qfalse;
 
-  memset( &cent->pe.torso, 0, sizeof( cent->pe.legs ) );
+  memset( &cent->pe.torso, 0, (int)sizeof( cent->pe.legs ) );
   cent->pe.torso.yawAngle = cent->rawAngles[ YAW ];
   cent->pe.torso.yawing = qfalse;
   cent->pe.torso.pitchAngle = cent->rawAngles[ PITCH ];
   cent->pe.torso.pitching = qfalse;
 
-  memset( &cent->pe.nonseg, 0, sizeof( cent->pe.nonseg ) );
+  memset( &cent->pe.nonseg, 0, (int)sizeof( cent->pe.nonseg ) );
   cent->pe.nonseg.yawAngle = cent->rawAngles[ YAW ];
   cent->pe.nonseg.yawing = qfalse;
   cent->pe.nonseg.pitchAngle = cent->rawAngles[ PITCH ];

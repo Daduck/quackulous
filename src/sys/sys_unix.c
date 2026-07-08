@@ -58,12 +58,12 @@ char *Sys_DefaultHomePath(void)
 	{
 		if( ( p = getenv( "HOME" ) ) != NULL )
 		{
-			Com_sprintf(homePath, sizeof(homePath), "%s%c", p, PATH_SEP);
+			Com_sprintf(homePath, (int)sizeof(homePath), "%s%c", p, PATH_SEP);
 #ifdef MACOS_X
-			Q_strcat( homePath, sizeof( homePath ),
+			Q_strcat( homePath, (int)sizeof( homePath ),
 					"/Library/Application Support/" HOMEPATH_NAME_MACOSX );
 #else
-			Q_strcat( homePath, sizeof( homePath ), "/" HOMEPATH_NAME_UNIX );
+			Q_strcat( homePath, (int)sizeof( homePath ), "/" HOMEPATH_NAME_UNIX );
 #endif
 		}
 	}
@@ -118,7 +118,7 @@ qboolean Sys_RandomBytes( byte *string, int len )
 
 	setvbuf( fp, NULL, _IONBF, 0 ); // don't buffer reads from /dev/urandom
 
-	if( fread( string, sizeof( byte ), len, fp ) != len )
+	if( fread( string, (int)sizeof( byte ), len, fp ) != len )
 	{
 		fclose( fp );
 		return qfalse;
@@ -246,7 +246,7 @@ char *Sys_Cwd( void )
 {
 	static char cwd[MAX_OSPATH];
 
-	char *result = getcwd( cwd, sizeof( cwd ) - 1 );
+	char *result = getcwd( cwd, (int)sizeof( cwd ) - 1 );
 	if( result != cwd )
 		return NULL;
 
@@ -282,11 +282,11 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 		return;
 	}
 
-	if (strlen(subdirs)) {
-		Com_sprintf( search, sizeof(search), "%s/%s", basedir, subdirs );
+	if ((int)strlen(subdirs)) {
+		Com_sprintf( search, (int)sizeof(search), "%s/%s", basedir, subdirs );
 	}
 	else {
-		Com_sprintf( search, sizeof(search), "%s", basedir );
+		Com_sprintf( search, (int)sizeof(search), "%s", basedir );
 	}
 
 	if ((fdir = opendir(search)) == NULL) {
@@ -294,17 +294,17 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 	}
 
 	while ((d = readdir(fdir)) != NULL) {
-		Com_sprintf(filename, sizeof(filename), "%s/%s", search, d->d_name);
+		Com_sprintf(filename, (int)sizeof(filename), "%s/%s", search, d->d_name);
 		if (stat(filename, &st) == -1)
 			continue;
 
 		if (st.st_mode & S_IFDIR) {
 			if (Q_stricmp(d->d_name, ".") && Q_stricmp(d->d_name, "..")) {
-				if (strlen(subdirs)) {
-					Com_sprintf( newsubdirs, sizeof(newsubdirs), "%s/%s", subdirs, d->d_name);
+				if ((int)strlen(subdirs)) {
+					Com_sprintf( newsubdirs, (int)sizeof(newsubdirs), "%s/%s", subdirs, d->d_name);
 				}
 				else {
-					Com_sprintf( newsubdirs, sizeof(newsubdirs), "%s", d->d_name);
+					Com_sprintf( newsubdirs, (int)sizeof(newsubdirs), "%s", d->d_name);
 				}
 				Sys_ListFilteredFiles( basedir, newsubdirs, filter, list, numfiles );
 			}
@@ -312,7 +312,7 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 		if ( *numfiles >= MAX_FOUND_FILES - 1 ) {
 			break;
 		}
-		Com_sprintf( filename, sizeof(filename), "%s/%s", subdirs, d->d_name );
+		Com_sprintf( filename, (int)sizeof(filename), "%s/%s", subdirs, d->d_name );
 		if (!Com_FilterPath( filter, filename, qfalse ))
 			continue;
 		list[ *numfiles ] = CopyString( filename );
@@ -352,7 +352,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 		if (!nfiles)
 			return NULL;
 
-		listCopy = Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
+		listCopy = Z_Malloc( ( nfiles + 1 ) * (int)sizeof( *listCopy ) );
 		for ( i = 0 ; i < nfiles ; i++ ) {
 			listCopy[i] = list[i];
 		}
@@ -369,7 +369,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 		dironly = qtrue;
 	}
 
-	extLen = strlen( extension );
+	extLen = (int)strlen( extension );
 
 	// search
 	nfiles = 0;
@@ -380,7 +380,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	}
 
 	while ((d = readdir(fdir)) != NULL) {
-		Com_sprintf(search, sizeof(search), "%s/%s", directory, d->d_name);
+		Com_sprintf(search, (int)sizeof(search), "%s/%s", directory, d->d_name);
 		if (stat(search, &st) == -1)
 			continue;
 		if ((dironly && !(st.st_mode & S_IFDIR)) ||
@@ -388,9 +388,9 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 			continue;
 
 		if (*extension) {
-			if ( strlen( d->d_name ) < extLen ||
+			if ( (int)strlen( d->d_name ) < extLen ||
 				Q_stricmp(
-					d->d_name + strlen( d->d_name ) - extLen,
+					d->d_name + (int)strlen( d->d_name ) - extLen,
 					extension ) ) {
 				continue; // didn't match
 			}
@@ -413,7 +413,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 		return NULL;
 	}
 
-	listCopy = Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
+	listCopy = Z_Malloc( ( nfiles + 1 ) * (int)sizeof( *listCopy ) );
 	for ( i = 0 ; i < nfiles ; i++ ) {
 		listCopy[i] = list[i];
 	}
@@ -532,7 +532,7 @@ void Sys_ErrorDialog( const char *error )
 	}
 
 	// We're crashing, so we don't care much if write() or close() fails.
-	while( ( size = CON_LogRead( buffer, sizeof( buffer ) ) ) > 0 ) {
+	while( ( size = CON_LogRead( buffer, (int)sizeof( buffer ) ) ) > 0 ) {
 		if( write( f, buffer, size ) != size ) {
 			Com_Printf( "ERROR: couldn't fully write to %s\n", fileName );
 			break;
@@ -556,7 +556,7 @@ Sys_ClearExecBuffer
 static void Sys_ClearExecBuffer( void )
 {
 	execBufferPointer = execBuffer;
-	Com_Memset( execArgv, 0, sizeof( execArgv ) );
+	Com_Memset( execArgv, 0, (int)sizeof( execArgv ) );
 	execArgc = 0;
 }
 
@@ -567,8 +567,8 @@ Sys_AppendToExecBuffer
 */
 static void Sys_AppendToExecBuffer( const char *text )
 {
-	size_t size = sizeof( execBuffer ) - ( execBufferPointer - execBuffer );
-	int length = strlen( text ) + 1;
+	size_t size = (int)sizeof( execBuffer ) - ( execBufferPointer - execBuffer );
+	int length = (int)strlen( text ) + 1;
 
 	if( length > size || execArgc >= ARRAY_LEN( execArgv ) )
 		return;

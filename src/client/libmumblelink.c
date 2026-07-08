@@ -89,7 +89,7 @@ int mumble_link(const char* name)
 	if (hMapObject == NULL)
 		return -1;
 
-	lm = (LinkedMem *) MapViewOfFile(hMapObject, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(LinkedMem));
+	lm = (LinkedMem *) MapViewOfFile(hMapObject, FILE_MAP_ALL_ACCESS, 0, 0, (int)sizeof(LinkedMem));
 	if (lm == NULL) {
 		CloseHandle(hMapObject);
 		hMapObject = NULL;
@@ -101,13 +101,13 @@ int mumble_link(const char* name)
 	if(lm)
 		return 0;
 
-	snprintf(file, sizeof (file), "/MumbleLink.%d", getuid());
+	snprintf(file, (int)sizeof(file), "/MumbleLink.%d", getuid());
 	shmfd = shm_open(file, O_RDWR, S_IRUSR | S_IWUSR);
 	if(shmfd < 0) {
 		return -1;
 	}
 
-	lm = (LinkedMem *) (mmap(NULL, sizeof(LinkedMem), PROT_READ | PROT_WRITE, MAP_SHARED, shmfd,0));
+	lm = (LinkedMem *) (mmap(NULL, (int)sizeof(LinkedMem), PROT_READ | PROT_WRITE, MAP_SHARED, shmfd,0));
 	if (lm == (void *) (-1)) {
 		lm = NULL;
 		close(shmfd);
@@ -115,8 +115,8 @@ int mumble_link(const char* name)
 	}
 	close(shmfd);
 #endif
-	memset(lm, 0, sizeof(LinkedMem));
-	mbstowcs(lm->name, name, sizeof(lm->name) / sizeof(wchar_t));
+	memset(lm, 0, (int)sizeof(LinkedMem));
+	mbstowcs(lm->name, name, (int)sizeof(lm->name) / (int)sizeof(wchar_t));
 
 	return 0;
 }
@@ -132,12 +132,12 @@ void mumble_update_coordinates2(float fAvatarPosition[3], float fAvatarFront[3],
 	if (!lm)
 		return;
 
-	memcpy(lm->fAvatarPosition, fAvatarPosition, sizeof(lm->fAvatarPosition));
-	memcpy(lm->fAvatarFront, fAvatarFront, sizeof(lm->fAvatarFront));
-	memcpy(lm->fAvatarTop, fAvatarTop, sizeof(lm->fAvatarTop));
-	memcpy(lm->fCameraPosition, fCameraPosition, sizeof(lm->fCameraPosition));
-	memcpy(lm->fCameraFront, fCameraFront, sizeof(lm->fCameraFront));
-	memcpy(lm->fCameraTop, fCameraTop, sizeof(lm->fCameraTop));
+	memcpy(lm->fAvatarPosition, fAvatarPosition, (int)sizeof(lm->fAvatarPosition));
+	memcpy(lm->fAvatarFront, fAvatarFront, (int)sizeof(lm->fAvatarFront));
+	memcpy(lm->fAvatarTop, fAvatarTop, (int)sizeof(lm->fAvatarTop));
+	memcpy(lm->fCameraPosition, fCameraPosition, (int)sizeof(lm->fCameraPosition));
+	memcpy(lm->fCameraFront, fCameraFront, (int)sizeof(lm->fCameraFront));
+	memcpy(lm->fCameraTop, fCameraTop, (int)sizeof(lm->fCameraTop));
 	lm->uiVersion = 2;
 	lm->uiTick = GetTickCount();
 }
@@ -147,7 +147,7 @@ void mumble_set_identity(const char* identity)
 	size_t len;
 	if (!lm)
 		return;
-	len = MIN(sizeof(lm->identity)/sizeof(wchar_t), strlen(identity)+1);
+	len = MIN((int)sizeof(lm->identity)/(int)sizeof(wchar_t), (int)strlen(identity)+1);
 	mbstowcs(lm->identity, identity, len);
 }
 
@@ -155,8 +155,8 @@ void mumble_set_context(const unsigned char* context, size_t len)
 {
 	if (!lm)
 		return;
-	len = MIN(sizeof(lm->context), len);
-	lm->context_len = len;
+	len = MIN((int)sizeof(lm->context), len);
+	lm->context_len = (int)len;
 	memcpy(lm->context, context, len);
 }
 
@@ -165,7 +165,7 @@ void mumble_set_description(const char* description)
 	size_t len;
 	if (!lm)
 		return;
-	len = MIN(sizeof(lm->description)/sizeof(wchar_t), strlen(description)+1);
+	len = MIN((int)sizeof(lm->description)/(int)sizeof(wchar_t), (int)strlen(description)+1);
 	mbstowcs(lm->description, description, len);
 }
 
@@ -178,7 +178,7 @@ void mumble_unlink()
 	CloseHandle(hMapObject);
 	hMapObject = NULL;
 #else
-	munmap(lm, sizeof(LinkedMem));
+	munmap(lm, (int)sizeof(LinkedMem));
 #endif
 	lm = NULL;
 }

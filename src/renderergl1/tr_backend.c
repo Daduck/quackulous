@@ -629,7 +629,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 					}
 
 					if(!oldDepthRange)
-						qglDepthRange (0, 0.3);
+						qglDepthRange (0, 0.3f);
 				}
 				else
 				{
@@ -668,7 +668,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	}
 
 	if (r_drawSun->integer) {
-		RB_DrawSun(0.1, tr.sunShader);
+		RB_DrawSun(0.1f, tr.sunShader);
 	}
 
 	// darken down any stencil shadows
@@ -955,7 +955,7 @@ const void	*RB_DrawBuffer( const void *data ) {
 
 	// clear screen for debugging
 	if ( r_clear->integer ) {
-		qglClearColor( 1, 0, 0.5, 1 );
+		qglClearColor( 1, 0, 0.5f, 1 );
 		qglClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	}
 
@@ -1123,7 +1123,7 @@ void RB_ExecuteRenderCommands( const void *data ) {
 	t1 = ri.Milliseconds ();
 
 	while ( 1 ) {
-		data = PADP(data, sizeof(void *));
+		data = PADP(data, (int)sizeof(void *));
 
 		switch ( *(const int *)data ) {
 		case RC_SET_COLOR:

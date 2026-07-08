@@ -91,7 +91,7 @@ static void *S_CodecGetSound(const char *filename, snd_info_t *info)
 		if( codec == orgCodec )
 			continue;
 
-		Com_sprintf( altName, sizeof (altName), "%s.%s", localName, codec->ext );
+		Com_sprintf( altName, (int)sizeof(altName), "%s.%s", localName, codec->ext );
 
 		// Load
 		if( info )
@@ -211,7 +211,7 @@ snd_stream_t *S_CodecUtilOpen(const char *filename, snd_codec_t *codec)
 	}
 
 	// Allocate a stream
-	stream = Z_Malloc(sizeof(snd_stream_t));
+	stream = Z_Malloc((int)sizeof(snd_stream_t));
 	if(!stream)
 	{
 		FS_FCloseFile(hnd);

@@ -2164,7 +2164,7 @@ image_t *R_CreateImage2( const char *name, byte *pic, int width, int height, GLe
 	long		hash;
 	int         glWrapClampMode;
 
-	if (strlen(name) >= MAX_QPATH ) {
+	if ((int)strlen(name) >= MAX_QPATH ) {
 		ri.Error (ERR_DROP, "R_CreateImage: \"%s\" is too long", name);
 	}
 	if ( !strncmp( name, "*lightmap", 9 ) ) {
@@ -2175,7 +2175,7 @@ image_t *R_CreateImage2( const char *name, byte *pic, int width, int height, GLe
 		ri.Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit");
 	}
 
-	image = tr.images[tr.numImages] = ri.Hunk_Alloc( sizeof( image_t ), h_low );
+	image = tr.images[tr.numImages] = ri.Hunk_Alloc( (int)sizeof( image_t ), h_low );
 	qglGenTextures(1, &image->texnum);
 	tr.numImages++;
 
@@ -2662,7 +2662,7 @@ static void R_CreateDefaultImage( void ) {
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
 
 	// the default image will be a box, to allow you to see the mapping coordinates
-	Com_Memset( data, 32, sizeof( data ) );
+	Com_Memset( data, 32, (int)sizeof( data ) );
 	for ( x = 0 ; x < DEFAULT_SIZE ; x++ ) {
 		data[0][x][0] =
 		data[0][x][1] =
@@ -2699,7 +2699,7 @@ void R_CreateBuiltinImages( void ) {
 	R_CreateDefaultImage();
 
 	// we use a solid white image instead of disabling texturing
-	Com_Memset( data, 255, sizeof( data ) );
+	Com_Memset( data, 255, (int)sizeof( data ) );
 	tr.whiteImage = R_CreateImage("*white", (byte *)data, 8, 8, IMGTYPE_COLORALPHA, IMGFLAG_NONE, 0);
 
 	if (r_dlightMode->integer >= 2)
@@ -2919,7 +2919,7 @@ R_InitImages
 ===============
 */
 void	R_InitImages( void ) {
-	Com_Memset(hashTable, 0, sizeof(hashTable));
+	Com_Memset(hashTable, 0, (int)sizeof(hashTable));
 	// build brightness translation tables
 	R_SetColorMappings();
 
@@ -2938,7 +2938,7 @@ void R_DeleteTextures( void ) {
 	for ( i=0; i<tr.numImages ; i++ ) {
 		qglDeleteTextures( 1, &tr.images[i]->texnum );
 	}
-	Com_Memset( tr.images, 0, sizeof( tr.images ) );
+	Com_Memset( tr.images, 0, (int)sizeof( tr.images ) );
 
 	tr.numImages = 0;
 
@@ -3082,7 +3082,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 		return 0;
 	}
 
-	if ( strlen( name ) >= MAX_QPATH ) {
+	if ( (int)strlen( name ) >= MAX_QPATH ) {
 		ri.Printf( PRINT_DEVELOPER, "Skin name exceeds MAX_QPATH\n" );
 		return 0;
 	}
@@ -3105,17 +3105,17 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 		return 0;
 	}
 	tr.numSkins++;
-	skin = ri.Hunk_Alloc( sizeof( skin_t ), h_low );
+	skin = ri.Hunk_Alloc( (int)sizeof( skin_t ), h_low );
 	tr.skins[hSkin] = skin;
-	Q_strncpyz( skin->name, name, sizeof( skin->name ) );
+	Q_strncpyz( skin->name, name, (int)sizeof( skin->name ) );
 	skin->numSurfaces = 0;
 
 	R_IssuePendingRenderCommands();
 
 	// If not a .skin file, load as a single shader
-	if ( strcmp( name + strlen( name ) - 5, ".skin" ) ) {
+	if ( strcmp( name + (int)strlen( name ) - 5, ".skin" ) ) {
 		skin->numSurfaces = 1;
-		skin->surfaces[0] = ri.Hunk_Alloc( sizeof( *skin->surfaces[0] ), h_low );
+		skin->surfaces[0] = ri.Hunk_Alloc( (int)sizeof( *skin->surfaces[0] ), h_low );
 		skin->surfaces[0]->shader = R_FindShader( name, LIGHTMAP_NONE, qtrue );
 		return hSkin;
 	}
@@ -3130,7 +3130,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	while ( text_p && *text_p ) {
 		// get surface name
 		token = CommaParse( &text_p );
-		Q_strncpyz( surfName, token, sizeof( surfName ) );
+		Q_strncpyz( surfName, token, (int)sizeof( surfName ) );
 
 		if ( !token[0] ) {
 			break;
@@ -3154,8 +3154,8 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 			break;
 		}
 
-		surf = skin->surfaces[ skin->numSurfaces ] = ri.Hunk_Alloc( sizeof( *skin->surfaces[0] ), h_low );
-		Q_strncpyz( surf->name, surfName, sizeof( surf->name ) );
+		surf = skin->surfaces[ skin->numSurfaces ] = ri.Hunk_Alloc( (int)sizeof( *skin->surfaces[0] ), h_low );
+		Q_strncpyz( surf->name, surfName, (int)sizeof( surf->name ) );
 		surf->shader = R_FindShader( token, LIGHTMAP_NONE, qtrue );
 		skin->numSurfaces++;
 	}
@@ -3183,10 +3183,10 @@ void	R_InitSkins( void ) {
 	tr.numSkins = 1;
 
 	// make the default skin have all default shaders
-	skin = tr.skins[0] = ri.Hunk_Alloc( sizeof( skin_t ), h_low );
-	Q_strncpyz( skin->name, "<default skin>", sizeof( skin->name )  );
+	skin = tr.skins[0] = ri.Hunk_Alloc( (int)sizeof( skin_t ), h_low );
+	Q_strncpyz( skin->name, "<default skin>", (int)sizeof( skin->name )  );
 	skin->numSurfaces = 1;
-	skin->surfaces[0] = ri.Hunk_Alloc( sizeof( *skin->surfaces[0] ), h_low );
+	skin->surfaces[0] = ri.Hunk_Alloc( (int)sizeof( *skin->surfaces[0] ), h_low );
 	skin->surfaces[0]->shader = tr.defaultShader;
 }
 

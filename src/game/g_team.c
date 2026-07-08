@@ -90,7 +90,7 @@ static clientList_t G_ClientListForTeam( team_t team )
   int           i;
   clientList_t  clientList;
 
-  Com_Memset( &clientList, 0, sizeof( clientList_t ) );
+  Com_Memset( &clientList, 0, (int)sizeof( clientList_t ) );
 
   for( i = 0; i < g_maxclients.integer; i++ )
   {
@@ -118,8 +118,8 @@ void G_UpdateTeamConfigStrings( void )
   if( level.intermissiontime )
   {
     // No restrictions once the game has ended
-    Com_Memset( &alienTeam, 0, sizeof( clientList_t ) );
-    Com_Memset( &humanTeam, 0, sizeof( clientList_t ) );
+    Com_Memset( &alienTeam, 0, (int)sizeof( clientList_t ) );
+    Com_Memset( &humanTeam, 0, (int)sizeof( clientList_t ) );
   }
 
   trap_SetConfigstringRestrictions( CS_VOTE_TIME + TEAM_ALIENS,   &humanTeam );
@@ -281,7 +281,7 @@ Format:
 void TeamplayInfoMessage( gentity_t *ent )
 {
   char      entry[ 17 ],
-            string[ ( MAX_CLIENTS - 1 ) * ( sizeof( entry ) - 1 ) + 1 ];
+            string[ ( MAX_CLIENTS - 1 ) * ( (int)sizeof( entry ) - 1 ) + 1 ];
   int       i, j; 
   int       team, stringlength;
   gentity_t *player;
@@ -356,16 +356,16 @@ void TeamplayInfoMessage( gentity_t *ent )
       upgrade = UP_NONE;
     }
 
-    Com_sprintf( entry, sizeof( entry ), format, i,
+    Com_sprintf( entry, (int)sizeof( entry ), format, i,
       cl->pers.location,
       cl->ps.stats[ STAT_HEALTH ] < 1 ? 0 : cl->ps.stats[ STAT_HEALTH ],
       curWeaponClass,
       upgrade );
 
-    j = strlen( entry );
+    j = (int)strlen( entry );
 
     // this should not happen if entry and string sizes are correct
-    if( stringlength + j >= sizeof( string ) )
+    if( stringlength + j >= (int)sizeof( string ) )
       break;
 
     strcpy( string + stringlength, entry );

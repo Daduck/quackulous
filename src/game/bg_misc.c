@@ -694,7 +694,7 @@ static qboolean BG_ParseBuildableFile( const char *filename, buildableConfig_t *
     return qfalse;
   }
 
-  if( len == 0 || len >= sizeof( text ) - 1 )
+  if( len == 0 || len >= (int)sizeof( text ) - 1 )
   {
     trap_FS_FCloseFile( f );
     Com_Printf( S_COLOR_RED "ERROR: Buildable file %s is %s\n", filename,
@@ -739,7 +739,7 @@ static qboolean BG_ParseBuildableFile( const char *filename, buildableConfig_t *
       if( !token )
         break;
 
-      Q_strncpyz( bc->models[ index ], token, sizeof( bc->models[ 0 ] ) );
+      Q_strncpyz( bc->models[ index ], token, (int)sizeof( bc->models[ 0 ] ) );
 
       defined |= MODEL;
       continue;
@@ -816,7 +816,7 @@ static qboolean BG_ParseBuildableFile( const char *filename, buildableConfig_t *
   else if( !( defined & ZOFFSET    ) )  token = "zOffset";
   else                                  token = "";
 
-  if( strlen( token ) > 0 )
+  if( (int)strlen( token ) > 0 )
   {
       Com_Printf( S_COLOR_RED "ERROR: %s not defined in %s\n",
                   token, filename );
@@ -839,7 +839,7 @@ void BG_InitBuildableConfigs( void )
   for( i = BA_NONE + 1; i < BA_NUM_BUILDABLES; i++ )
   {
     bc = BG_BuildableConfig( i );
-    Com_Memset( bc, 0, sizeof( buildableConfig_t ) );
+    Com_Memset( bc, 0, (int)sizeof( buildableConfig_t ) );
 
     BG_ParseBuildableFile( va( "configs/buildables/%s.cfg",
                                BG_Buildable( i )->name ), bc );
@@ -1427,7 +1427,7 @@ static qboolean BG_ParseClassFile( const char *filename, classConfig_t *cc )
   if( len < 0 )
     return qfalse;
 
-  if( len == 0 || len >= sizeof( text ) - 1 )
+  if( len == 0 || len >= (int)sizeof( text ) - 1 )
   {
     trap_FS_FCloseFile( f );
     Com_Printf( S_COLOR_RED "ERROR: Class file %s is %s\n", filename,
@@ -1459,7 +1459,7 @@ static qboolean BG_ParseClassFile( const char *filename, classConfig_t *cc )
       if( !token )
         break;
 
-      Q_strncpyz( cc->modelName, token, sizeof( cc->modelName ) );
+      Q_strncpyz( cc->modelName, token, (int)sizeof( cc->modelName ) );
 
       defined |= MODEL;
       continue;
@@ -1470,7 +1470,7 @@ static qboolean BG_ParseClassFile( const char *filename, classConfig_t *cc )
       if( !token )
         break;
 
-      Q_strncpyz( cc->skinName, token, sizeof( cc->skinName ) );
+      Q_strncpyz( cc->skinName, token, (int)sizeof( cc->skinName ) );
 
       defined |= SKIN;
       continue;
@@ -1481,7 +1481,7 @@ static qboolean BG_ParseClassFile( const char *filename, classConfig_t *cc )
       if( !token )
         break;
 
-      Q_strncpyz( cc->hudName, token, sizeof( cc->hudName ) );
+      Q_strncpyz( cc->hudName, token, (int)sizeof( cc->hudName ) );
 
       defined |= HUD;
       continue;
@@ -1623,7 +1623,7 @@ static qboolean BG_ParseClassFile( const char *filename, classConfig_t *cc )
       if( !token )
         break;
 
-      Q_strncpyz( cc->humanName, token, sizeof( cc->humanName ) );
+      Q_strncpyz( cc->humanName, token, (int)sizeof( cc->humanName ) );
 
       defined |= NAME;
       continue;
@@ -1664,7 +1664,7 @@ static qboolean BG_ParseClassFile( const char *filename, classConfig_t *cc )
   else if( !( defined & SHOULDEROFFSETS ) ) token = "shoulderOffsets";
   else                                      token = "";
 
-  if( strlen( token ) > 0 )
+  if( (int)strlen( token ) > 0 )
   {
       Com_Printf( S_COLOR_RED "ERROR: %s not defined in %s\n",
                   token, filename );
@@ -2824,7 +2824,7 @@ void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerSta
 #ifdef _DEBUG
   {
     char buf[ 256 ];
-    trap_Cvar_VariableStringBuffer( "showevents", buf, sizeof( buf ) );
+    trap_Cvar_VariableStringBuffer( "showevents", buf, (int)sizeof( buf ) );
 
     if( atof( buf ) != 0 )
     {
@@ -3839,7 +3839,7 @@ int BG_LoadEmoticons( emoticon_t *emoticons, int num )
   int count;
 
   numFiles = trap_FS_GetFileList( "emoticons", "x1.tga", fileList,
-    sizeof( fileList ) );
+    (int)sizeof( fileList ) );
 
   if( numFiles < 1 )
     return 0;
@@ -3849,7 +3849,7 @@ int BG_LoadEmoticons( emoticon_t *emoticons, int num )
   count = 0;
   for( i = 0; i < numFiles && count < num; i++, filePtr += fileLen + 1 )
   {
-    fileLen = strlen( filePtr );
+    fileLen = (int)strlen( filePtr );
     if( fileLen < 9 || filePtr[ fileLen - 8 ] != '_' ||
         filePtr[ fileLen - 7 ] < '1' || filePtr[ fileLen - 7 ] > '9' )
     {

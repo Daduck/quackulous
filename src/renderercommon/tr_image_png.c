@@ -234,7 +234,7 @@ static struct BufferedFile *ReadBufferedFile(const char *name)
 	 *  Allocate control struct.
 	 */
 
-	BF = ri.Malloc(sizeof(struct BufferedFile));
+	BF = ri.Malloc((int)sizeof(struct BufferedFile));
 	if(!BF)
 	{
 		return(NULL);

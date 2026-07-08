@@ -214,7 +214,7 @@ static int CL_cURL_CallbackProgress( void *dummy, double dltotal, double dlnow,
 static size_t CL_cURL_CallbackWrite(void *buffer, size_t size, size_t nmemb,
 	void *stream)
 {
-	FS_Write( buffer, size*nmemb, ((fileHandle_t*)stream)[0] );
+	FS_Write( buffer, (int)(size*nmemb), ((fileHandle_t*)stream)[0] );
 	return size*nmemb;
 }
 
@@ -255,9 +255,9 @@ void CL_cURL_BeginDownload( const char *localName, const char *remoteURL )
 		"RemoteURL: %s\n"
 		"****************************\n", localName, remoteURL);
 	CL_cURL_Cleanup();
-	Q_strncpyz(clc.downloadURL, remoteURL, sizeof(clc.downloadURL));
-	Q_strncpyz(clc.downloadName, localName, sizeof(clc.downloadName));
-	Com_sprintf(clc.downloadTempName, sizeof(clc.downloadTempName),
+	Q_strncpyz(clc.downloadURL, remoteURL, (int)sizeof(clc.downloadURL));
+	Q_strncpyz(clc.downloadName, localName, (int)sizeof(clc.downloadName));
+	Com_sprintf(clc.downloadTempName, (int)sizeof(clc.downloadTempName),
 		"%s.tmp", localName);
 
 	// Set so UI gets access to it

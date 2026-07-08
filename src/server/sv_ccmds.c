@@ -54,7 +54,7 @@ static void SV_Map_f( void ) {
 
 	// make sure the level exists before trying to change, so that
 	// a typo at the server console won't end the game
-	Com_sprintf (expanded, sizeof(expanded), "maps/%s.bsp", map);
+	Com_sprintf (expanded, (int)sizeof(expanded), "maps/%s.bsp", map);
 	if ( FS_ReadFile (expanded, NULL) == -1 ) {
 		Com_Printf ("Can't find map %s\n", expanded);
 		return;
@@ -71,7 +71,7 @@ static void SV_Map_f( void ) {
 
 	// save the map name here cause on a map restart we reload the autogen.cfg
 	// and thus nuke the arguments of the map command
-	Q_strncpyz(mapname, map, sizeof(mapname));
+	Q_strncpyz(mapname, map, (int)sizeof(mapname));
 
 	// start up the map
 	SV_SpawnServer( mapname, killBots );
@@ -140,7 +140,7 @@ static void SV_MapRestart_f( void ) {
 
 		Com_Printf( "variable change -- restarting.\n" );
 		// restart the map the slow way
-		Q_strncpyz( mapname, Cvar_VariableString( "mapname" ), sizeof( mapname ) );
+		Q_strncpyz( mapname, Cvar_VariableString( "mapname" ), (int)sizeof( mapname ) );
 
 		SV_SpawnServer( mapname, qfalse );
 		return;

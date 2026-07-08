@@ -388,18 +388,18 @@ char *CG_KeyBinding( const char *bind )
   // NOTE: change K_LAST_KEY to MAX_KEYS for full key support (eventually)
   for( i = 0; i < K_LAST_KEY; i++ )
   {
-    trap_Key_GetBindingBuf( i, bindbuff, sizeof( bindbuff ) );
+    trap_Key_GetBindingBuf( i, bindbuff, (int)sizeof( bindbuff ) );
     if( !Q_stricmp( bindbuff, bind ) )
     {
-      trap_Key_KeynumToStringBuf( i, key, sizeof( key ) );
+      trap_Key_KeynumToStringBuf( i, key, (int)sizeof( key ) );
       break;
     }
   }
 
   if( !key[ 0 ] )
   {
-    Q_strncpyz( key, "\\", sizeof( key ) );
-    Q_strcat( key, sizeof( key ), bind );
+    Q_strncpyz( key, "\\", (int)sizeof( key ) );
+    Q_strcat( key, (int)sizeof( key ), bind );
   }
 
   return key;

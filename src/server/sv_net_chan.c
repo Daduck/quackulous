@@ -116,9 +116,9 @@ void SV_Netchan_Transmit( client_t *client, msg_t *msg)
 	{
 		netchan_buffer_t *netbuf;
 		Com_DPrintf("#462 SV_Netchan_Transmit: unsent fragments, stacked\n");
-		netbuf = (netchan_buffer_t *) Z_Malloc(sizeof(netchan_buffer_t));
+		netbuf = (netchan_buffer_t *) Z_Malloc((int)sizeof(netchan_buffer_t));
 		// store the msg, we can't store it encoded, as the encoding depends on stuff we still have to finish sending
-		MSG_Copy(&netbuf->msg, netbuf->msgBuffer, sizeof( netbuf->msgBuffer ), msg);
+		MSG_Copy(&netbuf->msg, netbuf->msgBuffer, (int)sizeof( netbuf->msgBuffer ), msg);
 		netbuf->next = NULL;
 		// insert it in the queue, the message will be encoded and sent later
 		*client->netchan_end_queue = netbuf;

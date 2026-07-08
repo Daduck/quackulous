@@ -251,7 +251,7 @@ snd_stream_t *S_OGG_CodecOpenStream(const char *filename)
 	}
 
 	// alloctate the OggVorbis_File
-	vf = Z_Malloc(sizeof(OggVorbis_File));
+	vf = Z_Malloc((int)sizeof(OggVorbis_File));
 	if(!vf)
 	{
 		S_CodecUtilClose(&stream);

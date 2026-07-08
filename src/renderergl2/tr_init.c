@@ -324,7 +324,7 @@ void GL_CheckErrs( char *file, int line ) {
 			strcpy( s, "GL_OUT_OF_MEMORY" );
 			break;
 		default:
-			Com_sprintf( s, sizeof(s), "%i", err);
+			Com_sprintf( s, (int)sizeof(s), "%i", err);
 			break;
 	}
 
@@ -380,14 +380,14 @@ byte *RB_ReadPixels(int x, int y, int width, int height, size_t *offset, int *pa
 	padwidth = PAD(linelen, packAlign);
 	
 	// Allocate a few more bytes so that we can choose an alignment we like
-	buffer = ri.Hunk_AllocateTempMemory(padwidth * height + *offset + packAlign - 1);
+	buffer = ri.Hunk_AllocateTempMemory((int)(padwidth * height + *offset + packAlign - 1));
 	
 	bufstart = PADP((intptr_t) buffer + *offset, packAlign);
 
 	qglReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, bufstart);
 	
 	*offset = bufstart - buffer;
-	*padlen = padwidth - linelen;
+	*padlen = (int)(padwidth - linelen);
 	
 	return buffer;
 }
@@ -446,9 +446,9 @@ void RB_TakeScreenshot(int x, int y, int width, int height, char *fileName)
 
 	// gamma correct
 	if(glConfig.deviceSupportsGamma)
-		R_GammaCorrect(allbuf + offset, memcount);
+		R_GammaCorrect(allbuf + offset, (int)memcount);
 
-	ri.FS_WriteFile(fileName, buffer, memcount + 18);
+	ri.FS_WriteFile(fileName, buffer, (int)memcount + 18);
 
 	ri.Hunk_FreeTempMemory(allbuf);
 }
@@ -470,7 +470,7 @@ void RB_TakeScreenshotJPEG(int x, int y, int width, int height, char *fileName)
 
 	// gamma correct
 	if(glConfig.deviceSupportsGamma)
-		R_GammaCorrect(buffer + offset, memcount);
+		R_GammaCorrect(buffer + offset, (int)memcount);
 
 	RE_SaveJPG(fileName, r_screenshotJpegQuality->integer, width, height, buffer + offset, padlen);
 	ri.Hunk_FreeTempMemory(buffer);
@@ -507,7 +507,7 @@ void R_TakeScreenshot( int x, int y, int width, int height, char *name, qboolean
 	static char	fileName[MAX_OSPATH]; // bad things if two screenshots per frame?
 	screenshotCommand_t	*cmd;
 
-	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
+	cmd = R_GetCommandBuffer( (int)sizeof( *cmd ) );
 	if ( !cmd ) {
 		return;
 	}
@@ -517,7 +517,7 @@ void R_TakeScreenshot( int x, int y, int width, int height, char *name, qboolean
 	cmd->y = y;
 	cmd->width = width;
 	cmd->height = height;
-	Q_strncpyz( fileName, name, sizeof(fileName) );
+	Q_strncpyz( fileName, name, (int)sizeof(fileName) );
 	cmd->fileName = fileName;
 	cmd->jpeg = jpeg;
 }
@@ -592,7 +592,7 @@ void R_LevelShot( void ) {
 	float		xScale, yScale;
 	int			xx, yy;
 
-	Com_sprintf(checkname, sizeof(checkname), "levelshots/%s.tga", tr.world->baseName);
+	Com_sprintf(checkname, (int)sizeof(checkname), "levelshots/%s.tga", tr.world->baseName);
 
 	allsource = RB_ReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, &offset, &padlen);
 	source = allsource + offset;
@@ -768,7 +768,7 @@ void R_ExportCubemaps(void)
 {
 	exportCubemapsCommand_t	*cmd;
 
-	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	cmd = R_GetCommandBuffer((int)sizeof(*cmd));
 	if (!cmd) {
 		return;
 	}
@@ -813,10 +813,10 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 
 	// Alignment stuff for glReadPixels
 	padwidth = PAD(linelen, packAlign);
-	padlen = padwidth - linelen;
+	padlen = (int)(padwidth - linelen);
 	// AVI line padding
 	avipadwidth = PAD(linelen, AVI_LINE_PADDING);
-	avipadlen = avipadwidth - linelen;
+	avipadlen = (int)(avipadwidth - linelen);
 
 	cBuf = PADP(cmd->captureBuffer, packAlign);
 		
@@ -827,14 +827,14 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 
 	// gamma correct
 	if(glConfig.deviceSupportsGamma)
-		R_GammaCorrect(cBuf, memcount);
+		R_GammaCorrect(cBuf, (int)memcount);
 
 	if(cmd->motionJpeg)
 	{
 		memcount = RE_SaveJPGToBuffer(cmd->encodeBuffer, linelen * cmd->height,
 			r_aviMotionJpegQuality->integer,
 			cmd->width, cmd->height, cBuf, padlen);
-		ri.CL_WriteAVIVideoFrame(cmd->encodeBuffer, memcount);
+		ri.CL_WriteAVIVideoFrame(cmd->encodeBuffer, (int)memcount);
 	}
 	else
 	{
@@ -946,12 +946,12 @@ Workaround for ri.Printf's 1024 characters buffer limit.
 void R_PrintLongString(const char *string) {
 	char buffer[1024];
 	const char *p;
-	int size = strlen(string);
+	int size = (int)strlen(string);
 
 	p = string;
 	while(size > 0)
 	{
-		Q_strncpyz(buffer, p, sizeof (buffer) );
+		Q_strncpyz(buffer, p, (int)sizeof(buffer) );
 		ri.Printf( PRINT_ALL, "%s", buffer );
 		p += 1023;
 		size -= 1023;
@@ -1341,16 +1341,16 @@ void R_Init( void ) {
 	ri.Printf( PRINT_ALL, "----- R_Init -----\n" );
 
 	// clear all our internal state
-	Com_Memset( &tr, 0, sizeof( tr ) );
-	Com_Memset( &backEnd, 0, sizeof( backEnd ) );
-	Com_Memset( &tess, 0, sizeof( tess ) );
+	Com_Memset( &tr, 0, (int)sizeof( tr ) );
+	Com_Memset( &backEnd, 0, (int)sizeof( backEnd ) );
+	Com_Memset( &tess, 0, (int)sizeof( tess ) );
 
 //	Swap_Init();
 
 	if ( (intptr_t)tess.xyz & 15 ) {
 		ri.Printf( PRINT_WARNING, "tess.xyz not 16 byte aligned\n" );
 	}
-	//Com_Memset( tess.constantColor255, 255, sizeof( tess.constantColor255 ) );
+	//Com_Memset( tess.constantColor255, 255, (int)sizeof( tess.constantColor255 ) );
 
 	//
 	// init function tables
@@ -1393,10 +1393,10 @@ void R_Init( void ) {
 	if (max_polyverts < MAX_POLYVERTS)
 		max_polyverts = MAX_POLYVERTS;
 
-	ptr = ri.Hunk_Alloc( sizeof( *backEndData ) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts, h_low);
+	ptr = ri.Hunk_Alloc( (int)sizeof( *backEndData ) + (int)sizeof(srfPoly_t) * max_polys + (int)sizeof(polyVert_t) * max_polyverts, h_low);
 	backEndData = (backEndData_t *) ptr;
-	backEndData->polys = (srfPoly_t *) ((char *) ptr + sizeof( *backEndData ));
-	backEndData->polyVerts = (polyVert_t *) ((char *) ptr + sizeof( *backEndData ) + sizeof(srfPoly_t) * max_polys);
+	backEndData->polys = (srfPoly_t *) ((char *) ptr + (int)sizeof( *backEndData ));
+	backEndData->polyVerts = (polyVert_t *) ((char *) ptr + (int)sizeof( *backEndData ) + (int)sizeof(srfPoly_t) * max_polys);
 	R_InitNextFrame();
 
 	InitOpenGL();
@@ -1468,8 +1468,8 @@ void RE_Shutdown( qboolean destroyWindow ) {
 	if ( destroyWindow ) {
 		GLimp_Shutdown();
 
-		Com_Memset( &glConfig, 0, sizeof( glConfig ) );
-		Com_Memset( &glState, 0, sizeof( glState ) );
+		Com_Memset( &glConfig, 0, (int)sizeof( glConfig ) );
+		Com_Memset( &glState, 0, (int)sizeof( glState ) );
 	}
 
 	tr.registered = qfalse;
@@ -1507,7 +1507,7 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 
 	ri = *rimp;
 
-	Com_Memset( &re, 0, sizeof( re ) );
+	Com_Memset( &re, 0, (int)sizeof( re ) );
 
 	if ( apiVersion != REF_API_VERSION ) {
 		ri.Printf(PRINT_ALL, "Mismatched REF_API_VERSION: expected %i, got %i\n", 

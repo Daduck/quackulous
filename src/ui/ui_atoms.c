@@ -36,7 +36,7 @@ void QDECL Com_Error( int level, const char *error, ... )
   char    text[1024];
 
   va_start( argptr, error );
-  Q_vsnprintf( text, sizeof( text ), error, argptr );
+  Q_vsnprintf( text, (int)sizeof( text ), error, argptr );
   va_end( argptr );
 
   trap_Error( text );
@@ -48,7 +48,7 @@ void QDECL Com_Printf( const char *msg, ... )
   char    text[1024];
 
   va_start( argptr, msg );
-  Q_vsnprintf( text, sizeof( text ), msg, argptr );
+  Q_vsnprintf( text, (int)sizeof( text ), msg, argptr );
   va_end( argptr );
 
   trap_Print( text );
@@ -83,7 +83,7 @@ char *UI_Argv( int arg )
 {
   static char  buffer[MAX_STRING_CHARS];
 
-  trap_Argv( arg, buffer, sizeof( buffer ) );
+  trap_Argv( arg, buffer, (int)sizeof( buffer ) );
 
   return buffer;
 }
@@ -121,7 +121,7 @@ char *UI_Cvar_VariableString( const char *var_name )
 {
   static char  buffer[MAX_STRING_CHARS];
 
-  trap_Cvar_VariableStringBuffer( var_name, buffer, sizeof( buffer ) );
+  trap_Cvar_VariableStringBuffer( var_name, buffer, (int)sizeof( buffer ) );
 
   return buffer;
 }
@@ -185,7 +185,7 @@ static void UI_Me_f( void )
 {
   char buf[ MAX_SAY_TEXT - 4 ];
 
-  UI_ConcatArgs( 1, buf, sizeof( buf ) );
+  UI_ConcatArgs( 1, buf, (int)sizeof( buf ) );
 
   trap_Cmd_ExecuteText( EXEC_APPEND, va( "say \"/me %s\"", buf ) );
 }
@@ -213,7 +213,7 @@ UI_ConsoleCommand
 qboolean UI_ConsoleCommand( int realTime )
 {
   struct uicmd *cmd = bsearch( UI_Argv( 0 ), commands,
-    ARRAY_LEN( commands ), sizeof( commands[ 0 ] ),
+    ARRAY_LEN( commands ), (int)sizeof( commands[ 0 ] ),
     cmdcmp );
 
   uiInfo.uiDC.frameTime = realTime - uiInfo.uiDC.realTime;

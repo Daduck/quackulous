@@ -163,8 +163,6 @@ function(quackulous_target_defaults target)
     $<$<COMPILE_LANGUAGE:C>:/W3>
     $<$<COMPILE_LANGUAGE:C>:/wd4113>
     $<$<COMPILE_LANGUAGE:C>:/wd4244>
-    $<$<COMPILE_LANGUAGE:C>:/wd4267>
-    $<$<COMPILE_LANGUAGE:C>:/wd4305>
     $<$<COMPILE_LANGUAGE:C>:/wd4996>
   )
   target_link_options("${target}" PRIVATE /DEBUG:FULL)

@@ -211,7 +211,7 @@ qboolean CG_ConsoleCommand( void )
   consoleCommand_t *cmd;
 
   cmd = bsearch( CG_Argv( 0 ), commands,
-    ARRAY_LEN( commands ), sizeof( commands[ 0 ] ),
+    ARRAY_LEN( commands ), (int)sizeof( commands[ 0 ] ),
     cmdcmp );
 
   if( !cmd )

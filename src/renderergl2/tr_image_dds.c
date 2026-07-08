@@ -252,7 +252,7 @@ void R_LoadDDS ( const char *filename, byte **pic, int *width, int *height, GLen
 	//
 	// reject files that are too small to hold even a header
 	//
-	if (len < 4 + sizeof(*ddsHeader))
+	if (len < 4 + (int)sizeof(*ddsHeader))
 	{
 		ri.Printf(PRINT_ALL, "File %s is too small to be a DDS file.\n", filename);
 		ri.FS_FreeFile(buffer.v);
@@ -275,21 +275,21 @@ void R_LoadDDS ( const char *filename, byte **pic, int *width, int *height, GLen
 	ddsHeader = (ddsHeader_t *)(buffer.b + 4);
 	if ((ddsHeader->pixelFormatFlags & DDSPF_FOURCC) && ddsHeader->fourCC == EncodeFourCC("DX10"))
 	{
-		if (len < 4 + sizeof(*ddsHeader) + sizeof(*ddsHeaderDxt10))
+		if (len < 4 + (int)sizeof(*ddsHeader) + (int)sizeof(*ddsHeaderDxt10))
 		{
 			ri.Printf(PRINT_ALL, "File %s indicates a DX10 header it is too small to contain.\n", filename);
 			ri.FS_FreeFile(buffer.v);
 			return;
 		}
 
-		ddsHeaderDxt10 = (ddsHeaderDxt10_t *)(buffer.b + 4 + sizeof(ddsHeader_t));
-		data = buffer.b + 4 + sizeof(*ddsHeader) + sizeof(*ddsHeaderDxt10);
-		len -= 4 + sizeof(*ddsHeader) + sizeof(*ddsHeaderDxt10);
+		ddsHeaderDxt10 = (ddsHeaderDxt10_t *)(buffer.b + 4 + (int)sizeof(ddsHeader_t));
+		data = buffer.b + 4 + (int)sizeof(*ddsHeader) + (int)sizeof(*ddsHeaderDxt10);
+		len -= 4 + (int)sizeof(*ddsHeader) + (int)sizeof(*ddsHeaderDxt10);
 	}
 	else
 	{
-		data = buffer.b + 4 + sizeof(*ddsHeader);
-		len -= 4 + sizeof(*ddsHeader);
+		data = buffer.b + 4 + (int)sizeof(*ddsHeader);
+		len -= 4 + (int)sizeof(*ddsHeader);
 	}
 
 	if (width)
@@ -462,7 +462,7 @@ void R_SaveDDS(const char *filename, byte *pic, int width, int height, int depth
 		depth = 1;
 
 	picSize = width * height * depth * 4;
-	size = 4 + sizeof(*ddsHeader) + picSize;
+	size = 4 + (int)sizeof(*ddsHeader) + picSize;
 	data = ri.Malloc(size);
 
 	data[0] = 'D';
@@ -471,7 +471,7 @@ void R_SaveDDS(const char *filename, byte *pic, int width, int height, int depth
 	data[3] = ' ';
 
 	ddsHeader = (ddsHeader_t *)(data + 4);
-	memset(ddsHeader, 0, sizeof(ddsHeader_t));
+	memset(ddsHeader, 0, (int)sizeof(ddsHeader_t));
 
 	ddsHeader->headerSize = 0x7c;
 	ddsHeader->flags = _DDSFLAGS_REQUIRED;
@@ -490,7 +490,7 @@ void R_SaveDDS(const char *filename, byte *pic, int width, int height, int depth
 	ddsHeader->bBitMask = 0x00ff0000;
 	ddsHeader->aBitMask = 0xff000000;
 
-	Com_Memcpy(data + 4 + sizeof(*ddsHeader), pic, picSize);
+	Com_Memcpy(data + 4 + (int)sizeof(*ddsHeader), pic, picSize);
 
 	ri.FS_WriteFile(filename, data, size);
 

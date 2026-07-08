@@ -80,7 +80,7 @@ void R_LoadPCX ( const char *filename, byte **pic, int *width, int *height)
 		return;
 	}
 
-	if((unsigned)len < sizeof(pcx_t))
+	if((unsigned)len < (int)sizeof(pcx_t))
 	{
 		ri.Printf (PRINT_ALL, "PCX truncated: %s\n", filename);
 		ri.FS_FreeFile (raw.v);

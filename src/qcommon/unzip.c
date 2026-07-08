@@ -485,7 +485,7 @@ extern unzFile ZEXPORT unzOpen2 (path, pzlib_filefunc_def)
     us.encrypted = 0;
 
 
-    s=(unz_s*)ALLOC(sizeof(unz_s));
+    s=(unz_s*)ALLOC((int)sizeof(unz_s));
     *s=us;
     unzGoToFirstFile((unzFile)s);
     return (unzFile)s;
@@ -843,7 +843,7 @@ extern int ZEXPORT unzLocateFile (file, szFileName, iCaseSensitivity)
     if (file==NULL)
         return UNZ_PARAMERROR;
 
-    if (strlen(szFileName)>=UNZ_MAXFILENAMEINZIP)
+    if ((int)strlen(szFileName)>=UNZ_MAXFILENAMEINZIP)
         return UNZ_PARAMERROR;
 
     s=(unz_s*)file;
@@ -862,7 +862,7 @@ extern int ZEXPORT unzLocateFile (file, szFileName, iCaseSensitivity)
     {
         char szCurrentFileName[UNZ_MAXFILENAMEINZIP+1];
         err = unzGetCurrentFileInfo(file,NULL,
-                                    szCurrentFileName,sizeof(szCurrentFileName)-1,
+                                    szCurrentFileName,(int)sizeof(szCurrentFileName)-1,
                                     NULL,0,NULL,0);
         if (err == UNZ_OK)
         {
@@ -1090,7 +1090,7 @@ extern int ZEXPORT unzOpenCurrentFile3 (file, method, level, raw, password)
         return UNZ_BADZIPFILE;
 
     pfile_in_zip_read_info = (file_in_zip_read_info_s*)
-                                        ALLOC(sizeof(file_in_zip_read_info_s));
+                                        ALLOC((int)sizeof(file_in_zip_read_info_s));
     if (pfile_in_zip_read_info==NULL)
         return UNZ_INTERNALERROR;
 

@@ -63,9 +63,9 @@ qhandle_t R_RegisterMD3(const char *name, model_t *mod)
 	for (lod = MD3_MAX_LODS - 1 ; lod >= 0 ; lod--)
 	{
 		if(lod)
-			Com_sprintf(namebuf, sizeof(namebuf), "%s_%d.%s", filename, lod, fext);
+			Com_sprintf(namebuf, (int)sizeof(namebuf), "%s_%d.%s", filename, lod, fext);
 		else
-			Com_sprintf(namebuf, sizeof(namebuf), "%s.%s", filename, fext);
+			Com_sprintf(namebuf, (int)sizeof(namebuf), "%s.%s", filename, fext);
 
 		ri.FS_ReadFile( namebuf, &buf.v );
 		if(!buf.u)
@@ -230,7 +230,7 @@ model_t *R_AllocModel( void ) {
 		return NULL;
 	}
 
-	mod = ri.Hunk_Alloc( sizeof( *tr.models[tr.numModels] ), h_low );
+	mod = ri.Hunk_Alloc( (int)sizeof( *tr.models[tr.numModels] ), h_low );
 	mod->index = tr.numModels;
 	tr.models[tr.numModels] = mod;
 	tr.numModels++;
@@ -265,7 +265,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 		return 0;
 	}
 
-	if ( strlen( name ) >= MAX_QPATH ) {
+	if ( (int)strlen( name ) >= MAX_QPATH ) {
 		ri.Printf( PRINT_ALL, "Model name exceeds MAX_QPATH\n" );
 		return 0;
 	}
@@ -291,7 +291,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 	}
 
 	// only set the name after the model has been successfully loaded
-	Q_strncpyz( mod->name, name, sizeof( mod->name ) );
+	Q_strncpyz( mod->name, name, (int)sizeof( mod->name ) );
 
 
 	R_IssuePendingRenderCommands();
@@ -345,7 +345,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 		if (i == orgLoader)
 			continue;
 
-		Com_sprintf( altName, sizeof (altName), "%s.%s", localName, modelLoaders[ i ].ext );
+		Com_sprintf( altName, (int)sizeof(altName), "%s.%s", localName, modelLoaders[ i ].ext );
 
 		// Load
 		hModel = modelLoaders[ i ].ModelLoader( altName, mod );
@@ -473,7 +473,7 @@ static qboolean R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *mod_
 
 		// strip off a trailing _1 or _2
 		// this is a crutch for q3data being a mess
-		j = strlen( surf->name );
+		j = (int)strlen( surf->name );
 		if ( j > 2 && surf->name[j-2] == '_' ) {
 			surf->name[j-2] = 0;
 		}
@@ -574,14 +574,14 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 	if(pinmodel->ofsFrames < 0)
 	{
 		// mdrFrame_t is larger than mdrCompFrame_t:
-		size += pinmodel->numFrames * sizeof(frame->name);
+		size += pinmodel->numFrames * (int)sizeof(frame->name);
 		// now add enough space for the uncompressed bones.
-		size += pinmodel->numFrames * pinmodel->numBones * ((sizeof(mdrBone_t) - sizeof(mdrCompBone_t)));
+		size += pinmodel->numFrames * pinmodel->numBones * (((int)sizeof(mdrBone_t) - (int)sizeof(mdrCompBone_t)));
 	}
 	
 	// simple bounds check
 	if(pinmodel->numBones < 0 ||
-		sizeof(*mdr) + pinmodel->numFrames * (sizeof(*frame) + (pinmodel->numBones - 1) * sizeof(*frame->bones)) > size)
+		(int)sizeof(*mdr) + pinmodel->numFrames * ((int)sizeof(*frame) + (pinmodel->numBones - 1) * (int)sizeof(*frame->bones)) > size)
 	{
 		ri.Printf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n", mod_name);
 		return qfalse;
@@ -594,7 +594,7 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 	
 	mdr->ident = LittleLong(pinmodel->ident);
 	mdr->version = pinmodel->version;	// Don't need to swap byte order on this one, we already did above.
-	Q_strncpyz(mdr->name, pinmodel->name, sizeof(mdr->name));
+	Q_strncpyz(mdr->name, pinmodel->name, (int)sizeof(mdr->name));
 	mdr->numFrames = pinmodel->numFrames;
 	mdr->numBones = pinmodel->numBones;
 	mdr->numLODs = LittleLong(pinmodel->numLODs);
@@ -634,7 +634,7 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 			
 			for(j = 0; j < mdr->numBones; j++)
 			{
-				for(k = 0; k < (sizeof(cframe->bones[j].Comp) / 2); k++)
+				for(k = 0; k < ((int)sizeof(cframe->bones[j].Comp) / 2); k++)
 				{
 					// Do swapping for the uncompressing functions. They seem to use shorts
 					// values only, so I assume this will work. Never tested it on other
@@ -673,9 +673,9 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 			}
 			
 			frame->radius = LittleFloat(curframe->radius);
-			Q_strncpyz(frame->name, curframe->name, sizeof(frame->name));
+			Q_strncpyz(frame->name, curframe->name, (int)sizeof(frame->name));
 			
-			for (j = 0; j < (int) (mdr->numBones * sizeof(mdrBone_t) / 4); j++) 
+			for (j = 0; j < (int) (mdr->numBones * (int)sizeof(mdrBone_t) / 4); j++) 
 			{
 				((float *)frame->bones)[j] = LittleFloat( ((float *)curframe->bones)[j] );
 			}
@@ -720,8 +720,8 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 			// first do some copying stuff
 			
 			surf->ident = SF_MDR;
-			Q_strncpyz(surf->name, cursurf->name, sizeof(surf->name));
-			Q_strncpyz(surf->shader, cursurf->shader, sizeof(surf->shader));
+			Q_strncpyz(surf->name, cursurf->name, (int)sizeof(surf->name));
+			Q_strncpyz(surf->shader, cursurf->shader, (int)sizeof(surf->shader));
 			
 			surf->ofsHeader = (byte *) mdr - (byte *) surf;
 			
@@ -765,7 +765,7 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 				LL(curv->numWeights);
 			
 				// simple bounds check
-				if(curv->numWeights < 0 || (byte *) (v + 1) + (curv->numWeights - 1) * sizeof(*weight) > (byte *) mdr + size)
+				if(curv->numWeights < 0 || (byte *) (v + 1) + (curv->numWeights - 1) * (int)sizeof(*weight) > (byte *) mdr + size)
 				{
 					ri.Printf(PRINT_WARNING, "R_LoadMDR: %s has broken structure.\n", mod_name);
 					return qfalse;
@@ -853,7 +853,7 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 	for (i = 0 ; i < mdr->numTags ; i++)
 	{
 		tag->boneIndex = LittleLong(curtag->boneIndex);
-		Q_strncpyz(tag->name, curtag->name, sizeof(tag->name));
+		Q_strncpyz(tag->name, curtag->name, (int)sizeof(tag->name));
 		
 		tag++;
 		curtag++;
@@ -985,7 +985,7 @@ md3Tag_t *R_GetAnimTag( mdrHeader_t *mod, int framenum, const char *tagName, md3
 	{
 		if ( !strcmp( tag->name, tagName ) )
 		{
-			Q_strncpyz(dest->name, tag->name, sizeof(dest->name));
+			Q_strncpyz(dest->name, tag->name, (int)sizeof(dest->name));
 
 			// uncompressed model...
 			//

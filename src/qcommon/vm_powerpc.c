@@ -356,7 +356,7 @@ VM_AsmCall( int callSyscallInvNum, int callProgramStack )
 	currentVM->programStack = callProgramStack - 4;
 
 	// we need to convert ints to longs on 64bit powerpcs
-	if ( sizeof( intptr_t ) == sizeof( int ) ) {
+	if ( (int)sizeof( intptr_t ) == (int)sizeof( int ) ) {
 		intptr_t *argPosition = (intptr_t *)((byte *)currentVM->dataBase + callProgramStack + 4);
 
 		// generated code does not invert syscall number
@@ -477,8 +477,8 @@ PPC_AppendInstructions(
 {
 	if ( num_instructions < 0 )
 		num_instructions = 0;
-	size_t iBytes = sizeof( ppc_instruction_t ) * num_instructions;
-	dest_instruction_t *di_now = PPC_Malloc( sizeof( dest_instruction_t ) + iBytes );
+	size_t iBytes = (int)sizeof( ppc_instruction_t ) * num_instructions;
+	dest_instruction_t *di_now = PPC_Malloc( (int)sizeof( dest_instruction_t ) + iBytes );
 
 	di_now->length = num_instructions;
 	di_now->jump = NULL;
@@ -502,8 +502,8 @@ PPC_PrepareJump(
 		unsigned long int ext
 	)
 {
-	dest_instruction_t *di_now = PPC_Malloc( sizeof( dest_instruction_t ) );
-	symbolic_jump_t *sj = PPC_Malloc( sizeof( symbolic_jump_t ) );
+	dest_instruction_t *di_now = PPC_Malloc( (int)sizeof( dest_instruction_t ) );
+	symbolic_jump_t *sj = PPC_Malloc( (int)sizeof( symbolic_jump_t ) );
 
 	sj->jump_to = dest;
 	sj->bo = bo;
@@ -600,7 +600,7 @@ PPC_PushData( unsigned int datum )
 
 	// last chunk is full, create new one
 	if ( d_now->count >= LOCAL_DATA_CHUNK ) {
-		d_now->next = PPC_Malloc( sizeof( local_data_t ) );
+		d_now->next = PPC_Malloc( (int)sizeof( local_data_t ) );
 		d_now = d_now->next;
 		d_now->count = 0;
 		d_now->next = NULL;
@@ -692,15 +692,15 @@ static const long int fpr_total = ARRAY_LEN( fpr_list );
 static void
 PPC_CompileInit( void )
 {
-	di_first = di_last = PPC_Malloc( sizeof( dest_instruction_t ) );
+	di_first = di_last = PPC_Malloc( (int)sizeof( dest_instruction_t ) );
 	di_first->count = 0;
 	di_first->next = NULL;
 	di_first->jump = NULL;
 
-	sj_first = sj_last = PPC_Malloc( sizeof( symbolic_jump_t ) );
+	sj_first = sj_last = PPC_Malloc( (int)sizeof( symbolic_jump_t ) );
 	sj_first->nextJump = NULL;
 
-	data_first = PPC_Malloc( sizeof( local_data_t ) );
+	data_first = PPC_Malloc( (int)sizeof( local_data_t ) );
 	data_first->count = 0;
 	data_first->next = NULL;
 
@@ -1808,9 +1808,9 @@ PPC_ComputeCode( vm_t *vm )
 	while ( (di_now = di_now->next ) )
 		codeInstructions += di_now->length;
 
-	size_t codeLength = sizeof( vm_data_t )
-		+ sizeof( unsigned int ) * data_acc
-		+ sizeof( ppc_instruction_t ) * codeInstructions;
+	size_t codeLength = (int)sizeof( vm_data_t )
+		+ (int)sizeof( unsigned int ) * data_acc
+		+ (int)sizeof( ppc_instruction_t ) * codeInstructions;
 
 	// get the memory for the generated code, smarter ppcs need the
 	// mem to be marked as executable (whill change later)
@@ -1837,7 +1837,7 @@ PPC_ComputeCode( vm_t *vm )
 		}
 
 		if ( di_now->jump == NULL ) {
-			memcpy( codeNow, &(di_now->code[0]), di_now->length * sizeof( ppc_instruction_t ) );
+			memcpy( codeNow, &(di_now->code[0]), di_now->length * (int)sizeof( ppc_instruction_t ) );
 			codeNow += di_now->length;
 		} else {
 			long int i;
@@ -1923,7 +1923,7 @@ PPC_ComputeCode( vm_t *vm )
 	data->dataMask = vm->dataMask;
 	data->iPointers = (ppc_instruction_t *)vm->instructionPointers;
 	data->dataLength = VM_Data_Offset( data[ data_acc ] );
-	data->codeLength = ( codeNow - codeBegin ) * sizeof( ppc_instruction_t );
+	data->codeLength = ( codeNow - codeBegin ) * (int)sizeof( ppc_instruction_t );
 	data->floatBase = 0x59800004;
 
 
@@ -1989,17 +1989,17 @@ VM_Compile( vm_t *vm, vmHeader_t *header )
 
 	PPC_MakeFastMask( vm->dataMask );
 
-	i_first = PPC_Malloc( sizeof( source_instruction_t ) );
+	i_first = PPC_Malloc( (int)sizeof( source_instruction_t ) );
 	i_first->next = NULL;
 
 	// realloc instructionPointers with correct size
 	// use Z_Malloc so vm.c will be able to free the memory
-	if ( sizeof( void * ) != sizeof( int ) ) {
+	if ( (int)sizeof( void * ) != (int)sizeof( int ) ) {
 		Z_Free( vm->instructionPointers );
-		vm->instructionPointers = Z_Malloc( header->instructionCount * sizeof( void * ) );
+		vm->instructionPointers = Z_Malloc( header->instructionCount * (int)sizeof( void * ) );
 	}
 	di_pointers = (void *)vm->instructionPointers;
-	memset( di_pointers, 0, header->instructionCount * sizeof( void * ) );
+	memset( di_pointers, 0, header->instructionCount * (int)sizeof( void * ) );
 
 
 	PPC_CompileInit();
@@ -2020,7 +2020,7 @@ VM_Compile( vm_t *vm, vmHeader_t *header )
 			i_last = i_first;
 		}
 
-		i_now = PPC_Malloc( sizeof( source_instruction_t ) );
+		i_now = PPC_Malloc( (int)sizeof( source_instruction_t ) );
 		i_now->op = op;
 		i_now->i_count = i_count;
 		i_now->arg.i = 0;
@@ -2049,7 +2049,7 @@ VM_Compile( vm_t *vm, vmHeader_t *header )
 	PPC_Free( i_first );
 
 	PPC_ShrinkJumps();
-	memset( di_pointers, 0, header->instructionCount * sizeof( void * ) );
+	memset( di_pointers, 0, header->instructionCount * (int)sizeof( void * ) );
 	PPC_ComputeCode( vm );
 
 	/* check for uninitialized pointers */

@@ -83,7 +83,7 @@ static void  swapfunc(char *, char *, int, int);
  * Qsort routine from Bentley & McIlroy's "Engineering a Sort Function".
  */
 #define swapcode(TYPE, parmi, parmj, n) {     \
-  long i = (n) / sizeof (TYPE);       \
+  long i = (n) / (int)sizeof(TYPE);       \
   register TYPE *pi = (TYPE *) (parmi);     \
   register TYPE *pj = (TYPE *) (parmj);     \
   do {            \
@@ -93,8 +93,8 @@ static void  swapfunc(char *, char *, int, int);
         } while (--i > 0);        \
 }
 
-#define SWAPINIT(a, es) swaptype = ((char *)a - (char *)0) % sizeof(long) || \
-  es % sizeof(long) ? 2 : es == sizeof(long)? 0 : 1;
+#define SWAPINIT(a, es) swaptype = ((char *)a - (char *)0) % (int)sizeof(long) || \
+  es % (int)sizeof(long) ? 2 : es == (int)sizeof(long)? 0 : 1;
 
 static void
 swapfunc(a, b, n, swaptype)
@@ -212,7 +212,7 @@ loop: SWAPINIT(a, es);
 //==================================================================================
 
 
-size_t strlen( const char *string )
+size_t (int)strlen( const char *string )
 {
   const char  *s;
 
@@ -266,7 +266,7 @@ int strcmp( const char *string1, const char *string2 )
 
 char *strrchr( const char *string, int c )
 {
-  int   i, length = strlen( string );
+  int   i, length = (int)strlen( string );
   char  *p;
 
   for( i = length - 1; i >= 0; i-- )
@@ -2258,7 +2258,7 @@ static int dopr (char *buffer, size_t maxlen, const char *format, va_list args)
             flags |= DP_F_UNSIGNED;
             if (cflags == DP_C_SHORT)
               //    value = (unsigned short int) va_arg (args, unsigned short int); // Thilo: This does not work because the rcc compiler cannot do that cast correctly.
-              value = va_arg (args, unsigned int) & ( (1 << sizeof(unsigned short int) * 8) - 1); // Using this workaround instead.
+              value = va_arg (args, unsigned int) & ( (1 << (int)sizeof(unsigned short int) * 8) - 1); // Using this workaround instead.
             else if (cflags == DP_C_LONG)
               value = va_arg (args, unsigned long int);
             else if (cflags == DP_C_LLONG)
@@ -2270,7 +2270,7 @@ static int dopr (char *buffer, size_t maxlen, const char *format, va_list args)
           case 'u':
             flags |= DP_F_UNSIGNED;
             if (cflags == DP_C_SHORT)
-              value = va_arg (args, unsigned int) & ( (1 << sizeof(unsigned short int) * 8) - 1);
+              value = va_arg (args, unsigned int) & ( (1 << (int)sizeof(unsigned short int) * 8) - 1);
             else if (cflags == DP_C_LONG)
               value = va_arg (args, unsigned long int);
             else if (cflags == DP_C_LLONG)
@@ -2284,7 +2284,7 @@ static int dopr (char *buffer, size_t maxlen, const char *format, va_list args)
           case 'x':
             flags |= DP_F_UNSIGNED;
             if (cflags == DP_C_SHORT)
-              value = va_arg (args, unsigned int) & ( (1 << sizeof(unsigned short int) * 8) - 1);
+              value = va_arg (args, unsigned int) & ( (1 << (int)sizeof(unsigned short int) * 8) - 1);
             else if (cflags == DP_C_LONG)
               value = va_arg (args, unsigned long int);
             else if (cflags == DP_C_LLONG)
@@ -2468,8 +2468,8 @@ static int fmtint (char *buffer, size_t *currlen, size_t maxlen,
   do {
     convert[place++] = digits[uvalue % (unsigned)base];
     uvalue = (uvalue / (unsigned)base );
-  } while(uvalue && (place < sizeof (convert)));
-  if (place == sizeof (convert)) place--;
+  } while(uvalue && (place < (int)sizeof(convert)));
+  if (place == (int)sizeof(convert)) place--;
   convert[place] = 0;
 
   zpadlen = max - place;

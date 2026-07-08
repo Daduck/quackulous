@@ -183,7 +183,7 @@ static void GLSL_PrintInfoLog(GLuint object, qboolean developerOnly)
 
 		for(i = 0; i < maxLength; i += 1024)
 		{
-			Q_strncpyz(msgPart, msg + i, sizeof(msgPart));
+			Q_strncpyz(msgPart, msg + i, (int)sizeof(msgPart));
 
 			ri.Printf(printLevel, "%s\n", msgPart);
 		}
@@ -207,7 +207,7 @@ static void GLSL_PrintShaderSource(GLuint object)
 
 	for(i = 0; i < maxLength; i += 1024)
 	{
-		Q_strncpyz(msgPart, msg + i, sizeof(msgPart));
+		Q_strncpyz(msgPart, msg + i, (int)sizeof(msgPart));
 		ri.Printf(PRINT_ALL, "%s\n", msgPart);
 	}
 
@@ -385,11 +385,11 @@ static int GLSL_LoadGPUShaderText(const char *name, const char *fallback,
 
 	if(shaderType == GL_VERTEX_SHADER)
 	{
-		Com_sprintf(filename, sizeof(filename), "glsl/%s_vp.glsl", name);
+		Com_sprintf(filename, (int)sizeof(filename), "glsl/%s_vp.glsl", name);
 	}
 	else
 	{
-		Com_sprintf(filename, sizeof(filename), "glsl/%s_fp.glsl", name);
+		Com_sprintf(filename, (int)sizeof(filename), "glsl/%s_fp.glsl", name);
 	}
 
 	if ( r_externalGLSL->integer ) {
@@ -405,7 +405,7 @@ static int GLSL_LoadGPUShaderText(const char *name, const char *fallback,
 		{
 			ri.Printf(PRINT_DEVELOPER, "...loading built-in '%s'\n", filename);
 			shaderText = fallback;
-			size = strlen(shaderText);
+			size = (int)strlen(shaderText);
 		}
 		else
 		{
@@ -479,7 +479,7 @@ static void GLSL_ShowProgramUniforms(GLuint program)
 	// Loop over each of the active uniforms, and set their value
 	for(i = 0; i < count; i++)
 	{
-		qglGetActiveUniform(program, i, sizeof(uniformName), NULL, &size, &type, uniformName);
+		qglGetActiveUniform(program, i, (int)sizeof(uniformName), NULL, &size, &type, uniformName);
 
 		ri.Printf(PRINT_DEVELOPER, "active uniform: '%s'\n", uniformName);
 	}
@@ -489,17 +489,17 @@ static int GLSL_InitGPUShader2(shaderProgram_t * program, const char *name, int 
 {
 	ri.Printf(PRINT_DEVELOPER, "------- GPU shader -------\n");
 
-	if(strlen(name) >= MAX_QPATH)
+	if((int)strlen(name) >= MAX_QPATH)
 	{
 		ri.Error(ERR_DROP, "GLSL_InitGPUShader2: \"%s\" is too long", name);
 	}
 
-	Q_strncpyz(program->name, name, sizeof(program->name));
+	Q_strncpyz(program->name, name, (int)sizeof(program->name));
 
 	program->program = qglCreateProgram();
 	program->attribs = attribs;
 
-	if (!(GLSL_CompileGPUShader(program->program, &program->vertexShader, vpCode, strlen(vpCode), GL_VERTEX_SHADER)))
+	if (!(GLSL_CompileGPUShader(program->program, &program->vertexShader, vpCode, (int)strlen(vpCode), GL_VERTEX_SHADER)))
 	{
 		ri.Printf(PRINT_ALL, "GLSL_InitGPUShader2: Unable to load \"%s\" as GL_VERTEX_SHADER\n", name);
 		qglDeleteObject(program->program);
@@ -508,7 +508,7 @@ static int GLSL_InitGPUShader2(shaderProgram_t * program, const char *name, int 
 
 	if(fpCode)
 	{
-		if(!(GLSL_CompileGPUShader(program->program, &program->fragmentShader, fpCode, strlen(fpCode), GL_FRAGMENT_SHADER)))
+		if(!(GLSL_CompileGPUShader(program->program, &program->fragmentShader, fpCode, (int)strlen(fpCode), GL_FRAGMENT_SHADER)))
 		{
 			ri.Printf(PRINT_ALL, "GLSL_InitGPUShader2: Unable to load \"%s\" as GL_FRAGMENT_SHADER\n", name);
 			qglDeleteObject(program->program);
@@ -570,12 +570,12 @@ static int GLSL_InitGPUShader(shaderProgram_t * program, const char *name,
 	int size;
 	int result;
 
-	size = sizeof(vpCode);
+	size = (int)sizeof(vpCode);
 	if (addHeader)
 	{
 		GLSL_GetShaderHeader(GL_VERTEX_SHADER, extra, vpCode, size);
-		postHeader = &vpCode[strlen(vpCode)];
-		size -= strlen(vpCode);
+		postHeader = &vpCode[(int)strlen(vpCode)];
+		size -= (int)strlen(vpCode);
 	}
 	else
 	{
@@ -589,12 +589,12 @@ static int GLSL_InitGPUShader(shaderProgram_t * program, const char *name,
 
 	if (fragmentShader)
 	{
-		size = sizeof(fpCode);
+		size = (int)sizeof(fpCode);
 		if (addHeader)
 		{
 			GLSL_GetShaderHeader(GL_FRAGMENT_SHADER, extra, fpCode, size);
-			postHeader = &fpCode[strlen(fpCode)];
-			size -= strlen(fpCode);
+			postHeader = &fpCode[(int)strlen(fpCode)];
+			size -= (int)strlen(fpCode);
 		}
 		else
 		{
@@ -631,25 +631,25 @@ void GLSL_InitUniforms(shaderProgram_t *program)
 		switch(uniformsInfo[i].type)
 		{
 			case GLSL_INT:
-				size += sizeof(GLint);
+				size += (int)sizeof(GLint);
 				break;
 			case GLSL_FLOAT:
-				size += sizeof(GLfloat);
+				size += (int)sizeof(GLfloat);
 				break;
 			case GLSL_FLOAT5:
-				size += sizeof(vec_t) * 5;
+				size += (int)sizeof(vec_t) * 5;
 				break;
 			case GLSL_VEC2:
-				size += sizeof(vec_t) * 2;
+				size += (int)sizeof(vec_t) * 2;
 				break;
 			case GLSL_VEC3:
-				size += sizeof(vec_t) * 3;
+				size += (int)sizeof(vec_t) * 3;
 				break;
 			case GLSL_VEC4:
-				size += sizeof(vec_t) * 4;
+				size += (int)sizeof(vec_t) * 4;
 				break;
 			case GLSL_MAT16:
-				size += sizeof(vec_t) * 16;
+				size += (int)sizeof(vec_t) * 16;
 				break;
 			default:
 				break;
@@ -858,7 +858,7 @@ void GLSL_DeleteGPUShader(shaderProgram_t *program)
 			ri.Free(program->uniformBuffer);
 		}
 
-		Com_Memset(program, 0, sizeof(*program));
+		Com_Memset(program, 0, (int)sizeof(*program));
 	}
 }
 

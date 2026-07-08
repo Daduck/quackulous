@@ -98,8 +98,8 @@ qboolean COM_CompareExtension(const char *in, const char *ext)
 {
 	int inlen, extlen;
 	
-	inlen = strlen(in);
-	extlen = strlen(ext);
+	inlen = (int)strlen(in);
+	extlen = (int)strlen(ext);
 	
 	if(extlen <= inlen)
 	{
@@ -297,7 +297,7 @@ void COM_BeginParseSession( const char *name )
 {
 	com_lines = 1;
 	com_tokenline = 0;
-	Com_sprintf(com_parsename, sizeof(com_parsename), "%s", name);
+	Com_sprintf(com_parsename, (int)sizeof(com_parsename), "%s", name);
 }
 
 int COM_GetCurrentParseLine( void )
@@ -321,7 +321,7 @@ void COM_ParseError( char *format, ... )
 	static char string[4096];
 
 	va_start (argptr, format);
-	Q_vsnprintf (string, sizeof(string), format, argptr);
+	Q_vsnprintf (string, (int)sizeof(string), format, argptr);
 	va_end (argptr);
 
 	Com_Printf("ERROR: %s, line %d: %s\n", com_parsename, COM_GetCurrentParseLine(), string);
@@ -333,7 +333,7 @@ void COM_ParseWarning( char *format, ... )
 	static char string[4096];
 
 	va_start (argptr, format);
-	Q_vsnprintf (string, sizeof(string), format, argptr);
+	Q_vsnprintf (string, (int)sizeof(string), format, argptr);
 	va_end (argptr);
 
 	Com_Printf("WARNING: %s, line %d: %s\n", com_parsename, COM_GetCurrentParseLine(), string);
@@ -669,7 +669,7 @@ int Com_HexStrToInt( const char *str )
 	{
 		int i, n = 0;
 
-		for( i = 2; i < strlen( str ); i++ )
+		for( i = 2; i < (int)strlen( str ); i++ )
 		{
 			char digit;
 
@@ -773,7 +773,7 @@ int Q_vsnprintf(char *str, size_t size, const char *format, va_list ap)
 		// implementation, so we have no choice but to return size.
 		
 		str[size - 1] = '\0';
-		return size;
+		return (int)size;
 	}
 	
 	return retval;
@@ -891,7 +891,7 @@ char *Q_strupr( char *s1 ) {
 void Q_strcat( char *dest, int size, const char *src ) {
 	int		l1;
 
-	l1 = strlen( dest );
+	l1 = (int)strlen( dest );
 	if ( l1 >= size ) {
 		Com_Error( ERR_FATAL, "Q_strcat: already overflowed" );
 	}
@@ -912,7 +912,7 @@ const char *Q_stristr( const char *s, const char *find)
     {
       c -= ('a' - 'A');
     }
-    len = strlen(find);
+    len = (int)strlen(find);
     do
     {
       do
@@ -924,7 +924,7 @@ const char *Q_stristr( const char *s, const char *find)
           sc -= ('a' - 'A');
         }
       } while (sc != c);
-    } while (Q_stricmpn(s, find, len) != 0);
+    } while (Q_stricmpn(s, find, (int)len) != 0);
     s--;
   }
   return s;
@@ -1040,7 +1040,7 @@ char	* QDECL va( char *format, ... ) {
 	index++;
 
 	va_start (argptr, format);
-	Q_vsnprintf (buf, sizeof(*string), format, argptr);
+	Q_vsnprintf (buf, (int)sizeof(*string), format, argptr);
 	va_end (argptr);
 
 	return buf;
@@ -1055,7 +1055,7 @@ Assumes buffer is atleast TRUNCATE_LENGTH big
 */
 void Com_TruncateLongString( char *buffer, const char *s )
 {
-	int length = strlen( s );
+	int length = (int)strlen( s );
 
 	if( length <= TRUNCATE_LENGTH )
 		Q_strncpyz( buffer, s, TRUNCATE_LENGTH );
@@ -1095,7 +1095,7 @@ char *Info_ValueForKey( const char *s, const char *key ) {
 		return "";
 	}
 
-	if ( strlen( s ) >= BIG_INFO_STRING ) {
+	if ( (int)strlen( s ) >= BIG_INFO_STRING ) {
 		Com_Error( ERR_DROP, "Info_ValueForKey: oversize infostring" );
 	}
 
@@ -1186,7 +1186,7 @@ void Info_RemoveKey( char *s, const char *key ) {
 	char	value[MAX_INFO_VALUE];
 	char	*o;
 
-	if ( strlen( s ) >= MAX_INFO_STRING ) {
+	if ( (int)strlen( s ) >= MAX_INFO_STRING ) {
 		Com_Error( ERR_DROP, "Info_RemoveKey: oversize infostring" );
 	}
 
@@ -1220,7 +1220,7 @@ void Info_RemoveKey( char *s, const char *key ) {
 
 		if (!strcmp (key, pkey) )
 		{
-			memmove(start, s, strlen(s) + 1); // remove this part
+			memmove(start, s, (int)strlen(s) + 1); // remove this part
 			
 			return;
 		}
@@ -1242,7 +1242,7 @@ void Info_RemoveKey_Big( char *s, const char *key ) {
 	char	value[BIG_INFO_VALUE];
 	char	*o;
 
-	if ( strlen( s ) >= BIG_INFO_STRING ) {
+	if ( (int)strlen( s ) >= BIG_INFO_STRING ) {
 		Com_Error( ERR_DROP, "Info_RemoveKey_Big: oversize infostring" );
 	}
 
@@ -1276,7 +1276,7 @@ void Info_RemoveKey_Big( char *s, const char *key ) {
 
 		if (!strcmp (key, pkey) )
 		{
-			memmove(start, s, strlen(s) + 1); // remove this part
+			memmove(start, s, (int)strlen(s) + 1); // remove this part
 			return;
 		}
 
@@ -1328,7 +1328,7 @@ void Info_SetValueForKey( char *s, const char *key, const char *value ) {
 	char	newi[MAX_INFO_STRING];
 	const char* blacklist = "\\;\"";
 
-	if ( strlen( s ) >= MAX_INFO_STRING ) {
+	if ( (int)strlen( s ) >= MAX_INFO_STRING ) {
 		Com_Error( ERR_DROP, "Info_SetValueForKey: oversize infostring" );
 	}
 
@@ -1342,12 +1342,12 @@ void Info_SetValueForKey( char *s, const char *key, const char *value ) {
 	}
 	
 	Info_RemoveKey (s, key);
-	if (!value || !strlen(value))
+	if (!value || !(int)strlen(value))
 		return;
 
-	Com_sprintf (newi, sizeof(newi), "\\%s\\%s", key, value);
+	Com_sprintf (newi, (int)sizeof(newi), "\\%s\\%s", key, value);
 
-	if (strlen(newi) + strlen(s) >= MAX_INFO_STRING)
+	if ((int)strlen(newi) + (int)strlen(s) >= MAX_INFO_STRING)
 	{
 		Com_Printf ("Info string length exceeded\n");
 		return;
@@ -1369,7 +1369,7 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 	char	newi[BIG_INFO_STRING];
 	const char* blacklist = "\\;\"";
 
-	if ( strlen( s ) >= BIG_INFO_STRING ) {
+	if ( (int)strlen( s ) >= BIG_INFO_STRING ) {
 		Com_Error( ERR_DROP, "Info_SetValueForKey: oversize infostring" );
 	}
 
@@ -1386,9 +1386,9 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 	if (!value)
 		return;
 
-	Com_sprintf (newi, sizeof(newi), "\\%s\\%s", key, value);
+	Com_sprintf (newi, (int)sizeof(newi), "\\%s\\%s", key, value);
 
-	if (strlen(newi) + strlen(s) >= BIG_INFO_STRING)
+	if ((int)strlen(newi) + (int)strlen(s) >= BIG_INFO_STRING)
 	{
 		Com_Printf ("BIG Info string length exceeded: setting %s to %s "
 			"failed\n", key, value);
@@ -1412,7 +1412,7 @@ static qboolean Com_CharIsOneOfCharset( char c, char *set )
 {
 	int i;
 
-	for( i = 0; i < strlen( set ); i++ )
+	for( i = 0; i < (int)strlen( set ); i++ )
 	{
 		if( set[ i ] == c )
 			return qtrue;
@@ -1526,7 +1526,7 @@ char *Com_ClientListString( const clientList_t *list )
   s[ 0 ] = '\0';
   if( !list )
     return s;
-  Com_sprintf( s, sizeof( s ), "%08x%08x", list->hi, list->lo );
+  Com_sprintf( s, (int)sizeof( s ), "%08x%08x", list->hi, list->lo );
   return s;
 }
 
@@ -1543,7 +1543,7 @@ void Com_ClientListParse( clientList_t *list, const char *s )
   list->hi = 0;
   if( !s )
     return;
-  if( strlen( s ) != 16 )
+  if( (int)strlen( s ) != 16 )
     return;
   sscanf( s, "%x%x", &list->hi, &list->lo );
 }

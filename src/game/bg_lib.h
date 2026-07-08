@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 typedef unsigned int size_t;
 
 typedef char *  va_list;
-#define _INTSIZEOF(n)   ( (sizeof(n) + sizeof(int) - 1) & ~(sizeof(int) - 1) )
+#define _INTSIZEOF(n)   ( ((int)sizeof(n) + (int)sizeof(int) - 1) & ~((int)sizeof(int) - 1) )
 #define va_start(ap,v)  ( ap = (va_list)&v + _INTSIZEOF(v) )
 #define va_arg(ap,t)    ( *(t *)((ap += _INTSIZEOF(t)) - _INTSIZEOF(t)) )
 #define va_end(ap)      ( ap = (va_list)0 )
@@ -92,7 +92,7 @@ void        *bsearch( const void *key, const void *base, size_t nmemb,
                       size_t size, cmp_t *compar );
 
 // String functions
-size_t  strlen( const char *string );
+size_t  (int)strlen( const char *string );
 char    *strcat( char *strDestination, const char *strSource );
 char    *strcpy( char *strDestination, const char *strSource );
 int     strcmp( const char *string1, const char *string2 );

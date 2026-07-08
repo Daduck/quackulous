@@ -78,7 +78,7 @@ void VM_Init( void ) {
 	Cmd_AddCommand ("vmprofile", VM_VmProfile_f );
 	Cmd_AddCommand ("vminfo", VM_VmInfo_f );
 
-	Com_Memset( vmTable, 0, sizeof( vmTable ) );
+	Com_Memset( vmTable, 0, (int)sizeof( vmTable ) );
 }
 
 
@@ -107,7 +107,7 @@ const char *VM_ValueToSymbol( vm_t *vm, int value ) {
 		return sym->symName;
 	}
 
-	Com_sprintf( text, sizeof( text ), "%s+%i", sym->symName, value - sym->symValue );
+	Com_sprintf( text, (int)sizeof( text ), "%s+%i", sym->symName, value - sym->symValue );
 
 	return text;
 }
@@ -237,8 +237,8 @@ void VM_LoadSymbols( vm_t *vm ) {
 		return;
 	}
 
-	COM_StripExtension(vm->name, name, sizeof(name));
-	Com_sprintf( symbols, sizeof( symbols ), "vm/%s.map", name );
+	COM_StripExtension(vm->name, name, (int)sizeof(name));
+	Com_sprintf( symbols, (int)sizeof( symbols ), "vm/%s.map", name );
 	FS_ReadFile( symbols, &mapfile.v );
 	if ( !mapfile.c ) {
 		Com_Printf( "Couldn't load symbol file: %s\n", symbols );
@@ -276,8 +276,8 @@ void VM_LoadSymbols( vm_t *vm ) {
 			Com_Printf( "WARNING: incomplete line at end of file\n" );
 			break;
 		}
-		chars = strlen( token );
-		sym = Hunk_Alloc( sizeof( *sym ) + chars, h_high );
+		chars = (int)strlen( token );
+		sym = Hunk_Alloc( (int)sizeof( *sym ) + chars, h_high );
 		*prev = sym;
 		prev = &sym->next;
 		sym->next = NULL;
@@ -375,7 +375,7 @@ vmHeader_t *VM_LoadQVM( vm_t *vm, qboolean alloc, qboolean unpure)
 	} header;
 
 	// load the image
-	Com_sprintf( filename, sizeof(filename), "vm/%s.qvm", vm->name );
+	Com_sprintf( filename, (int)sizeof(filename), "vm/%s.qvm", vm->name );
 	Com_Printf( "Loading vm file %s...\n", filename );
 
 	FS_ReadFileDir(filename, vm->searchPath, unpure, &header.v);
@@ -396,7 +396,7 @@ vmHeader_t *VM_LoadQVM( vm_t *vm, qboolean alloc, qboolean unpure)
 		Com_Printf( "...which has vmMagic VM_MAGIC_VER2\n" );
 
 		// byte swap the header
-		for ( i = 0 ; i < sizeof( vmHeader_t ) / 4 ; i++ ) {
+		for ( i = 0 ; i < (int)sizeof( vmHeader_t ) / 4 ; i++ ) {
 			((int *)header.h)[i] = LittleLong( ((int *)header.h)[i] );
 		}
 
@@ -415,8 +415,8 @@ vmHeader_t *VM_LoadQVM( vm_t *vm, qboolean alloc, qboolean unpure)
 		}
 	} else if( LittleLong( header.h->vmMagic ) == VM_MAGIC ) {
 		// byte swap the header
-		// sizeof( vmHeader_t ) - sizeof( int ) is the 1.32b vm header size
-		for ( i = 0 ; i < ( sizeof( vmHeader_t ) - sizeof( int ) ) / 4 ; i++ ) {
+		// (int)sizeof( vmHeader_t ) - (int)sizeof( int ) is the 1.32b vm header size
+		for ( i = 0 ; i < ( (int)sizeof( vmHeader_t ) - (int)sizeof( int ) ) / 4 ; i++ ) {
 			((int *)header.h)[i] = LittleLong( ((int *)header.h)[i] );
 		}
 
@@ -541,7 +541,7 @@ vm_t *VM_Restart(vm_t *vm, qboolean unpure)
 		intptr_t	(*systemCall)( intptr_t *parms );
 		
 		systemCall = vm->systemCall;	
-		Q_strncpyz( name, vm->name, sizeof( name ) );
+		Q_strncpyz( name, vm->name, (int)sizeof( name ) );
 
 		VM_Free( vm );
 
@@ -607,11 +607,11 @@ vm_t *VM_Create( const char *module, intptr_t (*systemCalls)(intptr_t *),
 
 	vm = &vmTable[i];
 
-	Q_strncpyz(vm->name, module, sizeof(vm->name));
+	Q_strncpyz(vm->name, module, (int)sizeof(vm->name));
 
 	do
 	{
-		retval = FS_FindVM(&startSearch, filename, sizeof(filename), module, (interpret == VMI_NATIVE));
+		retval = FS_FindVM(&startSearch, filename, (int)sizeof(filename), module, (interpret == VMI_NATIVE));
 		
 		if(retval == VMI_NATIVE)
 		{
@@ -634,7 +634,7 @@ vm_t *VM_Create( const char *module, intptr_t (*systemCalls)(intptr_t *),
 				break;
 
 			// VM_Free overwrites the name on failed load
-			Q_strncpyz(vm->name, module, sizeof(vm->name));
+			Q_strncpyz(vm->name, module, (int)sizeof(vm->name));
 		}
 	} while(retval >= 0);
 	
@@ -645,7 +645,7 @@ vm_t *VM_Create( const char *module, intptr_t (*systemCalls)(intptr_t *),
 
 	// allocate space for the jump targets, which will be filled in by the compile/prep functions
 	vm->instructionCount = header->instructionCount;
-	vm->instructionPointers = Hunk_Alloc(vm->instructionCount * sizeof(*vm->instructionPointers), h_high);
+	vm->instructionPointers = Hunk_Alloc(vm->instructionCount * (int)sizeof(*vm->instructionPointers), h_high);
 
 	// copy or compile the instructions
 	vm->codeLength = header->codeLength;
@@ -710,7 +710,7 @@ void VM_Free( vm_t *vm ) {
 
 	if ( vm->dllHandle ) {
 		Sys_UnloadDll( vm->dllHandle );
-		Com_Memset( vm, 0, sizeof( *vm ) );
+		Com_Memset( vm, 0, (int)sizeof( *vm ) );
 	}
 #if 0	// now automatically freed by hunk
 	if ( vm->codeBase ) {
@@ -723,7 +723,7 @@ void VM_Free( vm_t *vm ) {
 		Z_Free( vm->instructionPointers );
 	}
 #endif
-	Com_Memset( vm, 0, sizeof( *vm ) );
+	Com_Memset( vm, 0, (int)sizeof( *vm ) );
 
 	currentVM = NULL;
 	lastVM = NULL;
@@ -910,7 +910,7 @@ void VM_VmProfile_f( void ) {
 		return;
 	}
 
-	sorted = Z_Malloc( vm->numSymbols * sizeof( *sorted ) );
+	sorted = Z_Malloc( vm->numSymbols * (int)sizeof( *sorted ) );
 	sorted[0] = vm->symbols;
 	total = sorted[0]->profileCount;
 	for ( i = 1 ; i < vm->numSymbols ; i++ ) {
@@ -918,7 +918,7 @@ void VM_VmProfile_f( void ) {
 		total += sorted[i]->profileCount;
 	}
 
-	qsort( sorted, vm->numSymbols, sizeof( *sorted ), VM_ProfileSort );
+	qsort( sorted, vm->numSymbols, (int)sizeof( *sorted ), VM_ProfileSort );
 
 	for ( i = 0 ; i < vm->numSymbols ; i++ ) {
 		int		perc;

@@ -91,7 +91,7 @@ FBO_t          *FBO_Create(const char *name, int width, int height)
 {
 	FBO_t          *fbo;
 
-	if(strlen(name) >= MAX_QPATH)
+	if((int)strlen(name) >= MAX_QPATH)
 	{
 		ri.Error(ERR_DROP, "FBO_Create: \"%s\" is too long", name);
 	}
@@ -111,8 +111,8 @@ FBO_t          *FBO_Create(const char *name, int width, int height)
 		ri.Error(ERR_DROP, "FBO_Create: MAX_FBOS hit");
 	}
 
-	fbo = tr.fbos[tr.numFBOs] = ri.Hunk_Alloc(sizeof(*fbo), h_low);
-	Q_strncpyz(fbo->name, name, sizeof(fbo->name));
+	fbo = tr.fbos[tr.numFBOs] = ri.Hunk_Alloc((int)sizeof(*fbo), h_low);
+	Q_strncpyz(fbo->name, name, (int)sizeof(fbo->name));
 	fbo->index = tr.numFBOs++;
 	fbo->width = width;
 	fbo->height = height;

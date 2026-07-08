@@ -61,7 +61,7 @@ CON_LogWrite
 */
 unsigned int CON_LogWrite( const char *in )
 {
-	unsigned int length = strlen( in );
+	unsigned int length = (int)strlen( in );
 	unsigned int firstChunk;
 	unsigned int secondChunk;
 

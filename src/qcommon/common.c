@@ -158,11 +158,11 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 
 
 	va_start (argptr,fmt);
-	Q_vsnprintf (msg, sizeof(msg), fmt, argptr);
+	Q_vsnprintf (msg, (int)sizeof(msg), fmt, argptr);
 	va_end (argptr);
 
 	if ( rd_buffer ) {
-		if ((strlen (msg) + strlen(rd_buffer)) > (rd_buffersize - 1)) {
+		if (((int)strlen(msg) + (int)strlen(rd_buffer)) > (rd_buffersize - 1)) {
 			rd_flush(rd_buffer);
 			*rd_buffer = 0;
 		}
@@ -217,7 +217,7 @@ void QDECL Com_Printf( const char *fmt, ... ) {
       opening_qconsole = qfalse;
 		}
 		if ( logfile && FS_Initialized()) {
-			FS_Write(msg, strlen(msg), logfile);
+			FS_Write(msg, (int)strlen(msg), logfile);
 		}
 	}
 }
@@ -239,7 +239,7 @@ void QDECL Com_DPrintf( const char *fmt, ...) {
 	}
 
 	va_start (argptr,fmt);	
-	Q_vsnprintf (msg, sizeof(msg), fmt, argptr);
+	Q_vsnprintf (msg, (int)sizeof(msg), fmt, argptr);
 	va_end (argptr);
 	
 	Com_Printf ("%s", msg);
@@ -284,7 +284,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	lastErrorTime = currentTime;
 
 	va_start (argptr,fmt);
-	Q_vsnprintf (com_errorMessage, sizeof(com_errorMessage),fmt,argptr);
+	Q_vsnprintf (com_errorMessage, (int)sizeof(com_errorMessage),fmt,argptr);
 	va_end (argptr);
 
 	if (code != ERR_DISCONNECT && code != ERR_NEED_CD)
@@ -565,7 +565,7 @@ Com_StringContains
 char *Com_StringContains(char *str1, char *str2, int casesensitive) {
 	int len, i, j;
 
-	len = strlen(str1) - strlen(str2);
+	len = (int)strlen(str1) - (int)strlen(str2);
 	for (i = 0; i <= len; i++, str1++) {
 		for (j = 0; str2[j]; j++) {
 			if (casesensitive) {
@@ -606,10 +606,10 @@ int Com_Filter(char *filter, char *name, int casesensitive)
 				filter++;
 			}
 			buf[i] = '\0';
-			if (strlen(buf)) {
+			if ((int)strlen(buf)) {
 				ptr = Com_StringContains(name, buf, casesensitive);
 				if (!ptr) return qfalse;
-				name = ptr + strlen(buf);
+				name = ptr + (int)strlen(buf);
 			}
 		}
 		else if (*filter == '?') {
@@ -787,7 +787,7 @@ void Z_ClearZone( memzone_t *zone, int size ) {
 	// set the entire zone to one free block
 
 	zone->blocklist.next = zone->blocklist.prev = block =
-		(memblock_t *)( (byte *)zone + sizeof(memzone_t) );
+		(memblock_t *)( (byte *)zone + (int)sizeof(memzone_t) );
 	zone->blocklist.tag = 1;	// in use block
 	zone->blocklist.id = 0;
 	zone->blocklist.size = 0;
@@ -798,7 +798,7 @@ void Z_ClearZone( memzone_t *zone, int size ) {
 	block->prev = block->next = &zone->blocklist;
 	block->tag = 0;			// free block
 	block->id = ZONEID;
-	block->size = size - sizeof(memzone_t);
+	block->size = size - (int)sizeof(memzone_t);
 }
 
 /*
@@ -832,7 +832,7 @@ void Z_Free( void *ptr ) {
 		Com_Error( ERR_DROP, "Z_Free: NULL pointer" );
 	}
 
-	block = (memblock_t *) ( (byte *)ptr - sizeof(memblock_t));
+	block = (memblock_t *) ( (byte *)ptr - (int)sizeof(memblock_t));
 	if (block->id != ZONEID) {
 		Com_Error( ERR_FATAL, "Z_Free: freed a pointer without ZONEID" );
 	}
@@ -859,7 +859,7 @@ void Z_Free( void *ptr ) {
 	zone->used -= block->size;
 	// set the block to something that should cause problems
 	// if it is referenced...
-	Com_Memset( ptr, 0xaa, block->size - sizeof( *block ) );
+	Com_Memset( ptr, 0xaa, block->size - (int)sizeof( *block ) );
 
 	block->tag = 0;		// mark as free
 	
@@ -950,9 +950,9 @@ void *Z_TagMalloc( int size, int tag ) {
 	// scan through the block list looking for the first free block
 	// of sufficient size
 	//
-	size += sizeof(memblock_t);	// account for size of block header
+	size += (int)sizeof(memblock_t);	// account for size of block header
 	size += 4;					// space for memory trash tester
-	size = PAD(size, sizeof(intptr_t));		// align to 32/64 bit boundary
+	size = PAD(size, (int)sizeof(intptr_t));		// align to 32/64 bit boundary
 	
 	base = rover = zone->rover;
 	start = base->prev;
@@ -1012,7 +1012,7 @@ void *Z_TagMalloc( int size, int tag ) {
 	// marker for memory trash testing
 	*(int *)((byte *)base + base->size - 4) = ZONEID;
 
-	return (void *) ((byte *)base + sizeof(memblock_t));
+	return (void *) ((byte *)base + (int)sizeof(memblock_t));
 }
 
 /*
@@ -1092,12 +1092,12 @@ void Z_LogZoneHeap( memzone_t *zone, char *name ) {
 #ifdef ZONE_DEBUG
 	allocSize = 0;
 #endif
-	Com_sprintf(buf, sizeof(buf), "\r\n================\r\n%s log\r\n================\r\n", name);
-	FS_Write(buf, strlen(buf), logfile);
+	Com_sprintf(buf, (int)sizeof(buf), "\r\n================\r\n%s log\r\n================\r\n", name);
+	FS_Write(buf, (int)strlen(buf), logfile);
 	for (block = zone->blocklist.next ; block->next != &zone->blocklist; block = block->next) {
 		if (block->tag) {
 #ifdef ZONE_DEBUG
-			ptr = ((char *) block) + sizeof(memblock_t);
+			ptr = ((char *) block) + (int)sizeof(memblock_t);
 			j = 0;
 			for (i = 0; i < 20 && i < block->d.allocSize; i++) {
 				if (ptr[i] >= 32 && ptr[i] < 127) {
@@ -1108,8 +1108,8 @@ void Z_LogZoneHeap( memzone_t *zone, char *name ) {
 				}
 			}
 			dump[j] = '\0';
-			Com_sprintf(buf, sizeof(buf), "size = %8d: %s, line: %d (%s) [%s]\r\n", block->d.allocSize, block->d.file, block->d.line, block->d.label, dump);
-			FS_Write(buf, strlen(buf), logfile);
+			Com_sprintf(buf, (int)sizeof(buf), "size = %8d: %s, line: %d (%s) [%s]\r\n", block->d.allocSize, block->d.file, block->d.line, block->d.label, dump);
+			FS_Write(buf, (int)strlen(buf), logfile);
 			allocSize += block->d.allocSize;
 #endif
 			size += block->size;
@@ -1118,14 +1118,14 @@ void Z_LogZoneHeap( memzone_t *zone, char *name ) {
 	}
 #ifdef ZONE_DEBUG
 	// subtract debug memory
-	size -= numBlocks * sizeof(zonedebug_t);
+	size -= numBlocks * (int)sizeof(zonedebug_t);
 #else
-	allocSize = numBlocks * sizeof(memblock_t); // + 32 bit alignment
+	allocSize = numBlocks * (int)sizeof(memblock_t); // + 32 bit alignment
 #endif
-	Com_sprintf(buf, sizeof(buf), "%d %s memory in %d blocks\r\n", size, name, numBlocks);
-	FS_Write(buf, strlen(buf), logfile);
-	Com_sprintf(buf, sizeof(buf), "%d %s memory overhead\r\n", size - allocSize, name);
-	FS_Write(buf, strlen(buf), logfile);
+	Com_sprintf(buf, (int)sizeof(buf), "%d %s memory in %d blocks\r\n", size, name, numBlocks);
+	FS_Write(buf, (int)strlen(buf), logfile);
+	Com_sprintf(buf, (int)sizeof(buf), "%d %s memory overhead\r\n", size - allocSize, name);
+	FS_Write(buf, (int)strlen(buf), logfile);
 }
 
 /*
@@ -1145,18 +1145,18 @@ typedef struct memstatic_s {
 } memstatic_t;
 
 memstatic_t emptystring =
-	{ {(sizeof(memblock_t)+2 + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'\0', '\0'} };
+	{ {((int)sizeof(memblock_t)+2 + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'\0', '\0'} };
 memstatic_t numberstring[] = {
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'0', '\0'} },
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'1', '\0'} },
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'2', '\0'} },
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'3', '\0'} },
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'4', '\0'} },
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'5', '\0'} },
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'6', '\0'} },
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'7', '\0'} },
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'8', '\0'} }, 
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'9', '\0'} }
+	{ {((int)sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'0', '\0'} },
+	{ {((int)sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'1', '\0'} },
+	{ {((int)sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'2', '\0'} },
+	{ {((int)sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'3', '\0'} },
+	{ {((int)sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'4', '\0'} },
+	{ {((int)sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'5', '\0'} },
+	{ {((int)sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'6', '\0'} },
+	{ {((int)sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'7', '\0'} },
+	{ {((int)sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'8', '\0'} }, 
+	{ {((int)sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'9', '\0'} }
 };
 
 /*
@@ -1171,14 +1171,14 @@ char *CopyString( const char *in ) {
 	char	*out;
 
 	if (!in[0]) {
-		return ((char *)&emptystring) + sizeof(memblock_t);
+		return ((char *)&emptystring) + (int)sizeof(memblock_t);
 	}
 	else if (!in[1]) {
 		if (in[0] >= '0' && in[0] <= '9') {
-			return ((char *)&numberstring[in[0]-'0']) + sizeof(memblock_t);
+			return ((char *)&numberstring[in[0]-'0']) + (int)sizeof(memblock_t);
 		}
 	}
-	out = S_Malloc (strlen(in)+1);
+	out = S_Malloc ((int)strlen(in)+1);
 	strcpy (out, in);
 	return out;
 }
@@ -1449,20 +1449,20 @@ void Hunk_Log( void) {
 		return;
 	size = 0;
 	numBlocks = 0;
-	Com_sprintf(buf, sizeof(buf), "\r\n================\r\nHunk log\r\n================\r\n");
-	FS_Write(buf, strlen(buf), logfile);
+	Com_sprintf(buf, (int)sizeof(buf), "\r\n================\r\nHunk log\r\n================\r\n");
+	FS_Write(buf, (int)strlen(buf), logfile);
 	for (block = hunkblocks ; block; block = block->next) {
 #ifdef HUNK_DEBUG
-		Com_sprintf(buf, sizeof(buf), "size = %8d: %s, line: %d (%s)\r\n", block->size, block->file, block->line, block->label);
-		FS_Write(buf, strlen(buf), logfile);
+		Com_sprintf(buf, (int)sizeof(buf), "size = %8d: %s, line: %d (%s)\r\n", block->size, block->file, block->line, block->label);
+		FS_Write(buf, (int)strlen(buf), logfile);
 #endif
 		size += block->size;
 		numBlocks++;
 	}
-	Com_sprintf(buf, sizeof(buf), "%d Hunk memory\r\n", size);
-	FS_Write(buf, strlen(buf), logfile);
-	Com_sprintf(buf, sizeof(buf), "%d hunk blocks\r\n", numBlocks);
-	FS_Write(buf, strlen(buf), logfile);
+	Com_sprintf(buf, (int)sizeof(buf), "%d Hunk memory\r\n", size);
+	FS_Write(buf, (int)strlen(buf), logfile);
+	Com_sprintf(buf, (int)sizeof(buf), "%d hunk blocks\r\n", numBlocks);
+	FS_Write(buf, (int)strlen(buf), logfile);
 }
 
 /*
@@ -1482,8 +1482,8 @@ void Hunk_SmallLog( void) {
 	}
 	size = 0;
 	numBlocks = 0;
-	Com_sprintf(buf, sizeof(buf), "\r\n================\r\nHunk Small log\r\n================\r\n");
-	FS_Write(buf, strlen(buf), logfile);
+	Com_sprintf(buf, (int)sizeof(buf), "\r\n================\r\nHunk Small log\r\n================\r\n");
+	FS_Write(buf, (int)strlen(buf), logfile);
 	for (block = hunkblocks; block; block = block->next) {
 		if (block->printed) {
 			continue;
@@ -1501,16 +1501,16 @@ void Hunk_SmallLog( void) {
 			block2->printed = qtrue;
 		}
 #ifdef HUNK_DEBUG
-		Com_sprintf(buf, sizeof(buf), "size = %8d: %s, line: %d (%s)\r\n", locsize, block->file, block->line, block->label);
-		FS_Write(buf, strlen(buf), logfile);
+		Com_sprintf(buf, (int)sizeof(buf), "size = %8d: %s, line: %d (%s)\r\n", locsize, block->file, block->line, block->label);
+		FS_Write(buf, (int)strlen(buf), logfile);
 #endif
 		size += block->size;
 		numBlocks++;
 	}
-	Com_sprintf(buf, sizeof(buf), "%d Hunk memory\r\n", size);
-	FS_Write(buf, strlen(buf), logfile);
-	Com_sprintf(buf, sizeof(buf), "%d hunk blocks\r\n", numBlocks);
-	FS_Write(buf, strlen(buf), logfile);
+	Com_sprintf(buf, (int)sizeof(buf), "%d Hunk memory\r\n", size);
+	FS_Write(buf, (int)strlen(buf), logfile);
+	Com_sprintf(buf, (int)sizeof(buf), "%d hunk blocks\r\n", numBlocks);
+	FS_Write(buf, (int)strlen(buf), logfile);
 }
 
 /*
@@ -1710,7 +1710,7 @@ void *Hunk_Alloc( int size, ha_pref preference ) {
 	}
 
 #ifdef HUNK_DEBUG
-	size += sizeof(hunkblock_t);
+	size += (int)sizeof(hunkblock_t);
 #endif
 
 	// round to cacheline
@@ -1744,13 +1744,13 @@ void *Hunk_Alloc( int size, ha_pref preference ) {
 		hunkblock_t *block;
 
 		block = (hunkblock_t *) buf;
-		block->size = size - sizeof(hunkblock_t);
+		block->size = size - (int)sizeof(hunkblock_t);
 		block->file = file;
 		block->label = label;
 		block->line = line;
 		block->next = hunkblocks;
 		hunkblocks = block;
-		buf = ((byte *) buf) + sizeof(hunkblock_t);
+		buf = ((byte *) buf) + (int)sizeof(hunkblock_t);
 	}
 #endif
 	return buf;
@@ -1780,7 +1780,7 @@ void *Hunk_AllocateTempMemory( int size ) {
 
 	Hunk_SwapBanks();
 
-	size = PAD(size, sizeof(intptr_t)) + sizeof( hunkHeader_t );
+	size = PAD(size, (int)sizeof(intptr_t)) + (int)sizeof( hunkHeader_t );
 
 	if ( hunk_temp->temp + hunk_permanent->permanent + size > s_hunkTotal ) {
 		Com_Error( ERR_DROP, "Hunk_AllocateTempMemory: failed on %i", size );
@@ -1994,7 +1994,7 @@ sysEvent_t Com_GetSystemEvent( void )
 		char  *b;
 		int   len;
 
-		len = strlen( s ) + 1;
+		len = (int)strlen( s ) + 1;
 		b = Z_Malloc( len );
 		strcpy( b, s );
 		Com_QueueEvent( 0, SE_CONSOLE, 0, 0, len, b );
@@ -2008,7 +2008,7 @@ sysEvent_t Com_GetSystemEvent( void )
 	}
 
 	// create an empty event to return
-	memset( &ev, 0, sizeof( ev ) );
+	memset( &ev, 0, (int)sizeof( ev ) );
 	ev.evTime = Sys_Milliseconds();
 
 	return ev;
@@ -2025,8 +2025,8 @@ sysEvent_t	Com_GetRealEvent( void ) {
 
 	// either get an event from the system or the journal file
 	if ( com_journal->integer == 2 ) {
-		r = FS_Read( &ev, sizeof(ev), com_journalFile );
-		if ( r != sizeof(ev) ) {
+		r = FS_Read( &ev, (int)sizeof(ev), com_journalFile );
+		if ( r != (int)sizeof(ev) ) {
 			Com_Error( ERR_FATAL, "Error reading from journal file" );
 		}
 		if ( ev.evPtrLength ) {
@@ -2041,8 +2041,8 @@ sysEvent_t	Com_GetRealEvent( void ) {
 
 		// write the journal value out if needed
 		if ( com_journal->integer == 1 ) {
-			r = FS_Write( &ev, sizeof(ev), com_journalFile );
-			if ( r != sizeof(ev) ) {
+			r = FS_Write( &ev, (int)sizeof(ev), com_journalFile );
+			if ( r != (int)sizeof(ev) ) {
 				Com_Error( ERR_FATAL, "Error writing to journal file" );
 			}
 			if ( ev.evPtrLength ) {
@@ -2066,7 +2066,7 @@ Com_InitPushEvent
 void Com_InitPushEvent( void ) {
   // clear the static buffer array
   // this requires SE_NONE to be accepted as a valid but NOP event
-  memset( com_pushedEvents, 0, sizeof(com_pushedEvents) );
+  memset( com_pushedEvents, 0, (int)sizeof(com_pushedEvents) );
   // reset counters while we are at it
   // beware: GetEvent might still return an SE_NONE from the buffer
   com_pushedEventsHead = 0;
@@ -2156,7 +2156,7 @@ int Com_EventLoop( void ) {
 	byte		bufData[MAX_MSGLEN];
 	msg_t		buf;
 
-	MSG_Init( &buf, bufData, sizeof( bufData ) );
+	MSG_Init( &buf, bufData, (int)sizeof( bufData ) );
 
 	while ( 1 ) {
 		ev = Com_GetEvent();
@@ -2495,7 +2495,7 @@ static void Com_InitRand(void)
 {
 	unsigned int seed;
 
-	if(Sys_RandomBytes((byte *) &seed, sizeof(seed)))
+	if(Sys_RandomBytes((byte *) &seed, (int)sizeof(seed)))
 		srand(seed);
 	else
 		srand(time(NULL));
@@ -2517,7 +2517,7 @@ void Com_Init( char *commandLine ) {
 	}
 
 	// Clear queues
-	Com_Memset( &eventQueue[ 0 ], 0, MAX_QUEUED_EVENTS * sizeof( sysEvent_t ) );
+	Com_Memset( &eventQueue[ 0 ], 0, MAX_QUEUED_EVENTS * (int)sizeof( sysEvent_t ) );
 
 	// initialize the weak pseudo-random number generator for use later.
 	Com_InitRand();
@@ -2642,7 +2642,7 @@ void Com_Init( char *commandLine ) {
 	}
 
 	// Pick a random port value
-	Com_RandomBytes( (byte*)&qport, sizeof(int) );
+	Com_RandomBytes( (byte*)&qport, (int)sizeof(int) );
 	Netchan_Init( qport & 0xffff );
 
 	VM_Init();
@@ -2707,7 +2707,7 @@ void Com_ReadFromPipe( void )
 	if( !pipefile )
 		return;
 
-	while( ( read = FS_Read( buf + accu, sizeof( buf ) - accu - 1, pipefile ) ) > 0 )
+	while( ( read = FS_Read( buf + accu, (int)sizeof( buf ) - accu - 1, pipefile ) ) > 0 )
 	{
 		char *brk = NULL;
 		int i;
@@ -2733,7 +2733,7 @@ void Com_ReadFromPipe( void )
 			accu -= brk - buf;
 			memmove( buf, brk, accu + 1 );
 		}
-		else if( accu >= sizeof( buf ) - 1 ) // full
+		else if( accu >= (int)sizeof( buf ) - 1 ) // full
 		{
 			Cbuf_ExecuteText( EXEC_APPEND, buf );
 			accu = 0;
@@ -2798,8 +2798,8 @@ void Com_WriteConfig_f( void ) {
 		return;
 	}
 
-	Q_strncpyz( filename, Cmd_Argv(1), sizeof( filename ) );
-	COM_DefaultExtension( filename, sizeof( filename ), ".cfg" );
+	Q_strncpyz( filename, Cmd_Argv(1), (int)sizeof( filename ) );
+	COM_DefaultExtension( filename, (int)sizeof( filename ), ".cfg" );
 	Com_Printf( "Writing %s.\n", filename );
 	Com_WriteConfigToFile( filename );
 }
@@ -3133,18 +3133,18 @@ FindMatches
 static void FindMatches( const char *s ) {
 	int		i;
 
-	if ( Q_stricmpn( s, completionString, strlen( completionString ) ) ) {
+	if ( Q_stricmpn( s, completionString, (int)strlen( completionString ) ) ) {
 		return;
 	}
 	matchCount++;
 	if ( matchCount == 1 ) {
-		Q_strncpyz( shortestMatch, s, sizeof( shortestMatch ) );
+		Q_strncpyz( shortestMatch, s, (int)sizeof( shortestMatch ) );
 		return;
 	}
 
 	// cut shortestMatch to the amount common with s
 	for ( i = 0 ; shortestMatch[i] ; i++ ) {
-		if ( i >= strlen( s ) ) {
+		if ( i >= (int)strlen( s ) ) {
 			shortestMatch[i] = 0;
 			break;
 		}
@@ -3162,7 +3162,7 @@ PrintMatches
 ===============
 */
 static void PrintMatches( const char *s ) {
-	if ( !Q_stricmpn( s, shortestMatch, strlen( shortestMatch ) ) ) {
+	if ( !Q_stricmpn( s, shortestMatch, (int)strlen( shortestMatch ) ) ) {
 		Com_Printf( "    %s\n", s );
 	}
 }
@@ -3176,7 +3176,7 @@ PrintCvarMatches
 static void PrintCvarMatches( const char *s ) {
 	char value[ TRUNCATE_LENGTH ];
 
-	if ( !Q_stricmpn( s, shortestMatch, strlen( shortestMatch ) ) ) {
+	if ( !Q_stricmpn( s, shortestMatch, (int)strlen( shortestMatch ) ) ) {
 		Com_TruncateLongString( value, Cvar_VariableString( s ) );
 		Com_Printf( "    %s = \"%s\"\n", s, value );
 	}
@@ -3191,7 +3191,7 @@ static char *Field_FindFirstSeparator( char *s )
 {
 	int i;
 
-	for( i = 0; i < strlen( s ); i++ )
+	for( i = 0; i < (int)strlen( s ); i++ )
 	{
 		if( s[ i ] == ';' )
 			return &s[ i ];
@@ -3212,16 +3212,16 @@ static qboolean Field_Complete( void )
 	if( matchCount == 0 )
 		return qtrue;
 
-	completionOffset = strlen( completionField->buffer ) - strlen( completionString );
+	completionOffset = (int)strlen( completionField->buffer ) - (int)strlen( completionString );
 
 	Q_strncpyz( &completionField->buffer[ completionOffset ], shortestMatch,
-		sizeof( completionField->buffer ) - completionOffset );
+		(int)sizeof( completionField->buffer ) - completionOffset );
 
-	completionField->cursor = strlen( completionField->buffer );
+	completionField->cursor = (int)strlen( completionField->buffer );
 
 	if( matchCount == 1 )
 	{
-		Q_strcat( completionField->buffer, sizeof( completionField->buffer ), " " );
+		Q_strcat( completionField->buffer, (int)sizeof( completionField->buffer ), " " );
 		completionField->cursor++;
 		return qtrue;
 	}
@@ -3283,7 +3283,7 @@ void Field_CompleteCommand( char *cmd,
 	completionArgument = Cmd_Argc( );
 
 	// If there is trailing whitespace on the cmd
-	if( *( cmd + strlen( cmd ) - 1 ) == ' ' )
+	if( *( cmd + (int)strlen( cmd ) - 1 ) == ' ' )
 	{
 		completionString = "";
 		completionArgument++;
@@ -3299,13 +3299,13 @@ void Field_CompleteCommand( char *cmd,
 		if( completionField->buffer[ 0 ] != '/' )
 		{
 			// Buffer is full, refuse to complete
-			if( strlen( completionField->buffer ) + 1 >=
-				sizeof( completionField->buffer ) )
+			if( (int)strlen( completionField->buffer ) + 1 >=
+				(int)sizeof( completionField->buffer ) )
 				return;
 
 			memmove( &completionField->buffer[ 1 ],
 				&completionField->buffer[ 0 ],
-				strlen( completionField->buffer ) + 1 );
+				(int)strlen( completionField->buffer ) + 1 );
 			completionField->cursor++;
 		}
 
@@ -3337,7 +3337,7 @@ void Field_CompleteCommand( char *cmd,
 		matchCount = 0;
 		shortestMatch[ 0 ] = 0;
 
-		if( strlen( completionString ) == 0 )
+		if( (int)strlen( completionString ) == 0 )
 			return;
 
 		if( doCommands )
@@ -3434,16 +3434,16 @@ static qboolean Field_CompletePlayerNameFinal( qboolean whitespace )
 	if( matchCount == 0 )
 		return qtrue;
 
-	completionOffset = strlen( completionField->buffer ) - strlen( completionString );
+	completionOffset = (int)strlen( completionField->buffer ) - (int)strlen( completionString );
 
 	Q_strncpyz( &completionField->buffer[ completionOffset ], shortestMatch,
-		sizeof( completionField->buffer ) - completionOffset );
+		(int)sizeof( completionField->buffer ) - completionOffset );
 
-	completionField->cursor = strlen( completionField->buffer );
+	completionField->cursor = (int)strlen( completionField->buffer );
 
 	if( matchCount == 1 && whitespace )
 	{
-		Q_strcat( completionField->buffer, sizeof( completionField->buffer ), " " );
+		Q_strcat( completionField->buffer, (int)sizeof( completionField->buffer ), " " );
 		completionField->cursor++;
 		return qtrue;
 	}
@@ -3474,7 +3474,7 @@ qboolean Com_FieldStringToPlayerName( char *name, int length, const char *rawnam
 
 	for( i = 0; *rawname && i + 1 <= length; rawname++, i++ ) {
 		if( *rawname == '\\' ) {
-			Q_strncpyz( hex, rawname + 1, sizeof(hex) );
+			Q_strncpyz( hex, rawname + 1, (int)sizeof(hex) );
 			ch = Com_HexStrToInt( hex );
 			if( ch > -1 ) {
 				name[i] = ch;
@@ -3549,7 +3549,7 @@ void Field_CompletePlayerName( char **names, int nameCount )
 
 	if( completionString[0] == '\0' )
 	{
-		Com_PlayerNameToFieldString( shortestMatch, sizeof( shortestMatch ), names[ 0 ] );
+		Com_PlayerNameToFieldString( shortestMatch, (int)sizeof( shortestMatch ), names[ 0 ] );
 	}
 
 	//allow to tab player names
@@ -3569,7 +3569,7 @@ void Field_CompletePlayerName( char **names, int nameCount )
 					i = 0;
 				}
 
-				Com_PlayerNameToFieldString( shortestMatch, sizeof( shortestMatch ), names[ i ] );
+				Com_PlayerNameToFieldString( shortestMatch, (int)sizeof( shortestMatch ), names[ i ] );
 				break;
 			}
 		}

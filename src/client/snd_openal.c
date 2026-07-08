@@ -206,7 +206,7 @@ static sfxHandle_t S_AL_BufferFind(const char *filename)
 		return 0;
 	}
 
-	if ( strlen( filename ) >= MAX_QPATH ) {
+	if ( (int)strlen( filename ) >= MAX_QPATH ) {
 		Com_Printf( S_COLOR_YELLOW "WARNING: Sound name is too long: %s\n", filename );
 		return 0;
 	}
@@ -234,7 +234,7 @@ static sfxHandle_t S_AL_BufferFind(const char *filename)
 
 		// Clear and copy the filename over
 		ptr = &knownSfx[sfx];
-		memset(ptr, 0, sizeof(*ptr));
+		memset(ptr, 0, (int)sizeof(*ptr));
 		ptr->masterLoopSrc = -1;
 		strcpy(ptr->filename, filename);
 	}
@@ -480,7 +480,7 @@ qboolean S_AL_BufferInit( void )
 		return qtrue;
 
 	// Clear the hash table, and SFX table
-	memset(knownSfx, 0, sizeof(knownSfx));
+	memset(knownSfx, 0, (int)sizeof(knownSfx));
 	numSfx = 0;
 
 	// Load the default sound, and lock it
@@ -743,7 +743,7 @@ qboolean S_AL_SrcInit( void )
 	int limit;
 
 	// Clear the sources data structure
-	memset(srcList, 0, sizeof(srcList));
+	memset(srcList, 0, (int)sizeof(srcList));
 	srcCount = 0;
 	srcActiveCnt = 0;
 
@@ -799,7 +799,7 @@ void S_AL_SrcShutdown( void )
 		qalDeleteSources(1, &srcList[i].alSource);
 	}
 
-	memset(srcList, 0, sizeof(srcList));
+	memset(srcList, 0, (int)sizeof(srcList));
 
 	alSourcesInitialised = qfalse;
 }
@@ -1822,7 +1822,7 @@ void S_AL_RawSamples(int stream, int samples, int rate, int width, int channels,
 		if (!S_AL_GenBuffers(1, &buffer, "stream"))
 			return;
 
-		Com_Memcpy(oldBuffers, &streamBuffers[stream], sizeof (oldBuffers));
+		Com_Memcpy(oldBuffers, &streamBuffers[stream], (int)sizeof(oldBuffers));
 
 		// Reorder buffer array in order of oldest to newest
 		for ( i = 0; i < streamNumBuffers[stream]; ++i )
@@ -2134,7 +2134,7 @@ void S_AL_StartBackgroundTrack( const char *intro, const char *loop )
 		issame = qfalse;
 
 	// Copy the loop over
-	Q_strncpyz( s_backgroundLoop, loop, sizeof( s_backgroundLoop ) );
+	Q_strncpyz( s_backgroundLoop, loop, (int)sizeof( s_backgroundLoop ) );
 
 	if(!issame)
 	{
@@ -2398,7 +2398,7 @@ int S_AL_AvailableCaptureSamples( void )
 	if (alCaptureDevice != NULL)
 	{
 		ALint samples = 0;
-		qalcGetIntegerv(alCaptureDevice, ALC_CAPTURE_SAMPLES, sizeof (samples), &samples);
+		qalcGetIntegerv(alCaptureDevice, ALC_CAPTURE_SAMPLES, (int)sizeof(samples), &samples);
 		retval = (int) samples;
 	}
 	return retval;
@@ -2598,10 +2598,10 @@ qboolean S_AL_Init( soundInterface_t *si )
 
 		if(devicelist)
 		{
-			while((curlen = strlen(devicelist)))
+			while((curlen = (int)strlen(devicelist)))
 			{
-				Q_strcat(devicenames, sizeof(devicenames), devicelist);
-				Q_strcat(devicenames, sizeof(devicenames), "\n");
+				Q_strcat(devicenames, (int)sizeof(devicenames), devicelist);
+				Q_strcat(devicenames, (int)sizeof(devicenames), "\n");
 
 				devicelist += curlen + 1;
 			}
@@ -2690,10 +2690,10 @@ qboolean S_AL_Init( soundInterface_t *si )
 			// dump a list of available devices to a cvar for the user to see.
 			if (inputdevicelist)
 			{
-				while((curlen = strlen(inputdevicelist)))
+				while((curlen = (int)strlen(inputdevicelist)))
 				{
-					Q_strcat(inputdevicenames, sizeof(inputdevicenames), inputdevicelist);
-					Q_strcat(inputdevicenames, sizeof(inputdevicenames), "\n");
+					Q_strcat(inputdevicenames, (int)sizeof(inputdevicenames), inputdevicelist);
+					Q_strcat(inputdevicenames, (int)sizeof(inputdevicenames), "\n");
 					inputdevicelist += curlen + 1;
 				}
 			}

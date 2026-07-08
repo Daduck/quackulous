@@ -55,7 +55,7 @@ int	   sfxScratchIndex = 0;
 void	SND_free(sndBuffer *v) {
 	*(sndBuffer **)v = freelist;
 	freelist = (sndBuffer*)v;
-	inUse += sizeof(sndBuffer);
+	inUse += (int)sizeof(sndBuffer);
 }
 
 sndBuffer*	SND_malloc(void) {
@@ -66,8 +66,8 @@ redo:
 		goto redo;
 	}
 
-	inUse -= sizeof(sndBuffer);
-	totalInUse += sizeof(sndBuffer);
+	inUse -= (int)sizeof(sndBuffer);
+	totalInUse += (int)sizeof(sndBuffer);
 
 	v = freelist;
 	freelist = *(sndBuffer **)freelist;
@@ -84,12 +84,12 @@ void SND_setup(void) {
 
 	scs = (cv->integer*1536);
 
-	buffer = malloc(scs*sizeof(sndBuffer) );
+	buffer = malloc(scs*(int)sizeof(sndBuffer) );
 	// allocate the stack based hunk allocator
-	sfxScratchBuffer = malloc(SND_CHUNK_SIZE * sizeof(short) * 4);	//Hunk_Alloc(SND_CHUNK_SIZE * sizeof(short) * 4);
+	sfxScratchBuffer = malloc(SND_CHUNK_SIZE * (int)sizeof(short) * 4);	//Hunk_Alloc(SND_CHUNK_SIZE * (int)sizeof(short) * 4);
 	sfxScratchPointer = NULL;
 
-	inUse = scs*sizeof(sndBuffer);
+	inUse = scs*(int)sizeof(sndBuffer);
 	p = buffer;;
 	q = p + scs;
 	while (--q > p)
@@ -233,7 +233,7 @@ qboolean S_LoadSound( sfx_t *sfx )
 		Com_DPrintf(S_COLOR_YELLOW "WARNING: %s is not a 22kHz audio file\n", sfx->soundName);
 	}
 
-	samples = Hunk_AllocateTempMemory(info.channels * info.samples * sizeof(short) * 2);
+	samples = Hunk_AllocateTempMemory(info.channels * info.samples * (int)sizeof(short) * 2);
 
 	sfx->lastTimeUsed = Com_Milliseconds()+1;
 

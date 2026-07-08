@@ -502,7 +502,7 @@ nextInstruction2:
 				{
 					// the vm has ints on the stack, we expect
 					// pointers so we might have to convert it
-					if (sizeof(intptr_t) != sizeof(int)) {
+					if ((int)sizeof(intptr_t) != (int)sizeof(int)) {
 						intptr_t argarr[ MAX_VMSYSCALL_ARGS ];
 						int *imagePtr = (int *)&image[ programStack ];
 						int i;

@@ -57,7 +57,7 @@ void CG_ModelDoor( centity_t *cent )
     return;
 
   //create the render entity
-  memset( &ent, 0, sizeof( ent ) );
+  memset( &ent, 0, (int)sizeof( ent ) );
   VectorCopy( cent->lerpOrigin, ent.origin );
   VectorCopy( cent->lerpOrigin, ent.oldorigin );
   AnglesToAxis( cent->lerpAngles, ent.axis );
@@ -145,7 +145,7 @@ void CG_AnimMapObj( centity_t *cent )
   if( !es->modelindex || ( es->eFlags & EF_NODRAW ) )
     return;
 
-  memset( &ent, 0, sizeof( ent ) );
+  memset( &ent, 0, (int)sizeof( ent ) );
 
   VectorCopy( es->angles, cent->lerpAngles );
   AnglesToAxis( cent->lerpAngles, ent.axis );

@@ -1,3 +1,6 @@
+#ifdef _MSC_VER
+#pragma warning(disable: 4267)
+#endif
 /********************************************************************
  *                                                                  *
  * THIS FILE IS PART OF THE libopusfile SOFTWARE CODEC SOURCE CODE. *

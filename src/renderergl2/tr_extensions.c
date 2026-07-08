@@ -238,7 +238,7 @@ static qboolean GLimp_HaveExtension(const char *ext)
 	const char *ptr = Q_stristr( glConfig.extensions_string, ext );
 	if (ptr == NULL)
 		return qfalse;
-	ptr += strlen(ext);
+	ptr += (int)strlen(ext);
 	return ((*ptr == ' ') || (*ptr == '\0'));  // verify it's complete string.
 }
 
@@ -767,7 +767,7 @@ void GLimp_InitExtraExtensions()
 			ri.Error(ERR_FATAL, "OpenGL driver did not return a GLSL version string");
 		}
 
-		Q_strncpyz(version, (const char *)glslVersionString, sizeof(version));
+		Q_strncpyz(version, (const char *)glslVersionString, (int)sizeof(version));
 
 		sscanf(version, "%d.%d", &glRefConfig.glslMajorVersion, &glRefConfig.glslMinorVersion);
 
@@ -1034,17 +1034,17 @@ void GLimp_InitExtraExtensions()
 	// GL_ARB_half_float_vertex
 	extension = "GL_ARB_half_float_vertex";
 	glRefConfig.packedTexcoordDataType = GL_FLOAT;
-	glRefConfig.packedTexcoordDataSize = sizeof(float) * 2;
+	glRefConfig.packedTexcoordDataSize = (int)sizeof(float) * 2;
 	glRefConfig.packedColorDataType    = GL_FLOAT;
-	glRefConfig.packedColorDataSize    = sizeof(float) * 4;
+	glRefConfig.packedColorDataSize    = (int)sizeof(float) * 4;
 	if( GLimp_HaveExtension( extension ) )
 	{
 		if (r_arb_half_float_vertex->integer)
 		{
 			glRefConfig.packedTexcoordDataType = GL_HALF_FLOAT;
-			glRefConfig.packedTexcoordDataSize = sizeof(uint16_t) * 2;
+			glRefConfig.packedTexcoordDataSize = (int)sizeof(uint16_t) * 2;
 			glRefConfig.packedColorDataType    = GL_HALF_FLOAT;
-			glRefConfig.packedColorDataSize    = sizeof(uint16_t) * 4;
+			glRefConfig.packedColorDataSize    = (int)sizeof(uint16_t) * 4;
 		}
 
 		ri.Printf(PRINT_ALL, result[r_arb_half_float_vertex->integer ? 1 : 0], extension);

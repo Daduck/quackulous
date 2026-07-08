@@ -878,7 +878,7 @@ void R_RotateForViewer (void)
 	float	viewerMatrix[16];
 	vec3_t	origin;
 
-	Com_Memset (&tr.or, 0, sizeof(tr.or));
+	Com_Memset (&tr.or, 0, (int)sizeof(tr.or));
 	tr.or.axis[0][0] = 1;
 	tr.or.axis[1][1] = 1;
 	tr.or.axis[2][2] = 1;
@@ -1286,7 +1286,7 @@ void R_PlaneForSurface (surfaceType_t *surfType, cplane_t *plane) {
 	vec4_t			plane4;
 
 	if (!surfType) {
-		Com_Memset (plane, 0, sizeof(*plane));
+		Com_Memset (plane, 0, (int)sizeof(*plane));
 		plane->normal[0] = 1;
 		return;
 	}
@@ -1310,7 +1310,7 @@ void R_PlaneForSurface (surfaceType_t *surfType, cplane_t *plane) {
 		plane->dist = plane4[3];
 		return;
 	default:
-		Com_Memset (plane, 0, sizeof(*plane));
+		Com_Memset (plane, 0, (int)sizeof(*plane));
 		plane->normal[0] = 1;		
 		return;
 	}
@@ -1724,8 +1724,8 @@ static ID_INLINE void R_Radix( int byte, int size, drawSurf_t *source, drawSurf_
   unsigned char *end = NULL;
 
   sortKey = ( (unsigned char *)&source[ 0 ].sort ) + byte;
-  end = sortKey + ( size * sizeof( drawSurf_t ) );
-  for( ; sortKey < end; sortKey += sizeof( drawSurf_t ) )
+  end = sortKey + ( size * (int)sizeof( drawSurf_t ) );
+  for( ; sortKey < end; sortKey += (int)sizeof( drawSurf_t ) )
     ++count[ *sortKey ];
 
   index[ 0 ] = 0;
@@ -1734,7 +1734,7 @@ static ID_INLINE void R_Radix( int byte, int size, drawSurf_t *source, drawSurf_
     index[ i ] = index[ i - 1 ] + count[ i - 1 ];
 
   sortKey = ( (unsigned char *)&source[ 0 ].sort ) + byte;
-  for( i = 0; i < size; ++i, sortKey += sizeof( drawSurf_t ) )
+  for( i = 0; i < size; ++i, sortKey += (int)sizeof( drawSurf_t ) )
     dest[ index[ *sortKey ]++ ] = source[ i ];
 }
 
@@ -2098,7 +2098,7 @@ void R_RenderDlightCubemaps(const refdef_t *fd)
 		if ((1 << i) & tr.refdef.dlightMask)
 			continue;
 
-		Com_Memset( &shadowParms, 0, sizeof( shadowParms ) );
+		Com_Memset( &shadowParms, 0, (int)sizeof( shadowParms ) );
 
 		shadowParms.viewportX = tr.refdef.x;
 		shadowParms.viewportY = glConfig.vidHeight - ( tr.refdef.y + PSHADOW_MAP_SIZE );
@@ -2211,7 +2211,7 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 				{
 					// FIXME: never actually tested this
 					mdrHeader_t *header = model->modelData;
-					int frameSize = (size_t)( &((mdrFrame_t *)0)->bones[ header->numBones ] );
+					int frameSize = (int)(size_t)( &((mdrFrame_t *)0)->bones[ header->numBones ] );
 					mdrFrame_t *frame = ( mdrFrame_t * ) ( ( byte * ) header + header->ofsFrames + frameSize * ent->e.frame);
 
 					radius = frame->radius;
@@ -2242,7 +2242,7 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 			if (DotProduct(diff, fd->viewaxis[0]) < -r_pshadowDist->value)
 				continue;
 
-			memset(&shadow, 0, sizeof(shadow));
+			memset(&shadow, 0, (int)sizeof(shadow));
 
 			shadow.numEntities = 1;
 			shadow.entityNums[0] = i;
@@ -2385,7 +2385,7 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 		pshadow_t *shadow = &tr.refdef.pshadows[i];
 		int j;
 
-		Com_Memset( &shadowParms, 0, sizeof( shadowParms ) );
+		Com_Memset( &shadowParms, 0, (int)sizeof( shadowParms ) );
 
 		if (glRefConfig.framebufferObject)
 		{
@@ -2792,7 +2792,7 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 	{
 		int firstDrawSurf;
 
-		Com_Memset( &shadowParms, 0, sizeof( shadowParms ) );
+		Com_Memset( &shadowParms, 0, (int)sizeof( shadowParms ) );
 
 		if (glRefConfig.framebufferObject)
 		{
@@ -2861,7 +2861,7 @@ void R_RenderCubemapSide( int cubemapIndex, int cubemapSide, qboolean subscene )
 	viewParms_t	parms;
 	float oldColorScale = tr.refdef.colorScale;
 
-	memset( &refdef, 0, sizeof( refdef ) );
+	memset( &refdef, 0, (int)sizeof( refdef ) );
 	refdef.rdflags = 0;
 	VectorCopy(tr.cubemaps[cubemapIndex].origin, refdef.vieworg);
 
@@ -2945,7 +2945,7 @@ void R_RenderCubemapSide( int cubemapIndex, int cubemapSide, qboolean subscene )
 		}
 	}
 
-	Com_Memset( &parms, 0, sizeof( parms ) );
+	Com_Memset( &parms, 0, (int)sizeof( parms ) );
 
 	parms.viewportX = 0;
 	parms.viewportY = 0;

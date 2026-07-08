@@ -635,7 +635,7 @@ static unsigned int sparc_push_data(struct func_info * const fp, unsigned int va
 
 	dp = last;
 	if (!dp || dp->count >= HUNK_SIZE) {
-		struct data_hunk *new = Z_Malloc(sizeof(*new));
+		struct data_hunk *new = Z_Malloc((int)sizeof(*new));
 		if (!dp)
 			fp->data_first = new;
 		else
@@ -674,7 +674,7 @@ static void jump_insn_insert_tail(struct func_info * const fp,
 static struct dst_insn *dst_new(struct func_info * const fp, unsigned int length,
 				struct jump_insn *jp, int insns_size)
 {
-	struct dst_insn *dp = Z_Malloc(sizeof(struct dst_insn) + insns_size);
+	struct dst_insn *dp = Z_Malloc((int)sizeof(struct dst_insn) + insns_size);
 
 	dp->length = length;
 	dp->jump = jp;
@@ -689,7 +689,7 @@ static struct dst_insn *dst_new(struct func_info * const fp, unsigned int length
 
 static void dst_insn_append(struct func_info * const fp)
 {
-	int insns_size = (sizeof(unsigned int) * fp->insn_index);
+	int insns_size = ((int)sizeof(unsigned int) * fp->insn_index);
 	struct dst_insn *dp;
 
 	dp = dst_new(fp, fp->insn_index, NULL, insns_size);
@@ -708,7 +708,7 @@ static void ErrJump(void)
 
 static void jump_insn_append(vm_t *vm, struct func_info * const fp, enum sparc_iname iname, int dest)
 {
-	struct jump_insn *jp = Z_Malloc(sizeof(*jp));
+	struct jump_insn *jp = Z_Malloc((int)sizeof(*jp));
 	struct dst_insn *dp;
 
 	if (dest < 0 || dest >= vm->instructionCount)
@@ -804,7 +804,7 @@ static int asmcall(int call, int pstack)
 	int i, ret;
 
 	currentVM->programStack = pstack - 4;
-	if (sizeof(intptr_t) == sizeof(int)) {
+	if ((int)sizeof(intptr_t) == (int)sizeof(int)) {
 		intptr_t *argPosition = (intptr_t *)((byte *)currentVM->dataBase + pstack + 4);
 		argPosition[0] = -1 - call;
 		ret = currentVM->systemCall(argPosition);
@@ -1443,9 +1443,9 @@ static void sparc_compute_code(vm_t *vm, struct func_info * const fp)
 		dp = dp->next;
 	}
 
-	code_length = (sizeof(vm_data_t) +
-		       (fp->data_num * sizeof(unsigned int)) +
-		       (code_insns * sizeof(unsigned int)));
+	code_length = ((int)sizeof(vm_data_t) +
+		       (fp->data_num * (int)sizeof(unsigned int)) +
+		       (code_insns * (int)sizeof(unsigned int)));
 
 	data_and_code = mmap(NULL, code_length, PROT_READ | PROT_WRITE,
 			     MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -1464,7 +1464,7 @@ static void sparc_compute_code(vm_t *vm, struct func_info * const fp)
 				fp->dst_by_i_count[i_count] = (void *) code_now;
 		}
 		if (!dp->jump) {
-			memcpy(code_now, &dp->code[0], dp->length * sizeof(unsigned int));
+			memcpy(code_now, &dp->code[0], dp->length * (int)sizeof(unsigned int));
 			code_now += dp->length;
 		} else {
 			int i;
@@ -1499,7 +1499,7 @@ static void sparc_compute_code(vm_t *vm, struct func_info * const fp)
 	data->BlockCopy = blockcopy;
 	data->iPointers = (unsigned int *) vm->instructionPointers;
 	data->dataLength = VM_Data_Offset(data[fp->data_num]);
-	data->codeLength = (code_now - code_begin) * sizeof(unsigned int);
+	data->codeLength = (code_now - code_begin) * (int)sizeof(unsigned int);
 	data->ErrJump = ErrJump;
 
 #if 0
@@ -1553,19 +1553,19 @@ void VM_Compile(vm_t *vm, vmHeader_t *header)
 	unsigned char *code;
 	int i_count, pc, i;
 
-	memset(&fi, 0, sizeof(fi));
+	memset(&fi, 0, (int)sizeof(fi));
 
-	fi.first = Z_Malloc(sizeof(struct src_insn));
+	fi.first = Z_Malloc((int)sizeof(struct src_insn));
 	fi.first->next = NULL;
 
 #ifdef __arch64__
 	Z_Free(vm->instructionPointers);
 	vm->instructionPointers = Z_Malloc(header->instructionCount *
-					   sizeof(void *));
+					   (int)sizeof(void *));
 #endif
 
 	fi.dst_by_i_count = (struct dst_insn **) vm->instructionPointers;
-	memset(fi.dst_by_i_count, 0, header->instructionCount * sizeof(void *));
+	memset(fi.dst_by_i_count, 0, header->instructionCount * (int)sizeof(void *));
 
 	vm->compiled = qfalse;
 
@@ -1593,7 +1593,7 @@ void VM_Compile(vm_t *vm, vmHeader_t *header)
 			fi.has_call = fi.need_float_tmp = 0;
 		}
 
-		sp = Z_Malloc(sizeof(*sp));
+		sp = Z_Malloc((int)sizeof(*sp));
 		sp->op = op;
 		sp->i_count = i_count;
 		sp->arg.i = 0;
@@ -1619,7 +1619,7 @@ void VM_Compile(vm_t *vm, vmHeader_t *header)
 
 	Z_Free(fi.first);
 
-	memset(fi.dst_by_i_count, 0, header->instructionCount * sizeof(void *));
+	memset(fi.dst_by_i_count, 0, header->instructionCount * (int)sizeof(void *));
 	sparc_compute_code(vm, &fi);
 
 	for (i = 0; i < header->instructionCount; i++) {

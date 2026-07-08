@@ -379,7 +379,7 @@ void CG_RegisterCvars( void )
   }
 
   // see if we are also running the server on this machine
-  trap_Cvar_VariableStringBuffer( "sv_running", var, sizeof( var ) );
+  trap_Cvar_VariableStringBuffer( "sv_running", var, (int)sizeof( var ) );
   cgs.localServer = atoi( var );
 }
 
@@ -470,7 +470,7 @@ void CG_RemoveNotifyLine( void )
     return;
 
   offset = cg.consoleLines[ 0 ].length;
-  totalLength = strlen( cg.consoleText ) - offset;
+  totalLength = (int)strlen( cg.consoleText ) - offset;
 
   //slide up consoleText
   for( i = 0; i <= totalLength; i++ )
@@ -502,8 +502,8 @@ void CG_AddNotifyText( void )
     return;
   }
 
-  bufferLen = strlen( buffer );
-  textLen = strlen( cg.consoleText );
+  bufferLen = (int)strlen( buffer );
+  textLen = (int)strlen( cg.consoleText );
   
   // Ignore console messages that were just printed
   if( cg_noPrintDuplicate.integer && textLen >= bufferLen &&
@@ -525,7 +525,7 @@ void QDECL CG_Printf( const char *msg, ... )
   char    text[ 1024 ];
 
   va_start( argptr, msg );
-  Q_vsnprintf( text, sizeof( text ), msg, argptr );
+  Q_vsnprintf( text, (int)sizeof( text ), msg, argptr );
   va_end( argptr );
 
   trap_Print( text );
@@ -537,7 +537,7 @@ void QDECL CG_Error( const char *msg, ... )
   char    text[ 1024 ];
 
   va_start( argptr, msg );
-  Q_vsnprintf( text, sizeof( text ), msg, argptr );
+  Q_vsnprintf( text, (int)sizeof( text ), msg, argptr );
   va_end( argptr );
 
   trap_Error( text );
@@ -549,7 +549,7 @@ void QDECL Com_Error( int level, const char *error, ... )
   char    text[1024];
 
   va_start( argptr, error );
-  Q_vsnprintf( text, sizeof( text ), error, argptr );
+  Q_vsnprintf( text, (int)sizeof( text ), error, argptr );
   va_end( argptr );
 
   CG_Error( "%s", text );
@@ -560,7 +560,7 @@ void QDECL Com_Printf( const char *msg, ... ) {
   char    text[1024];
 
   va_start( argptr, msg );
-  Q_vsnprintf( text, sizeof( text ), msg, argptr );
+  Q_vsnprintf( text, (int)sizeof( text ), msg, argptr );
   va_end( argptr );
 
   CG_Printf ("%s", text);
@@ -577,7 +577,7 @@ const char *CG_Argv( int arg )
 {
   static char buffer[ MAX_STRING_CHARS ];
 
-  trap_Argv( arg, buffer, sizeof( buffer ) );
+  trap_Argv( arg, buffer, (int)sizeof( buffer ) );
 
   return buffer;
 }
@@ -639,16 +639,16 @@ static void CG_RegisterSounds( void )
 
   for( i = 0; i < 4; i++ )
   {
-    Com_sprintf( name, sizeof( name ), "sound/player/footsteps/step%i.wav", i + 1 );
+    Com_sprintf( name, (int)sizeof( name ), "sound/player/footsteps/step%i.wav", i + 1 );
     cgs.media.footsteps[ FOOTSTEP_NORMAL ][ i ] = trap_S_RegisterSound( name, qfalse );
 
-    Com_sprintf( name, sizeof( name ), "sound/player/footsteps/flesh%i.wav", i + 1 );
+    Com_sprintf( name, (int)sizeof( name ), "sound/player/footsteps/flesh%i.wav", i + 1 );
     cgs.media.footsteps[ FOOTSTEP_FLESH ][ i ] = trap_S_RegisterSound( name, qfalse );
 
-    Com_sprintf( name, sizeof( name ), "sound/player/footsteps/splash%i.wav", i + 1 );
+    Com_sprintf( name, (int)sizeof( name ), "sound/player/footsteps/splash%i.wav", i + 1 );
     cgs.media.footsteps[ FOOTSTEP_SPLASH ][ i ] = trap_S_RegisterSound( name, qfalse );
 
-    Com_sprintf( name, sizeof( name ), "sound/player/footsteps/clank%i.wav", i + 1 );
+    Com_sprintf( name, (int)sizeof( name ), "sound/player/footsteps/clank%i.wav", i + 1 );
     cgs.media.footsteps[ FOOTSTEP_METAL ][ i ] = trap_S_RegisterSound( name, qfalse );
   }
 
@@ -737,7 +737,7 @@ static void CG_RegisterGraphics( void )
   };
 
   // clear any references to old media
-  memset( &cg.refdef, 0, sizeof( cg.refdef ) );
+  memset( &cg.refdef, 0, (int)sizeof( cg.refdef ) );
   trap_R_ClearScene( );
 
   trap_R_LoadWorldMap( cgs.mapname );
@@ -785,8 +785,8 @@ static void CG_RegisterGraphics( void )
 
   CG_UpdateMediaFraction( 0.7f );
 
-  memset( cg_weapons, 0, sizeof( cg_weapons ) );
-  memset( cg_upgrades, 0, sizeof( cg_upgrades ) );
+  memset( cg_weapons, 0, (int)sizeof( cg_weapons ) );
+  memset( cg_upgrades, 0, (int)sizeof( cg_upgrades ) );
 
   cgs.media.shadowMarkShader          = trap_R_RegisterShader( "gfx/marks/shadow" );
   cgs.media.wakeMarkShader            = trap_R_RegisterShader( "gfx/marks/wake" );
@@ -823,7 +823,7 @@ static void CG_RegisterGraphics( void )
     vec3_t  mins, maxs;
     int     j;
 
-    Com_sprintf( name, sizeof( name ), "*%i", i );
+    Com_sprintf( name, (int)sizeof( name ), "*%i", i );
 
     cgs.inlineDrawModel[ i ] = trap_R_RegisterModel( name );
     trap_R_ModelBounds( cgs.inlineDrawModel[ i ], mins, maxs );
@@ -893,7 +893,7 @@ void CG_BuildSpectatorString( void )
   {
     if( cgs.clientinfo[ i ].infoValid && cgs.clientinfo[ i ].team == TEAM_NONE )
     {
-      Q_strcat( cg.spectatorList, sizeof( cg.spectatorList ),
+      Q_strcat( cg.spectatorList, (int)sizeof( cg.spectatorList ),
           va( S_COLOR_WHITE "%s     ", cgs.clientinfo[ i ].name ) );
     }
   }
@@ -979,8 +979,8 @@ void CG_StartMusic( void )
 
   // start the background music
   s = (char *)CG_ConfigString( CS_MUSIC );
-  Q_strncpyz( parm1, COM_Parse( &s ), sizeof( parm1 ) );
-  Q_strncpyz( parm2, COM_Parse( &s ), sizeof( parm2 ) );
+  Q_strncpyz( parm1, COM_Parse( &s ), (int)sizeof( parm1 ) );
+  Q_strncpyz( parm2, COM_Parse( &s ), (int)sizeof( parm2 ) );
 
   trap_S_StartBackgroundTrack( parm1, parm2 );
 }
@@ -1565,8 +1565,8 @@ static float CG_Cvar_Get( const char *cvar )
 {
   char buff[ 128 ];
 
-  memset( buff, 0, sizeof( buff ) );
-  trap_Cvar_VariableStringBuffer( cvar, buff, sizeof( buff ) );
+  memset( buff, 0, (int)sizeof( buff ) );
+  trap_Cvar_VariableStringBuffer( cvar, buff, (int)sizeof( buff ) );
   return atof( buff );
 }
 
@@ -1683,7 +1683,7 @@ void CG_LoadHudMenu( void )
 
   Menu_Reset( );
 
-  trap_Cvar_VariableStringBuffer( "cg_hudFiles", buff, sizeof( buff ) );
+  trap_Cvar_VariableStringBuffer( "cg_hudFiles", buff, (int)sizeof( buff ) );
   hudSet = buff;
 
   if( hudSet[ 0 ] == '\0' )
@@ -1735,9 +1735,9 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   const char  *s;
 
   // clear everything
-  memset( &cgs, 0, sizeof( cgs ) );
-  memset( &cg, 0, sizeof( cg ) );
-  memset( cg_entities, 0, sizeof( cg_entities ) );
+  memset( &cgs, 0, (int)sizeof( cgs ) );
+  memset( &cg, 0, (int)sizeof( cg ) );
+  memset( cg_entities, 0, (int)sizeof( cg_entities ) );
 
   cg.clientNum = clientNum;
 
@@ -1789,13 +1789,13 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   // the same one directly after connecting
   Q_strncpyz( cgs.voteString[ TEAM_NONE ],
       CG_ConfigString( CS_VOTE_STRING + TEAM_NONE ),
-      sizeof( cgs.voteString ) );
+      (int)sizeof( cgs.voteString ) );
   Q_strncpyz( cgs.voteString[ TEAM_ALIENS ],
       CG_ConfigString( CS_VOTE_STRING + TEAM_ALIENS ),
-      sizeof( cgs.voteString[ TEAM_ALIENS ] ) );
+      (int)sizeof( cgs.voteString[ TEAM_ALIENS ] ) );
   Q_strncpyz( cgs.voteString[ TEAM_HUMANS ],
       CG_ConfigString( CS_VOTE_STRING + TEAM_ALIENS ),
-      sizeof( cgs.voteString[ TEAM_HUMANS ] ) );
+      (int)sizeof( cgs.voteString[ TEAM_HUMANS ] ) );
 
   // check version
   s = CG_ConfigString( CS_GAME_VERSION );
@@ -1879,7 +1879,7 @@ static char *CG_VoIPString( void )
   char voipSendTarget[ MAX_CVAR_VALUE_STRING ];
 
   trap_Cvar_VariableStringBuffer( "cl_voipSendTarget", voipSendTarget,
-                                  sizeof( voipSendTarget ) );
+                                  (int)sizeof( voipSendTarget ) );
 
   if( Q_stricmp( voipSendTarget, "team" ) == 0 )
   {
@@ -1891,9 +1891,9 @@ static char *CG_VoIPString( void )
       if( cgs.clientinfo[ i ].team != cgs.clientinfo[ cg.clientNum ].team )
         continue;
 
-      nlen = Q_snprintf( &voipString[ slen ], sizeof( voipString ) - slen,
+      nlen = Q_snprintf( &voipString[ slen ], (int)sizeof( voipString ) - slen,
                          "%s%d", ( slen > 0 ) ? "," : "", i );
-      if( slen + nlen + 1 >= sizeof( voipString ) )
+      if( slen + nlen + 1 >= (int)sizeof( voipString ) )
       {
         CG_Printf( S_COLOR_YELLOW "WARNING: voipString overflowed\n" );
         break;
@@ -1907,10 +1907,10 @@ static char *CG_VoIPString( void )
     voipString[ slen ] = '\0';
   }
   else if( Q_stricmp( voipSendTarget, "crosshair" ) == 0 )
-    Com_sprintf( voipString, sizeof( voipString ), "%d",
+    Com_sprintf( voipString, (int)sizeof( voipString ), "%d",
                  CG_CrosshairPlayer( ) );
   else if( Q_stricmp( voipSendTarget, "attacker" ) == 0 )
-    Com_sprintf( voipString, sizeof( voipString ), "%d",
+    Com_sprintf( voipString, (int)sizeof( voipString ), "%d",
                  CG_LastAttacker( ) );
   else
     return NULL;

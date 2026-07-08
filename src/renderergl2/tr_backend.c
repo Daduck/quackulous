@@ -959,7 +959,7 @@ const void	*RB_DrawSurfs( const void *data ) {
 		FBO_t *oldFbo = glState.currentFBO;
 		vec4_t viewInfo;
 
-		VectorSet4(viewInfo, backEnd.viewParms.zFar / r_znear->value, backEnd.viewParms.zFar, 0.0, 0.0);
+		VectorSet4(viewInfo, backEnd.viewParms.zFar / r_znear->value, backEnd.viewParms.zFar, 0.0f, 0.0f);
 
 		backEnd.depthFill = qtrue;
 		qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -1053,8 +1053,8 @@ const void	*RB_DrawSurfs( const void *data ) {
 				vec3_t viewVector;
 
 				float zmax = backEnd.viewParms.zFar;
-				float ymax = zmax * tan(backEnd.viewParms.fovY * M_PI / 360.0f);
-				float xmax = zmax * tan(backEnd.viewParms.fovX * M_PI / 360.0f);
+				float ymax = zmax * tan(backEnd.viewParms.fovY * (float)M_PI / 360.0f);
+				float xmax = zmax * tan(backEnd.viewParms.fovX * (float)M_PI / 360.0f);
 
 				VectorScale(backEnd.refdef.viewaxis[0], zmax, viewVector);
 				GLSL_SetUniformVec3(&tr.shadowmaskShader, UNIFORM_VIEWFORWARD, viewVector);
@@ -1102,8 +1102,8 @@ const void	*RB_DrawSurfs( const void *data ) {
 			vec4_t quadVerts[4];
 			vec2_t texCoords[4];
 
-			viewInfo[2] = 1.0f / ((float)(tr.quarterImage[0]->width)  * tan(backEnd.viewParms.fovX * M_PI / 360.0f) * 2.0f);
-			viewInfo[3] = 1.0f / ((float)(tr.quarterImage[0]->height) * tan(backEnd.viewParms.fovY * M_PI / 360.0f) * 2.0f);
+			viewInfo[2] = 1.0f / ((float)(tr.quarterImage[0]->width)  * tan(backEnd.viewParms.fovX * (float)M_PI / 360.0f) * 2.0f);
+			viewInfo[3] = 1.0f / ((float)(tr.quarterImage[0]->height) * tan(backEnd.viewParms.fovY * (float)M_PI / 360.0f) * 2.0f);
 			viewInfo[3] *= (float)backEnd.viewParms.viewportHeight / (float)backEnd.viewParms.viewportWidth;
 
 			FBO_Bind(tr.quarterFbo[0]);
@@ -1182,7 +1182,7 @@ const void	*RB_DrawSurfs( const void *data ) {
 
 		if (r_drawSun->integer)
 		{
-			RB_DrawSun(0.1, tr.sunShader);
+			RB_DrawSun(0.1f, tr.sunShader);
 		}
 
 		if (r_drawSunRays->integer)
@@ -1199,7 +1199,7 @@ const void	*RB_DrawSurfs( const void *data ) {
 				qglBeginQuery(GL_SAMPLES_PASSED, tr.sunFlareQuery[tr.sunFlareQueryIndex]);
 			}
 
-			RB_DrawSun(0.3, tr.sunFlareShader);
+			RB_DrawSun(0.3f, tr.sunFlareShader);
 
 			if (glRefConfig.occlusionQuery)
 			{
@@ -1251,7 +1251,7 @@ const void	*RB_DrawBuffer( const void *data ) {
 
 	// clear screen for debugging
 	if ( r_clear->integer ) {
-		qglClearColor( 1, 0, 0.5, 1 );
+		qglClearColor( 1, 0, 0.5f, 1 );
 		qglClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	}
 
@@ -1626,7 +1626,7 @@ const void *RB_PostProcess(const void *data)
 		GL_State(GLS_DEPTHTEST_DISABLE);
 
 
-		VectorSet4(viewInfo, backEnd.viewParms.zFar / r_znear->value, backEnd.viewParms.zFar, 0.0, 0.0);
+		VectorSet4(viewInfo, backEnd.viewParms.zFar / r_znear->value, backEnd.viewParms.zFar, 0.0f, 0.0f);
 
 		viewInfo[2] = scale / (float)(tr.quarterImage[0]->width);
 		viewInfo[3] = scale / (float)(tr.quarterImage[0]->height);
@@ -1779,7 +1779,7 @@ void RB_ExecuteRenderCommands( const void *data ) {
 	t1 = ri.Milliseconds ();
 
 	while ( 1 ) {
-		data = PADP(data, sizeof(void *));
+		data = PADP(data, (int)sizeof(void *));
 
 		switch ( *(const int *)data ) {
 		case RC_SET_COLOR:

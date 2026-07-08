@@ -316,7 +316,7 @@ void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, q
 	int		i;
 
 	drawLen = edit->widthInChars - 1; // - 1 so there is always a space for the cursor
-	len = strlen( edit->buffer );
+	len = (int)strlen( edit->buffer );
 
 	// guarantee that cursor will be visible
 	if ( len <= drawLen ) {
@@ -366,7 +366,7 @@ void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, q
 			cursorChar = 10;
 		}
 
-		i = drawLen - strlen( str );
+		i = drawLen - (int)strlen( str );
 
 		if ( size == SMALLCHAR_WIDTH ) {
 			SCR_DrawSmallChar( x + ( edit->cursor - prestep - i ) * size, y, cursorChar );
@@ -405,7 +405,7 @@ void Field_Paste( field_t *edit ) {
 	}
 
 	// send as if typed, so insert / overstrike works properly
-	pasteLen = strlen( cbd );
+	pasteLen = (int)strlen( cbd );
 	for ( i = 0 ; i < pasteLen ; i++ ) {
 		Field_CharEvent( edit, cbd[i] );
 	}
@@ -433,7 +433,7 @@ void Field_KeyDownEvent( field_t *edit, int key ) {
 	}
 
 	key = tolower( key );
-	len = strlen( edit->buffer );
+	len = (int)strlen( edit->buffer );
 
 	switch ( key ) {
 		case K_DEL:
@@ -497,7 +497,7 @@ void Field_CharEvent( field_t *edit, int ch ) {
 		return;
 	}
 
-	len = strlen( edit->buffer );
+	len = (int)strlen( edit->buffer );
 
 	if ( ch == 'h' - 'a' + 1 )	{	// ctrl-h is backspace
 		if ( edit->cursor > 0 ) {
@@ -589,8 +589,8 @@ void Console_Key (int key) {
 				g_consoleField.buffer[0] != '/' ) {
 			char	temp[MAX_EDIT_LINE-1];
 
-			Q_strncpyz( temp, g_consoleField.buffer, sizeof( temp ) );
-			Com_sprintf( g_consoleField.buffer, sizeof( g_consoleField.buffer ), "\\%s", temp );
+			Q_strncpyz( temp, g_consoleField.buffer, (int)sizeof( temp ) );
+			Com_sprintf( g_consoleField.buffer, (int)sizeof( g_consoleField.buffer ), "\\%s", temp );
 			g_consoleField.cursor++;
 		}
 
@@ -756,7 +756,7 @@ int Key_StringToKeynum( char *str ) {
 	}
 
 	// check for hex code
-	if ( strlen( str ) == 4 ) {
+	if ( (int)strlen( str ) == 4 ) {
 		int n = Com_HexStrToInt( str );
 
 		if ( n >= 0 ) {
@@ -1107,7 +1107,7 @@ void CL_ParseBinding( int key, qboolean down, unsigned time )
 		return;
 	if( !keys[key].binding || !keys[key].binding[0] )
 		return;
-	Q_strncpyz( buf, keys[key].binding, sizeof( buf ) );
+	Q_strncpyz( buf, keys[key].binding, (int)sizeof( buf ) );
 
 	// run all bind commands if console, ui, etc aren't reading keys
 	allCommands = ( Key_GetCatcher( ) == 0 );
@@ -1129,7 +1129,7 @@ void CL_ParseBinding( int key, qboolean down, unsigned time )
 			// subframe corrected
 			if ( allCommands || ( allowUpCmds && !down ) ) {
 				char cmd[1024];
-				Com_sprintf( cmd, sizeof( cmd ), "%c%s %d %d\n",
+				Com_sprintf( cmd, (int)sizeof( cmd ), "%c%s %d %d\n",
 					( down ) ? '+' : '-', p + 1, key, time );
 				Cbuf_AddText( cmd );
 			}
@@ -1431,7 +1431,7 @@ void CL_LoadConsoleHistory( void )
 
 			numChars = atoi( token );
 			text_p++;
-			if( numChars > ( strlen( consoleSaveBuffer ) -	( text_p - consoleSaveBuffer ) ) )
+			if( numChars > ( (int)strlen( consoleSaveBuffer ) -	( text_p - consoleSaveBuffer ) ) )
 			{
 				Com_DPrintf( S_COLOR_YELLOW "WARNING: probable corrupt history\n" );
 				break;
@@ -1445,7 +1445,7 @@ void CL_LoadConsoleHistory( void )
 		}
 
 		memmove( &historyEditLines[ 0 ], &historyEditLines[ i + 1 ],
-				numLines * sizeof( field_t ) );
+				numLines * (int)sizeof( field_t ) );
 		for( i = numLines; i < COMMAND_HISTORY; i++ )
 			Field_Clear( &historyEditLines[ i ] );
 
@@ -1478,11 +1478,11 @@ void CL_SaveConsoleHistory( void )
 	{
 		if( historyEditLines[ i ].buffer[ 0 ] )
 		{
-			lineLength = strlen( historyEditLines[ i ].buffer );
-			saveBufferLength = strlen( consoleSaveBuffer );
+			lineLength = (int)strlen( historyEditLines[ i ].buffer );
+			saveBufferLength = (int)strlen( consoleSaveBuffer );
 
 			//ICK
-			additionalLength = lineLength + strlen( "999 999 999  " );
+			additionalLength = lineLength + (int)strlen( "999 999 999  " );
 
 			if( saveBufferLength + additionalLength < MAX_CONSOLE_SAVE_BUFFER )
 			{
@@ -1500,7 +1500,7 @@ void CL_SaveConsoleHistory( void )
 	}
 	while( i != ( nextHistoryLine - 1 ) % COMMAND_HISTORY );
 
-	consoleSaveBufferSize = strlen( consoleSaveBuffer );
+	consoleSaveBufferSize = (int)strlen( consoleSaveBuffer );
 
 	f = FS_FOpenFileWrite( CONSOLE_HISTORY_FILE );
 	if( !f )

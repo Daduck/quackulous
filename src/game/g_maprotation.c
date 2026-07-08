@@ -180,7 +180,7 @@ Allocate memory for a node_t
 */
 static node_t *G_AllocateNode( void )
 {
-  node_t *node = BG_Alloc( sizeof( node_t ) );
+  node_t *node = BG_Alloc( (int)sizeof( node_t ) );
 
   return node;
 }
@@ -227,8 +227,8 @@ static qboolean G_ParseMapCommandSection( node_t *node, char **text_p )
 
       while( token[ 0 ] != 0 )
       {
-        Q_strcat( map->layouts, sizeof( map->layouts ), token );
-        Q_strcat( map->layouts, sizeof( map->layouts ), " " );
+        Q_strcat( map->layouts, (int)sizeof( map->layouts ), token );
+        Q_strcat( map->layouts, (int)sizeof( map->layouts ), " " );
         token = COM_ParseExt( text_p, qfalse );
       }
 
@@ -236,19 +236,19 @@ static qboolean G_ParseMapCommandSection( node_t *node, char **text_p )
     }
 
     // Parse the rest of the line into map->postCommand
-    Q_strcat( map->postCommand, sizeof( map->postCommand ), token );
-    Q_strcat( map->postCommand, sizeof( map->postCommand ), " " );
+    Q_strcat( map->postCommand, (int)sizeof( map->postCommand ), token );
+    Q_strcat( map->postCommand, (int)sizeof( map->postCommand ), " " );
 
     token = COM_ParseExt( text_p, qfalse );
 
     while( token[ 0 ] != 0 )
     {
-      Q_strcat( map->postCommand, sizeof( map->postCommand ), token );
-      Q_strcat( map->postCommand, sizeof( map->postCommand ), " " );
+      Q_strcat( map->postCommand, (int)sizeof( map->postCommand ), token );
+      Q_strcat( map->postCommand, (int)sizeof( map->postCommand ), " " );
       token = COM_ParseExt( text_p, qfalse );
     }
 
-    commandLength = strlen( map->postCommand );
+    commandLength = (int)strlen( map->postCommand );
     map->postCommand[ commandLength - 1 ] = ';';
   }
 
@@ -364,7 +364,7 @@ static qboolean G_ParseNode( node_t **node, char *token, char **text_p, qboolean
       return qfalse;
     }
 
-    Q_strncpyz( label->name, token, sizeof( label->name ) );
+    Q_strncpyz( label->name, token, (int)sizeof( label->name ) );
   }
   else if( *token == '#' || conditional )
   {
@@ -373,7 +373,7 @@ static qboolean G_ParseNode( node_t **node, char *token, char **text_p, qboolean
     (*node)->type = ( conditional ) ? NT_GOTO : NT_LABEL;
     label = &(*node)->u.label;
 
-    Q_strncpyz( label->name, token, sizeof( label->name ) );
+    Q_strncpyz( label->name, token, (int)sizeof( label->name ) );
   }
   else
   {
@@ -382,7 +382,7 @@ static qboolean G_ParseNode( node_t **node, char *token, char **text_p, qboolean
     (*node)->type = NT_MAP;
     map = &(*node)->u.map;
 
-    Q_strncpyz( map->name, token, sizeof( map->name ) );
+    Q_strncpyz( map->name, token, (int)sizeof( map->name ) );
     map->postCommand[ 0 ] = '\0';
   }
 
@@ -474,7 +474,7 @@ static qboolean G_ParseMapRotationFile( const char *fileName )
   if( len < 0 )
     return qfalse;
 
-  if( len == 0 || len >= sizeof( text ) - 1 )
+  if( len == 0 || len >= (int)sizeof( text ) - 1 )
   {
     trap_FS_FCloseFile( f );
     G_Printf( S_COLOR_RED "ERROR: map rotation file %s is %s\n", fileName,
@@ -542,7 +542,7 @@ static qboolean G_ParseMapRotationFile( const char *fileName )
 
     if( !mrNameSet )
     {
-      Q_strncpyz( mrName, token, sizeof( mrName ) );
+      Q_strncpyz( mrName, token, (int)sizeof( mrName ) );
       mrNameSet = qtrue;
     }
     else
@@ -623,7 +623,7 @@ Print the parsed map rotations
 void G_PrintRotations( void )
 {
   int i, j;
-  int size = sizeof( mapRotations );
+  int size = (int)sizeof( mapRotations );
 
   G_Printf( "Map rotations as parsed:\n\n" );
 
@@ -633,7 +633,7 @@ void G_PrintRotations( void )
 
     G_Printf( "rotation: %s\n{\n", mr->name );
 
-    size += mr->numNodes * sizeof( node_t );
+    size += mr->numNodes * (int)sizeof( node_t );
 
     for( j = 0; j < mr->numNodes; j++ )
     {
@@ -646,7 +646,7 @@ void G_PrintRotations( void )
         G_Printf( "  condition\n" );
         node = node->u.condition.target;
 
-        size += sizeof( node_t );
+        size += (int)sizeof( node_t );
 
         indentation += 2;
       }
@@ -658,7 +658,7 @@ void G_PrintRotations( void )
         case NT_MAP:
           G_Printf( "  %s\n", node->u.map.name );
 
-          if( strlen( node->u.map.postCommand ) > 0 )
+          if( (int)strlen( node->u.map.postCommand ) > 0 )
             G_Printf( "    command: %s", node->u.map.postCommand );
 
           break;
@@ -714,7 +714,7 @@ static void G_PushRotationStack( int rotation )
 {
   char text[ MAX_CVAR_VALUE_STRING ];
 
-  Com_sprintf( text, sizeof( text ), "%d %s",
+  Com_sprintf( text, (int)sizeof( text ), "%d %s",
                rotation, g_mapRotationStack.string );
   trap_Cvar_Set( "g_mapRotationStack", text );
   trap_Cvar_Update( &g_mapRotationStack );
@@ -733,7 +733,7 @@ static int G_PopRotationStack( void )
   char  text[ MAX_CVAR_VALUE_STRING ];
   char  *text_p, *token;
 
-  Q_strncpyz( text, g_mapRotationStack.string, sizeof( text ) );
+  Q_strncpyz( text, g_mapRotationStack.string, (int)sizeof( text ) );
 
   text_p = text;
   token = COM_Parse( &text_p );
@@ -782,7 +782,7 @@ static int *G_CurrentNodeIndexArray( void )
   char        text[ MAX_MAP_ROTATIONS * 2 ];
   char        *text_p, *token;
 
-  Q_strncpyz( text, g_mapRotationNodes.string, sizeof( text ) );
+  Q_strncpyz( text, g_mapRotationNodes.string, (int)sizeof( text ) );
 
   text_p = text;
 
@@ -815,7 +815,7 @@ static void G_SetCurrentNodeByIndex( int currentNode, int rotation )
   p[ rotation ] = currentNode;
 
   for( i = 0; i < mapRotations.numRotations; i++ )
-    Q_strcat( text, sizeof( text ), va( "%d ", p[ i ] ) );
+    Q_strcat( text, (int)sizeof( text ), va( "%d ", p[ i ] ) );
 
   trap_Cvar_Set( "g_mapRotationNodes", text );
   trap_Cvar_Update( &g_mapRotationNodes );
@@ -874,7 +874,7 @@ static void G_IssueMapChange( int index, int rotation )
   // Load up map defaults if g_mapConfigs is set
   G_MapConfigs( map->name );
 
-  if( strlen( map->postCommand ) > 0 )
+  if( (int)strlen( map->postCommand ) > 0 )
     trap_SendConsoleCommand( EXEC_APPEND, map->postCommand );
 }
 

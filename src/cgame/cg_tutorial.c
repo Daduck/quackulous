@@ -106,7 +106,7 @@ static const char *CG_KeyNameForCommand( const char *command )
       {
         trap_Key_KeynumToStringBuf( bindings[ i ].keys[ 0 ],
             buffer, MAX_STRING_CHARS );
-        firstKeyLength = strlen( buffer );
+        firstKeyLength = (int)strlen( buffer );
 
         for( j = 0; j < firstKeyLength; j++ )
           buffer[ j ] = toupper( buffer[ j ] );
@@ -115,9 +115,9 @@ static const char *CG_KeyNameForCommand( const char *command )
         {
           Q_strcat( buffer, MAX_STRING_CHARS, " or " );
           trap_Key_KeynumToStringBuf( bindings[ i ].keys[ 1 ],
-              buffer + strlen( buffer ), MAX_STRING_CHARS - strlen( buffer ) );
+              buffer + (int)strlen( buffer ), MAX_STRING_CHARS - (int)strlen( buffer ) );
 
-          for( j = firstKeyLength + 4; j < strlen( buffer ); j++ )
+          for( j = firstKeyLength + 4; j < (int)strlen( buffer ); j++ )
             buffer[ j ] = toupper( buffer[ j ] );
         }
       }

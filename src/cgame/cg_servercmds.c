@@ -46,7 +46,7 @@ static void CG_ParseScores( void )
   cg.teamScores[ 0 ] = atoi( CG_Argv( 1 ) );
   cg.teamScores[ 1 ] = atoi( CG_Argv( 2 ) );
 
-  memset( cg.scores, 0, sizeof( cg.scores ) );
+  memset( cg.scores, 0, (int)sizeof( cg.scores ) );
 
   if( cg_debugRandom.integer )
     CG_Printf( "cg.numScores: %d\n", cg.numScores );
@@ -127,7 +127,7 @@ void CG_ParseServerinfo( void )
   cgs.maxclients = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
   cgs.markDeconstruct = atoi( Info_ValueForKey( info, "g_markDeconstruct" ) );
   mapname = Info_ValueForKey( info, "mapname" );
-  Com_sprintf( cgs.mapname, sizeof( cgs.mapname ), "maps/%s.bsp", mapname );
+  Com_sprintf( cgs.mapname, (int)sizeof( cgs.mapname ), "maps/%s.bsp", mapname );
 }
 
 /*
@@ -347,10 +347,10 @@ static void CG_ConfigStringModified( void )
   }
   else if( num >= CS_VOTE_STRING && num < CS_VOTE_STRING + NUM_TEAMS )
     Q_strncpyz( cgs.voteString[ num - CS_VOTE_STRING ], str,
-      sizeof( cgs.voteString[ num - CS_VOTE_STRING ] ) );
+      (int)sizeof( cgs.voteString[ num - CS_VOTE_STRING ] ) );
   else if( num >= CS_VOTE_CALLER && num < CS_VOTE_CALLER + NUM_TEAMS )
     Q_strncpyz( cgs.voteCaller[ num - CS_VOTE_CALLER ], str,
-      sizeof( cgs.voteCaller[ num - CS_VOTE_CALLER ] ) );
+      (int)sizeof( cgs.voteCaller[ num - CS_VOTE_CALLER ] ) );
   else if( num == CS_INTERMISSION )
     cg.intermissionStarted = atoi( str );
   else if( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS )
@@ -893,7 +893,7 @@ static void CG_Say( int clientNum, saymode_t mode, const char *text )
       tcolor = S_COLOR_CYAN;
 
     if( cg_chatTeamPrefix.integer )
-      Com_sprintf( prefix, sizeof( prefix ), "[%s%c" S_COLOR_WHITE "] ",
+      Com_sprintf( prefix, (int)sizeof( prefix ), "[%s%c" S_COLOR_WHITE "] ",
                    tcolor, toupper( *( BG_TeamName( ci->team ) ) ) );
 
     if( Com_ClientListContains( &cgs.ignoreList, clientNum ) )
@@ -933,7 +933,7 @@ static void CG_Say( int clientNum, saymode_t mode, const char *text )
   if( mode != SAY_RAW && Q_stricmpn( text, "/me ", 4 ) == 0 )
   {
     text += 4;
-    Q_strcat( prefix, sizeof( prefix ), "* " );
+    Q_strcat( prefix, (int)sizeof( prefix ), "* " );
     maybeColon = "";
   }
   else
@@ -1061,7 +1061,7 @@ static void CG_ParseVoice( void )
     return;
 
   if( trap_Argc() == 6 )
-    Q_strncpyz( sayText, CG_Argv( 5 ), sizeof( sayText ) );
+    Q_strncpyz( sayText, CG_Argv( 5 ), (int)sizeof( sayText ) );
 
   clientNum = atoi( CG_Argv( 1 ) );
   if( clientNum < 0 || clientNum >= MAX_CLIENTS )
@@ -1092,9 +1092,9 @@ static void CG_ParseVoice( void )
   if( !sayText[ 0 ] )
   {
     if( track )
-      Q_strncpyz( sayText, track->text, sizeof( sayText ) );
+      Q_strncpyz( sayText, track->text, (int)sizeof( sayText ) );
     else
-      Q_strncpyz( sayText, "*unintelligible gibberish*", sizeof( sayText ) );
+      Q_strncpyz( sayText, "*unintelligible gibberish*", (int)sizeof( sayText ) );
   }
  
   if( !cg_noVoiceText.integer ) 
@@ -1170,8 +1170,8 @@ static void CG_Chat_f( void )
   char     id[ 3 ];
   char     mode[ 3 ];
 
-  trap_Argv( 1, id, sizeof( id ) );
-  trap_Argv( 2, mode, sizeof( mode ) );
+  trap_Argv( 1, id, (int)sizeof( id ) );
+  trap_Argv( 2, mode, (int)sizeof( mode ) );
 
   CG_Say( atoi( id ), atoi( mode ), CG_Argv( 3 ) );
 }
@@ -1241,11 +1241,11 @@ static void CG_GameCmds_f( void )
   for( i = 1; i < c; i++ )
   {
     cmd = CG_Argv( i );
-    len = strlen( cmd ) + 1;
-    if( len + gcmdsOffset >= sizeof( registeredCmds ) - 1 )
+    len = (int)strlen( cmd ) + 1;
+    if( len + gcmdsOffset >= (int)sizeof( registeredCmds ) - 1 )
     {
       CG_Printf( "AddCommand: too many commands (%d >= %d)\n",
-        (int)( len + gcmdsOffset ), (int)( sizeof( registeredCmds ) - 1 ) );
+        (int)( len + gcmdsOffset ), (int)( (int)sizeof( registeredCmds ) - 1 ) );
       return;
     }
     trap_AddCommand( cmd );
@@ -1259,7 +1259,7 @@ void CG_UnregisterCommands( void )
   size_t len, offset = 0;
   while( registeredCmds[ offset ] )
   {
-    len = strlen( registeredCmds + offset );
+    len = (int)strlen( registeredCmds + offset );
     trap_RemoveCommand( registeredCmds + offset );
     offset += len + 1;
   }
@@ -1299,7 +1299,7 @@ static void CG_ServerCommand( void )
 
   cmd = CG_Argv( 0 );
   command = bsearch( cmd, svcommands, ARRAY_LEN( svcommands ),
-                     sizeof( svcommands[ 0 ] ), cmdcmp );
+                     (int)sizeof( svcommands[ 0 ] ), cmdcmp );
 
   if( command )
   {

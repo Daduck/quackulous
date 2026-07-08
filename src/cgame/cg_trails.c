@@ -943,13 +943,13 @@ CG_InitialiseBaseTrailBeam
 */
 static void CG_InitialiseBaseTrailBeam( baseTrailBeam_t *btb )
 {
-  memset( btb, 0, sizeof( baseTrailBeam_t ) );
+  memset( btb, 0, (int)sizeof( baseTrailBeam_t ) );
 
   btb->numSegments = 1;
   btb->frontWidth = btb->backWidth = 1.0f;
   btb->frontAlpha = btb->backAlpha = 1.0f;
-  memset( btb->frontColor, 0xFF, sizeof( btb->frontColor ) );
-  memset( btb->backColor, 0xFF, sizeof( btb->backColor ) );
+  memset( btb->frontColor, 0xFF, (int)sizeof( btb->frontColor ) );
+  memset( btb->backColor, 0xFF, (int)sizeof( btb->backColor ) );
 
   btb->segmentTime = 100;
 
@@ -1060,7 +1060,7 @@ static qboolean CG_ParseTrailFile( const char *fileName )
   if( len <= 0 )
     return qfalse;
 
-  if( len == 0 || len >= sizeof( text ) - 1 )
+  if( len == 0 || len >= (int)sizeof( text ) - 1 )
   {
     trap_FS_FCloseFile( f );
     CG_Printf( S_COLOR_RED "ERROR: trail file %s is %s\n", fileName,
@@ -1128,7 +1128,7 @@ static qboolean CG_ParseTrailFile( const char *fileName )
 
     if( !tsNameSet )
     {
-      Q_strncpyz( tsName, token, sizeof( tsName ) );
+      Q_strncpyz( tsName, token, (int)sizeof( tsName ) );
       tsNameSet = qtrue;
     }
     else
@@ -1162,13 +1162,13 @@ void CG_LoadTrailSystems( void )
   for( i = 0; i < MAX_BASETRAIL_SYSTEMS; i++ )
   {
     baseTrailSystem_t  *bts = &baseTrailSystems[ i ];
-    memset( bts, 0, sizeof( baseTrailSystem_t ) );
+    memset( bts, 0, (int)sizeof( baseTrailSystem_t ) );
   }
 
   for( i = 0; i < MAX_BASETRAIL_BEAMS; i++ )
   {
     baseTrailBeam_t  *btb = &baseTrailBeams[ i ];
-    memset( btb, 0, sizeof( baseTrailBeam_t ) );
+    memset( btb, 0, (int)sizeof( baseTrailBeam_t ) );
   }
 
   //and bring in the new
@@ -1178,7 +1178,7 @@ void CG_LoadTrailSystems( void )
 
   for( i = 0; i < numFiles; i++, filePtr += fileLen + 1 )
   {
-    fileLen = strlen( filePtr );
+    fileLen = (int)strlen( filePtr );
     strcpy( fileName, "scripts/" );
     strcat( fileName, filePtr );
     CG_Printf( "...loading '%s'\n", fileName );
@@ -1251,7 +1251,7 @@ static trailBeam_t *CG_SpawnNewTrailBeam( baseTrailBeam_t *btb,
 
     if( !tb->valid )
     {
-      memset( tb, 0, sizeof( trailBeam_t ) );
+      memset( tb, 0, (int)sizeof( trailBeam_t ) );
 
       //found a free slot
       tb->class = btb;
@@ -1298,7 +1298,7 @@ trailSystem_t *CG_SpawnNewTrailSystem( qhandle_t psHandle )
 
     if( !ts->valid )
     {
-      memset( ts, 0, sizeof( trailSystem_t ) );
+      memset( ts, 0, (int)sizeof( trailSystem_t ) );
 
       //found a free slot
       ts->class = bts;

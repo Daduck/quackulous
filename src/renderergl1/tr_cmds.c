@@ -30,8 +30,8 @@ R_PerformanceCounters
 void R_PerformanceCounters( void ) {
 	if ( !r_speeds->integer ) {
 		// clear the counters even if we aren't printing
-		Com_Memset( &tr.pc, 0, sizeof( tr.pc ) );
-		Com_Memset( &backEnd.pc, 0, sizeof( backEnd.pc ) );
+		Com_Memset( &tr.pc, 0, (int)sizeof( tr.pc ) );
+		Com_Memset( &backEnd.pc, 0, (int)sizeof( backEnd.pc ) );
 		return;
 	}
 
@@ -66,8 +66,8 @@ void R_PerformanceCounters( void ) {
 			backEnd.pc.c_flareAdds, backEnd.pc.c_flareTests, backEnd.pc.c_flareRenders );
 	}
 
-	Com_Memset( &tr.pc, 0, sizeof( tr.pc ) );
-	Com_Memset( &backEnd.pc, 0, sizeof( backEnd.pc ) );
+	Com_Memset( &tr.pc, 0, (int)sizeof( tr.pc ) );
+	Com_Memset( &backEnd.pc, 0, (int)sizeof( backEnd.pc ) );
 }
 
 
@@ -124,11 +124,11 @@ void *R_GetCommandBufferReserved( int bytes, int reservedBytes ) {
 	renderCommandList_t	*cmdList;
 
 	cmdList = &backEndData->commands;
-	bytes = PAD(bytes, sizeof(void *));
+	bytes = PAD(bytes, (int)sizeof(void *));
 
 	// always leave room for the end of list command
-	if ( cmdList->used + bytes + sizeof( int ) + reservedBytes > MAX_RENDER_COMMANDS ) {
-		if ( bytes > MAX_RENDER_COMMANDS - sizeof( int ) ) {
+	if ( cmdList->used + bytes + (int)sizeof( int ) + reservedBytes > MAX_RENDER_COMMANDS ) {
+		if ( bytes > MAX_RENDER_COMMANDS - (int)sizeof( int ) ) {
 			ri.Error( ERR_FATAL, "R_GetCommandBuffer: bad size %i", bytes );
 		}
 		// if we run out of room, just start dropping commands
@@ -148,7 +148,7 @@ returns NULL if there is not enough space for important commands
 =============
 */
 void *R_GetCommandBuffer( int bytes ) {
-	return R_GetCommandBufferReserved( bytes, PAD( sizeof( swapBuffersCommand_t ), sizeof(void *) ) );
+	return R_GetCommandBufferReserved( bytes, PAD( (int)sizeof( swapBuffersCommand_t ), (int)sizeof(void *) ) );
 }
 
 
@@ -161,7 +161,7 @@ R_AddDrawSurfCmd
 void	R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	drawSurfsCommand_t	*cmd;
 
-	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
+	cmd = R_GetCommandBuffer( (int)sizeof( *cmd ) );
 	if ( !cmd ) {
 		return;
 	}
@@ -188,7 +188,7 @@ void	RE_SetColor( const float *rgba ) {
 	if ( !tr.registered ) {
 		return;
 	}
-	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
+	cmd = R_GetCommandBuffer( (int)sizeof( *cmd ) );
 	if ( !cmd ) {
 		return;
 	}
@@ -282,7 +282,7 @@ RE_SetClipRegion
 */
 void RE_SetClipRegion( const float *region ) {
 	if ( region == NULL ) {
-		Com_Memset( tr.clipRegion, 0, sizeof( vec4_t ) );
+		Com_Memset( tr.clipRegion, 0, (int)sizeof( vec4_t ) );
 	} else {
 		Vector4Copy( region, tr.clipRegion );
 	}
@@ -303,7 +303,7 @@ void RE_StretchPic ( float x, float y, float w, float h,
 	if (R_ClipRegion(&x, &y, &w, &h, &s1, &t1, &s2, &t2)) {
 		return;
 	}
-	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
+	cmd = R_GetCommandBuffer( (int)sizeof( *cmd ) );
 	if ( !cmd ) {
 		return;
 	}
@@ -451,7 +451,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	}
 
 	if (glConfig.stereoEnabled) {
-		if( !(cmd = R_GetCommandBuffer(sizeof(*cmd))) )
+		if( !(cmd = R_GetCommandBuffer((int)sizeof(*cmd))) )
 			return;
 			
 		cmd->commandId = RC_DRAW_BUFFER;
@@ -484,22 +484,22 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 			
 			if(stereoFrame == STEREO_LEFT)
 			{
-				if( !(cmd = R_GetCommandBuffer(sizeof(*cmd))) )
+				if( !(cmd = R_GetCommandBuffer((int)sizeof(*cmd))) )
 					return;
 				
-				if( !(colcmd = R_GetCommandBuffer(sizeof(*colcmd))) )
+				if( !(colcmd = R_GetCommandBuffer((int)sizeof(*colcmd))) )
 					return;
 			}
 			else if(stereoFrame == STEREO_RIGHT)
 			{
 				clearDepthCommand_t *cldcmd;
 				
-				if( !(cldcmd = R_GetCommandBuffer(sizeof(*cldcmd))) )
+				if( !(cldcmd = R_GetCommandBuffer((int)sizeof(*cldcmd))) )
 					return;
 
 				cldcmd->commandId = RC_CLEARDEPTH;
 
-				if( !(colcmd = R_GetCommandBuffer(sizeof(*colcmd))) )
+				if( !(colcmd = R_GetCommandBuffer((int)sizeof(*colcmd))) )
 					return;
 			}
 			else
@@ -513,7 +513,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 			if(stereoFrame != STEREO_CENTER)
 				ri.Error( ERR_FATAL, "RE_BeginFrame: Stereo is disabled, but stereoFrame was %i", stereoFrame );
 
-			if( !(cmd = R_GetCommandBuffer(sizeof(*cmd))) )
+			if( !(cmd = R_GetCommandBuffer((int)sizeof(*cmd))) )
 				return;
 		}
 
@@ -551,7 +551,7 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 	if ( !tr.registered ) {
 		return;
 	}
-	cmd = R_GetCommandBufferReserved( sizeof( *cmd ), 0 );
+	cmd = R_GetCommandBufferReserved( (int)sizeof( *cmd ), 0 );
 	if ( !cmd ) {
 		return;
 	}
@@ -585,7 +585,7 @@ void RE_TakeVideoFrame( int width, int height,
 		return;
 	}
 
-	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
+	cmd = R_GetCommandBuffer( (int)sizeof( *cmd ) );
 	if( !cmd ) {
 		return;
 	}

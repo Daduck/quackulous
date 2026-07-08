@@ -89,7 +89,7 @@ byte MuLawEncode(short s) {
 	sign = (s<0)?0:0x80;
 
 	if (s<0) s=-s;
-	adjusted = (long)s << (16-sizeof(short)*8);
+	adjusted = (long)s << (16-(int)sizeof(short)*8);
 	adjusted += 128L + 4L;
 	if (adjusted > 32767) adjusted = 32767;
 	exponent = numBits[(adjusted>>7)&0xff] - 1;

@@ -44,20 +44,20 @@ vec4_t		colorYellow	= {1, 1, 0, 1};
 vec4_t		colorMagenta= {1, 0, 1, 1};
 vec4_t		colorCyan	= {0, 1, 1, 1};
 vec4_t		colorWhite	= {1, 1, 1, 1};
-vec4_t		colorLtGrey	= {0.75, 0.75, 0.75, 1};
-vec4_t		colorMdGrey	= {0.5, 0.5, 0.5, 1};
-vec4_t		colorDkGrey	= {0.25, 0.25, 0.25, 1};
+vec4_t		colorLtGrey	= {0.75f, 0.75f, 0.75f, 1};
+vec4_t		colorMdGrey	= {0.5f, 0.5f, 0.5f, 1};
+vec4_t		colorDkGrey	= {0.25f, 0.25f, 0.25f, 1};
 
 vec4_t	g_color_table[8] =
 	{
-	{0.2, 0.2, 0.2, 1.0},
-	{1.0, 0.0, 0.0, 1.0},
-	{0.0, 1.0, 0.0, 1.0},
-	{1.0, 1.0, 0.0, 1.0},
-	{0.0, 0.0, 1.0, 1.0},
-	{0.0, 1.0, 1.0, 1.0},
-	{1.0, 0.0, 1.0, 1.0},
-	{1.0, 1.0, 1.0, 1.0},
+	{0.2f, 0.2f, 0.2f, 1.0f},
+	{1.0f, 0.0f, 0.0f, 1.0f},
+	{0.0f, 1.0f, 0.0f, 1.0f},
+	{1.0f, 1.0f, 0.0f, 1.0f},
+	{0.0f, 0.0f, 1.0f, 1.0f},
+	{0.0f, 1.0f, 1.0f, 1.0f},
+	{1.0f, 0.0f, 1.0f, 1.0f},
+	{1.0f, 1.0f, 1.0f, 1.0f},
 	};
 
 
@@ -158,7 +158,7 @@ float	Q_random( int *seed ) {
 }
 
 float	Q_crandom( int *seed ) {
-	return 2.0 * ( Q_random( seed ) - 0.5 );
+	return 2.0f * ( Q_random( seed ) - 0.5f );
 }
 
 //=======================================================
@@ -380,7 +380,7 @@ void vectoangles( const vec3_t value1, vec3_t angles ) {
 	}
 	else {
 		if ( value1[0] ) {
-			yaw = ( atan2 ( value1[1], value1[0] ) * 180 / M_PI );
+			yaw = ( atan2 ( value1[1], value1[0] ) * 180 / (float)M_PI );
 		}
 		else if ( value1[1] > 0 ) {
 			yaw = 90;
@@ -393,7 +393,7 @@ void vectoangles( const vec3_t value1, vec3_t angles ) {
 		}
 
 		forward = sqrt ( value1[0]*value1[0] + value1[1]*value1[1] );
-		pitch = ( atan2(value1[2], forward) * 180 / M_PI );
+		pitch = ( atan2(value1[2], forward) * 180 / (float)M_PI );
 		if ( pitch < 0 ) {
 			pitch += 360;
 		}
@@ -428,7 +428,7 @@ void AxisToAngles( vec3_t axis[3], vec3_t angles ) {
 	}
 	else {
 		if ( axis[0][0] ) {
-			yaw = ( atan2 ( axis[0][1], axis[0][0] ) * 180 / M_PI );
+			yaw = ( atan2 ( axis[0][1], axis[0][0] ) * 180 / (float)M_PI );
 		}
 		else if ( axis[0][1] > 0 ) {
 			yaw = 90;
@@ -441,12 +441,12 @@ void AxisToAngles( vec3_t axis[3], vec3_t angles ) {
 		}
 
 		length1 = sqrt ( axis[0][0]*axis[0][0] + axis[0][1]*axis[0][1] );
-		pitch = ( atan2(axis[0][2], length1) * 180 / M_PI );
+		pitch = ( atan2(axis[0][2], length1) * 180 / (float)M_PI );
 		if ( pitch < 0 ) {
 			pitch += 360;
 		}
 
-		roll = ( atan2( axis[1][2], axis[2][2] ) * 180 / M_PI );
+		roll = ( atan2( axis[1][2], axis[2][2] ) * 180 / (float)M_PI );
 		if ( roll < 0 ) {
 			roll += 360;
 		}
@@ -624,7 +624,7 @@ void AnglesSubtract( vec3_t v1, vec3_t v2, vec3_t v3 ) {
 
 
 float	AngleMod(float a) {
-	a = (360.0/65536) * ((int)(a*(65536/360.0)) & 65535);
+	a = (360.0f/65536) * ((int)(a*(65536/360.0f)) & 65535);
 	return a;
 }
 
@@ -637,7 +637,7 @@ returns angle normalized to the range [0 <= angle < 360]
 =================
 */
 float AngleNormalize360 ( float angle ) {
-	return (360.0 / 65536) * ((int)(angle * (65536 / 360.0)) & 65535);
+	return (360.0f / 65536) * ((int)(angle * (65536 / 360.0f)) & 65535);
 }
 
 
@@ -650,8 +650,8 @@ returns angle normalized to the range [-180 < angle <= 180]
 */
 float AngleNormalize180 ( float angle ) {
 	angle = AngleNormalize360( angle );
-	if ( angle > 180.0 ) {
-		angle -= 360.0;
+	if ( angle > 180.0f ) {
+		angle -= 360.0f;
 	}
 	return angle;
 }
@@ -933,11 +933,11 @@ PlaneTypeForNormal
 */
 /*
 int	PlaneTypeForNormal (vec3_t normal) {
-	if ( normal[0] == 1.0 )
+	if ( normal[0] == 1.0f )
 		return PLANE_X;
-	if ( normal[1] == 1.0 )
+	if ( normal[1] == 1.0f )
 		return PLANE_Y;
-	if ( normal[2] == 1.0 )
+	if ( normal[2] == 1.0f )
 		return PLANE_Z;
 	
 	return PLANE_NON_AXIAL;
@@ -989,13 +989,13 @@ void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
 	static float		sr, sp, sy, cr, cp, cy;
 	// static to help MS compiler fp bugs
 
-	angle = angles[YAW] * (M_PI*2 / 360);
+	angle = angles[YAW] * ((float)M_PI*2 / 360);
 	sy = sin(angle);
 	cy = cos(angle);
-	angle = angles[PITCH] * (M_PI*2 / 360);
+	angle = angles[PITCH] * ((float)M_PI*2 / 360);
 	sp = sin(angle);
 	cp = cos(angle);
-	angle = angles[ROLL] * (M_PI*2 / 360);
+	angle = angles[ROLL] * ((float)M_PI*2 / 360);
 	sr = sin(angle);
 	cr = cos(angle);
 
@@ -1191,8 +1191,8 @@ vec_t DistanceBetweenLineSegmentsSquared(
   if( D < LINE_DISTANCE_EPSILON )
   {
     // the lines are almost parallel
-    sN = 0.0;   // force using point P0 on segment S1
-    sD = 1.0;   // to prevent possible division by 0.0 later
+    sN = 0.0f;   // force using point P0 on segment S1
+    sD = 1.0f;   // to prevent possible division by 0.0f later
     tN = e;
     tD = c;
   }
@@ -1202,10 +1202,10 @@ vec_t DistanceBetweenLineSegmentsSquared(
     sN = ( b * e - c * d );
     tN = ( a * e - b * d );
 
-    if( sN < 0.0 )
+    if( sN < 0.0f )
     {
       // sN < 0 => the s=0 edge is visible
-      sN = 0.0;
+      sN = 0.0f;
       tN = e;
       tD = c;
     }
@@ -1218,14 +1218,14 @@ vec_t DistanceBetweenLineSegmentsSquared(
     }
   }
 
-  if( tN < 0.0 )
+  if( tN < 0.0f )
   {
     // tN < 0 => the t=0 edge is visible
-    tN = 0.0;
+    tN = 0.0f;
 
     // recompute sN for this edge
-    if( -d < 0.0 )
-      sN = 0.0;
+    if( -d < 0.0f )
+      sN = 0.0f;
     else if( -d > a )
       sN = sD;
     else
@@ -1240,7 +1240,7 @@ vec_t DistanceBetweenLineSegmentsSquared(
     tN = tD;
 
     // recompute sN for this edge
-    if( ( -d + b ) < 0.0 )
+    if( ( -d + b ) < 0.0f )
       sN = 0;
     else if( ( -d + b ) > a )
       sN = sD;
@@ -1252,8 +1252,8 @@ vec_t DistanceBetweenLineSegmentsSquared(
   }
 
   // finally do the division to get *s and *t
-  *s = ( fabs( sN ) < LINE_DISTANCE_EPSILON ? 0.0 : sN / sD );
-  *t = ( fabs( tN ) < LINE_DISTANCE_EPSILON ? 0.0 : tN / tD );
+  *s = ( fabs( sN ) < LINE_DISTANCE_EPSILON ? 0.0f : sN / sD );
+  *t = ( fabs( tN ) < LINE_DISTANCE_EPSILON ? 0.0f : tN / tD );
 
   // get the difference of the two closest points
   VectorScale( sMag, *s, sMag );
@@ -1317,10 +1317,10 @@ float Q_acos(float c) {
 
 	angle = acos(c);
 
-	if (angle > M_PI) {
+	if (angle > (float)M_PI) {
 		return (float)M_PI;
 	}
-	if (angle < -M_PI) {
+	if (angle < -(float)M_PI) {
 		return (float)M_PI;
 	}
 	return angle;

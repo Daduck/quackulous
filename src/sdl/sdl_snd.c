@@ -171,8 +171,8 @@ qboolean SNDDMA_Init(void)
 
 	Com_Printf( "SDL audio driver is \"%s\".\n", SDL_GetCurrentAudioDriver( ) );
 
-	memset(&desired, '\0', sizeof (desired));
-	memset(&obtained, '\0', sizeof (obtained));
+	memset(&desired, '\0', (int)sizeof(desired));
+	memset(&obtained, '\0', (int)sizeof(obtained));
 
 	tmp = ((int) s_sdlBits->value);
 	if ((tmp != 16) && (tmp != 8))

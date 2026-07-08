@@ -116,10 +116,10 @@ void R_LoadBMP( const char *name, byte **pic, int *width, int *height )
 
 	if ( bmpHeader.bitsPerPixel == 8 )
 	{
-		if (buf_p + sizeof(bmpHeader.palette) > end)
+		if (buf_p + (int)sizeof(bmpHeader.palette) > end)
 			ri.Error( ERR_DROP, "LoadBMP: header too short (%s)", name );
 
-		Com_Memcpy( bmpHeader.palette, buf_p, sizeof( bmpHeader.palette ) );
+		Com_Memcpy( bmpHeader.palette, buf_p, (int)sizeof( bmpHeader.palette ) );
 	}
 
 	if (buffer.b + bmpHeader.bitmapDataOffset > end)

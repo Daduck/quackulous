@@ -273,7 +273,7 @@ void ClientImpacts( gentity_t *ent, pmove_t *pm )
   gentity_t *other;
 
   // clear a fake trace struct for touch function
-  memset( &trace, 0, sizeof( trace ) );
+  memset( &trace, 0, (int)sizeof( trace ) );
 
   for( i = 0; i < pm->numtouch; i++ )
   {
@@ -370,7 +370,7 @@ void  G_TouchTriggers( gentity_t *ent )
     if( !trap_EntityContact( mins, maxs, hit ) )
       continue;
 
-    memset( &trace, 0, sizeof( trace ) );
+    memset( &trace, 0, (int)sizeof( trace ) );
 
     if( hit->touch )
       hit->touch( hit, ent, &trace );
@@ -465,7 +465,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
     client->ps.weapon = WP_NONE;
 
     // Set up for pmove
-    memset( &pm, 0, sizeof( pm ) );
+    memset( &pm, 0, (int)sizeof( pm ) );
     pm.ps = &client->ps;
     pm.pmext = &client->pmext;
     pm.cmd = *ucmd;
@@ -1518,7 +1518,7 @@ void ClientThink_real( gentity_t *ent )
   // set up for pmove
   oldEventSequence = client->ps.eventSequence;
 
-  memset( &pm, 0, sizeof( pm ) );
+  memset( &pm, 0, (int)sizeof( pm ) );
 
   if( ent->flags & FL_FORCE_GESTURE )
   {
@@ -1603,7 +1603,7 @@ void ClientThink_real( gentity_t *ent )
       if( !( client->ps.pm_flags & PMF_CHARGE ) && client->trampleBuildablesHitPos )
       {
         ent->client->trampleBuildablesHitPos = 0;
-        memset( ent->client->trampleBuildablesHit, 0, sizeof( ent->client->trampleBuildablesHit ) );
+        memset( ent->client->trampleBuildablesHit, 0, (int)sizeof( ent->client->trampleBuildablesHit ) );
       }
       break;
 

@@ -227,7 +227,7 @@ void SCR_DrawStringExt( int x, int y, float size, const char *string, float *set
 	while ( *s ) {
 		if ( Q_IsColorString( s ) ) {
 			if ( !forceColor ) {
-				Com_Memcpy( color, g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
+				Com_Memcpy( color, g_color_table[ColorIndex(*(s+1))], (int)sizeof( color ) );
 				color[3] = setColor[3];
 				re.SetColor( color );
 			}
@@ -278,7 +278,7 @@ void SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, 
 	while ( *s ) {
 		if ( Q_IsColorString( s ) ) {
 			if ( !forceColor ) {
-				Com_Memcpy( color, g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
+				Com_Memcpy( color, g_color_table[ColorIndex(*(s+1))], (int)sizeof( color ) );
 				color[3] = setColor[3];
 				re.SetColor( color );
 			}
@@ -363,7 +363,7 @@ void SCR_DrawVoipMeter( void ) {
 	buffer[i] = '\0';
 
 	sprintf( string, "VoIP: [%s]", buffer );
-	SCR_DrawStringExt( 320 - strlen( string ) * 4, 10, 8, string, g_color_table[7], qtrue, qfalse );
+	SCR_DrawStringExt( 320 - (int)strlen( string ) * 4, 10, 8, string, g_color_table[7], qtrue, qfalse );
 }
 #endif
 

@@ -75,8 +75,8 @@ void CG_TestModel_f( void )
 {
   vec3_t    angles;
 
-  memset( &cg.testModelEntity, 0, sizeof( cg.testModelEntity ) );
-  memset( &cg.testModelBarrelEntity, 0, sizeof( cg.testModelBarrelEntity ) );
+  memset( &cg.testModelEntity, 0, (int)sizeof( cg.testModelEntity ) );
+  memset( &cg.testModelBarrelEntity, 0, (int)sizeof( cg.testModelBarrelEntity ) );
 
   if( trap_Argc( ) < 2 )
     return;
@@ -85,7 +85,7 @@ void CG_TestModel_f( void )
   cg.testModelEntity.hModel = trap_R_RegisterModel( cg.testModelName );
 
   Q_strncpyz( cg.testModelBarrelName, CG_Argv( 1 ), MAX_QPATH );
-  cg.testModelBarrelName[ strlen( cg.testModelBarrelName ) - 4 ] = '\0';
+  cg.testModelBarrelName[ (int)strlen( cg.testModelBarrelName ) - 4 ] = '\0';
   Q_strcat( cg.testModelBarrelName, MAX_QPATH, "_barrel.md3" );
   cg.testModelBarrelEntity.hModel = trap_R_RegisterModel( cg.testModelBarrelName );
 
@@ -1238,7 +1238,7 @@ static int CG_CalcViewValues( void )
 {
   playerState_t *ps;
 
-  memset( &cg.refdef, 0, sizeof( cg.refdef ) );
+  memset( &cg.refdef, 0, (int)sizeof( cg.refdef ) );
 
   // calculate size of 3D view
   CG_CalcVrect( );
@@ -1455,7 +1455,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
     CG_AddTestModel( );
 
   cg.refdef.time = cg.time;
-  memcpy( cg.refdef.areamask, cg.snap->areamask, sizeof( cg.refdef.areamask ) );
+  memcpy( cg.refdef.areamask, cg.snap->areamask, (int)sizeof( cg.refdef.areamask ) );
 
   //remove expired console lines
   if( cg.consoleLines[ 0 ].time + cg_consoleLatency.integer < cg.time && cg_consoleLatency.integer > 0 )

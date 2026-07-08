@@ -79,7 +79,7 @@ static char	*SV_ExpandNewlines( char *in ) {
 	int		l;
 
 	l = 0;
-	while ( *in && l < sizeof(string) - 3 ) {
+	while ( *in && l < (int)sizeof(string) - 3 ) {
 		if ( *in == '\n' ) {
 			string[l++] = '\\';
 			string[l++] = 'n';
@@ -107,11 +107,11 @@ static int SV_ReplacePendingServerCommands( client_t *client, const char *cmd ) 
 	for ( i = client->reliableSent+1; i <= client->reliableSequence; i++ ) {
 		index = i & ( MAX_RELIABLE_COMMANDS - 1 );
 		//
-		if ( !Q_strncmp(cmd, client->reliableCommands[ index ], strlen("cs")) ) {
+		if ( !Q_strncmp(cmd, client->reliableCommands[ index ], (int)strlen("cs")) ) {
 			sscanf(cmd, "cs %i", &csnum1);
 			sscanf(client->reliableCommands[ index ], "cs %i", &csnum2);
 			if ( csnum1 == csnum2 ) {
-				Q_strncpyz( client->reliableCommands[ index ], cmd, sizeof( client->reliableCommands[ index ] ) );
+				Q_strncpyz( client->reliableCommands[ index ], cmd, (int)sizeof( client->reliableCommands[ index ] ) );
 				return qtrue;
 			}
 		}
@@ -156,7 +156,7 @@ void SV_AddServerCommand( client_t *client, const char *cmd ) {
 		return;
 	}
 	index = client->reliableSequence & ( MAX_RELIABLE_COMMANDS - 1 );
-	Q_strncpyz( client->reliableCommands[ index ], cmd, sizeof( client->reliableCommands[ index ] ) );
+	Q_strncpyz( client->reliableCommands[ index ], cmd, (int)sizeof( client->reliableCommands[ index ] ) );
 }
 
 /*
@@ -175,14 +175,14 @@ void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 	int			j;
 	
 	va_start (argptr,fmt);
-	Q_vsnprintf ((char *)message, sizeof(message), fmt,argptr);
+	Q_vsnprintf ((char *)message, (int)sizeof(message), fmt,argptr);
 	va_end (argptr);
 
 	// Fix to http://aluigi.altervista.org/adv/q3msgboom-adv.txt
 	// The actual cause of the bug is probably further downstream
 	// and should maybe be addressed later, but this certainly
 	// fixes the problem for now
-	if ( strlen ((char *)message) > 1022 ) {
+	if ( (int)strlen((char *)message) > 1022 ) {
 		return;
 	}
 
@@ -458,7 +458,7 @@ static leakyBucket_t *SVC_BucketForAddress( netadr_t address, int burst, int per
 				bucket->next->prev = bucket->prev;
 			}
 
-			Com_Memset( bucket, 0, sizeof( leakyBucket_t ) );
+			Com_Memset( bucket, 0, (int)sizeof( leakyBucket_t ) );
 		}
 
 		if ( bucket->type == NA_BAD ) {
@@ -567,7 +567,7 @@ static void SVC_Status( netadr_t from ) {
 	}
 
 	// A maximum challenge length of 128 should be more than plenty.
-	if(strlen(Cmd_Argv(1)) > 128)
+	if((int)strlen(Cmd_Argv(1)) > 128)
 		return;
 
 	strcpy( infostring, Cvar_InfoString( CVAR_SERVERINFO ) );
@@ -583,10 +583,10 @@ static void SVC_Status( netadr_t from ) {
 		cl = &svs.clients[i];
 		if ( cl->state >= CS_CONNECTED ) {
 			ps = SV_GameClientNum( i );
-			Com_sprintf (player, sizeof(player), "%i %i \"%s\"\n", 
+			Com_sprintf (player, (int)sizeof(player), "%i %i \"%s\"\n", 
 				ps->persistant[PERS_SCORE], cl->ping, cl->name);
-			playerLength = strlen(player);
-			if (statusLength + playerLength >= sizeof(status) ) {
+			playerLength = (int)strlen(player);
+			if (statusLength + playerLength >= (int)sizeof(status) ) {
 				break;		// can't hold any more
 			}
 			strcpy (status + statusLength, player);
@@ -630,7 +630,7 @@ void SVC_Info( netadr_t from ) {
 	 */
 
 	// A maximum challenge length of 128 should be more than plenty.
-	if(strlen(Cmd_Argv(1)) > 128)
+	if((int)strlen(Cmd_Argv(1)) > 128)
 		return;
 
 	// don't count privateclients
@@ -711,7 +711,7 @@ static void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 		return;
 	}
 
-	if ( !strlen( sv_rconPassword->string ) ||
+	if ( !(int)strlen( sv_rconPassword->string ) ||
 		strcmp (Cmd_Argv(1), sv_rconPassword->string) ) {
 		static leakyBucket_t bucket;
 
@@ -732,7 +732,7 @@ static void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 	svs.redirectAddress = from;
 	Com_BeginRedirect (sv_outputbuf, SV_OUTPUTBUF_LENGTH, SV_FlushRedirect);
 
-	if ( !strlen( sv_rconPassword->string ) ) {
+	if ( !(int)strlen( sv_rconPassword->string ) ) {
 		Com_Printf ("No rconpassword set on the server.\n");
 	} else if ( !valid ) {
 		Com_Printf ("Bad rconpassword.\n");
@@ -752,7 +752,7 @@ static void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 		while(cmd_aux[0]==' ')
 			cmd_aux++;
 		
-		Q_strcat( remaining, sizeof(remaining), cmd_aux);
+		Q_strcat( remaining, (int)sizeof(remaining), cmd_aux);
 		
 		Cmd_ExecuteString (remaining);
 

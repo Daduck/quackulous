@@ -80,16 +80,16 @@ static void GLimp_InitConfigStrings( void )
 	version = qglGetString(GL_VERSION);
 	extensions = qglGetString(GL_EXTENSIONS);
 
-	Q_strncpyz(glConfig.vendor_string, vendor ? (const char *)vendor : "Unknown", sizeof(glConfig.vendor_string));
-	Q_strncpyz(glConfig.renderer_string, renderer ? (const char *)renderer : "Unknown", sizeof(glConfig.renderer_string));
-	Q_strncpyz(glConfig.version_string, version ? (const char *)version : "Unknown", sizeof(glConfig.version_string));
+	Q_strncpyz(glConfig.vendor_string, vendor ? (const char *)vendor : "Unknown", (int)sizeof(glConfig.vendor_string));
+	Q_strncpyz(glConfig.renderer_string, renderer ? (const char *)renderer : "Unknown", (int)sizeof(glConfig.renderer_string));
+	Q_strncpyz(glConfig.version_string, version ? (const char *)version : "Unknown", (int)sizeof(glConfig.version_string));
 
-	if (*glConfig.renderer_string && glConfig.renderer_string[strlen(glConfig.renderer_string) - 1] == '\n')
-		glConfig.renderer_string[strlen(glConfig.renderer_string) - 1] = 0;
+	if (*glConfig.renderer_string && glConfig.renderer_string[(int)strlen(glConfig.renderer_string) - 1] == '\n')
+		glConfig.renderer_string[(int)strlen(glConfig.renderer_string) - 1] = 0;
 
 	if (extensions)
 	{
-		Q_strncpyz(glConfig.extensions_string, (const char *)extensions, sizeof(glConfig.extensions_string));
+		Q_strncpyz(glConfig.extensions_string, (const char *)extensions, (int)sizeof(glConfig.extensions_string));
 	}
 	else
 	{
@@ -115,9 +115,9 @@ static void GLimp_InitConfigStrings( void )
 				continue;
 
 			if (glConfig.extensions_string[0])
-				Q_strcat(glConfig.extensions_string, sizeof(glConfig.extensions_string), " ");
+				Q_strcat(glConfig.extensions_string, (int)sizeof(glConfig.extensions_string), " ");
 
-			Q_strcat(glConfig.extensions_string, sizeof(glConfig.extensions_string), (const char *)extension);
+			Q_strcat(glConfig.extensions_string, (int)sizeof(glConfig.extensions_string), (const char *)extension);
 		}
 	}
 }
@@ -215,7 +215,7 @@ static void GLimp_DetectAvailableModes(void)
 		return;
 	}
 
-	modes = SDL_calloc( (size_t)numSDLModes, sizeof( SDL_Rect ) );
+	modes = SDL_calloc( (size_t)numSDLModes, (int)sizeof( SDL_Rect ) );
 	if ( !modes )
 	{
 		ri.Error( ERR_FATAL, "Out of memory" );
@@ -255,21 +255,21 @@ static void GLimp_DetectAvailableModes(void)
 	}
 
 	if( numModes > 1 )
-		qsort( modes, numModes, sizeof( SDL_Rect ), GLimp_CompareModes );
+		qsort( modes, numModes, (int)sizeof( SDL_Rect ), GLimp_CompareModes );
 
 	for( i = 0; i < numModes; i++ )
 	{
 		const char *newModeString = va( "%ux%u ", modes[ i ].w, modes[ i ].h );
 
-		if( strlen( newModeString ) < (int)sizeof( buf ) - strlen( buf ) )
-			Q_strcat( buf, sizeof( buf ), newModeString );
+		if( (int)strlen( newModeString ) < (int)sizeof( buf ) - (int)strlen( buf ) )
+			Q_strcat( buf, (int)sizeof( buf ), newModeString );
 		else
 			ri.Printf( PRINT_WARNING, "Skipping mode %ux%u, buffer too small\n", modes[ i ].w, modes[ i ].h );
 	}
 
 	if( *buf )
 	{
-		buf[ strlen( buf ) - 1 ] = 0;
+		buf[ (int)strlen( buf ) - 1 ] = 0;
 		ri.Printf( PRINT_ALL, "Available modes: '%s'\n", buf );
 		ri.Cvar_Set( "r_availableModes", buf );
 	}
@@ -335,7 +335,7 @@ static int GLimp_SetMode( qboolean failSafe, qboolean fullscreen, qboolean nobor
 	}
 	else
 	{
-		Com_Memset( &desktopMode, 0, sizeof( SDL_DisplayMode ) );
+		Com_Memset( &desktopMode, 0, (int)sizeof( SDL_DisplayMode ) );
 
 		ri.Printf( PRINT_ALL,
 				"Cannot determine display aspect, assuming 1.333\n" );
@@ -666,7 +666,7 @@ static qboolean GLimp_HaveExtension(const char *ext)
 	const char *ptr = Q_stristr( glConfig.extensions_string, ext );
 	if (ptr == NULL)
 		return qfalse;
-	ptr += strlen(ext);
+	ptr += (int)strlen(ext);
 	return ((*ptr == ' ') || (*ptr == '\0'));  // verify it's complete string.
 }
 

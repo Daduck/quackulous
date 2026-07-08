@@ -91,7 +91,7 @@ Adds command text at the end of the buffer, does NOT add a final \n
 void Cbuf_AddText( const char *text ) {
 	int		l;
 	
-	l = strlen (text);
+	l = (int)strlen(text);
 
 	if (cmd_text.cursize + l >= cmd_text.maxsize)
 	{
@@ -115,7 +115,7 @@ void Cbuf_InsertText( const char *text ) {
 	int		len;
 	int		i;
 
-	len = strlen( text ) + 1;
+	len = (int)strlen( text ) + 1;
 	if ( len + cmd_text.cursize > cmd_text.maxsize ) {
 		Com_Printf( "Cbuf_InsertText overflowed\n" );
 		return;
@@ -146,7 +146,7 @@ void Cbuf_ExecuteText (int exec_when, const char *text)
 	switch (exec_when)
 	{
 	case EXEC_NOW:
-		if (text && strlen(text) > 0) {
+		if (text && (int)strlen(text) > 0) {
 			Com_DPrintf(S_COLOR_YELLOW "EXEC_NOW %s\n", text);
 			Cmd_ExecuteString (text);
 		} else {
@@ -281,8 +281,8 @@ void Cmd_Exec_f( void ) {
 		return;
 	}
 
-	Q_strncpyz( filename, Cmd_Argv(1), sizeof( filename ) );
-	COM_DefaultExtension( filename, sizeof( filename ), ".cfg" );
+	Q_strncpyz( filename, Cmd_Argv(1), (int)sizeof( filename ) );
+	COM_DefaultExtension( filename, (int)sizeof( filename ), ".cfg" );
 	FS_ReadFile( filename, &f.v);
 	if (!f.c) {
 		Com_Printf ("couldn't exec %s\n", filename);
@@ -366,7 +366,7 @@ Cmd_SaveCmdContext
 */
 void Cmd_SaveCmdContext( void )
 {
-	Com_Memcpy( &savedCmd, &cmd, sizeof( cmdContext_t ) );
+	Com_Memcpy( &savedCmd, &cmd, (int)sizeof( cmdContext_t ) );
 }
 
 /*
@@ -376,7 +376,7 @@ Cmd_RestoreCmdContext
 */
 void Cmd_RestoreCmdContext( void )
 {
-	Com_Memcpy( &cmd, &savedCmd, sizeof( cmdContext_t ) );
+	Com_Memcpy( &cmd, &savedCmd, (int)sizeof( cmdContext_t ) );
 }
 
 /*
@@ -512,7 +512,7 @@ void Cmd_Args_Sanitize(void)
 	{
 		char *c = cmd.argv[i];
 		
-		if(strlen(c) > MAX_CVAR_VALUE_STRING - 1)
+		if((int)strlen(c) > MAX_CVAR_VALUE_STRING - 1)
 			c[MAX_CVAR_VALUE_STRING - 1] = '\0';
 		
 		while ((c = strpbrk(c, "\n\r;"))) {
@@ -551,7 +551,7 @@ static void Cmd_TokenizeString2( const char *text_in, qboolean ignoreQuotes ) {
 		return;
 	}
 	
-	Q_strncpyz( cmd.cmd, text_in, sizeof(cmd.cmd) );
+	Q_strncpyz( cmd.cmd, text_in, (int)sizeof(cmd.cmd) );
 
 	text = text_in;
 	textOut = cmd.tokenized;
@@ -687,7 +687,7 @@ void	Cmd_AddCommand( const char *cmd_name, xcommand_t function ) {
 	}
 
 	// use a small malloc to avoid zone fragmentation
-	cmd = S_Malloc (sizeof(cmd_function_t));
+	cmd = S_Malloc ((int)sizeof(cmd_function_t));
 	cmd->name = CopyString( cmd_name );
 	cmd->function = function;
 	cmd->complete = NULL;

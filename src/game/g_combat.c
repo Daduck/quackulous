@@ -362,7 +362,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   self->client->respawnTime = level.time + 1700;
 
   // clear misc
-  memset( self->client->ps.misc, 0, sizeof( self->client->ps.misc ) );
+  memset( self->client->ps.misc, 0, (int)sizeof( self->client->ps.misc ) );
 
   {
     // normal death
@@ -480,7 +480,7 @@ static int G_ParseDmgScript( damageRegion_t *regions, char *buf )
         token = COM_ParseExt( &buf, qfalse );
         if( token[ 0 ] )
           Q_strncpyz( regions[ count ].name, token,
-                      sizeof( regions[ count ].name ) );
+                      (int)sizeof( regions[ count ].name ) );
       }
       else if( !strcmp( token, "minHeight" ) )
       {
@@ -817,7 +817,7 @@ void G_InitDamageLocations( void )
   for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
   {
     modelName = BG_ClassConfig( i )->modelName;
-    Com_sprintf( filename, sizeof( filename ),
+    Com_sprintf( filename, (int)sizeof( filename ),
                  "models/players/%s/locdamage.cfg", modelName );
 
     len = trap_FS_FOpenFile( filename, &fileHandle, FS_READ );
@@ -847,7 +847,7 @@ void G_InitDamageLocations( void )
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
     modelName = BG_Upgrade( i )->name;
-    Com_sprintf( filename, sizeof( filename ), "armour/%s.armour", modelName );
+    Com_sprintf( filename, (int)sizeof( filename ), "armour/%s.armour", modelName );
 
     len = trap_FS_FOpenFile( filename, &fileHandle, FS_READ );
 

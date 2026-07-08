@@ -78,7 +78,7 @@ void CG_InitUpgrades( void )
 {
   int   i;
 
-  Com_Memset( cg_upgrades, 0, sizeof( cg_upgrades ) );
+  Com_Memset( cg_upgrades, 0, (int)sizeof( cg_upgrades ) );
 
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
     CG_RegisterUpgrade( i );
@@ -111,7 +111,7 @@ static qboolean CG_ParseWeaponAnimationFile( const char *filename, weaponInfo_t 
   if( len < 0 )
     return qfalse;
 
-  if( len == 0 || len >= sizeof( text ) - 1 )
+  if( len == 0 || len >= (int)sizeof( text ) - 1 )
   {
     trap_FS_FCloseFile( f );
     CG_Printf( "File %s is %s\n", filename, len == 0 ? "empty" : "too long" );
@@ -547,7 +547,7 @@ static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
   if( len < 0 )
     return qfalse;
 
-  if( len == 0 || len >= sizeof( text ) - 1 )
+  if( len == 0 || len >= (int)sizeof( text ) - 1 )
   {
     trap_FS_FCloseFile( f );
     CG_Printf( "File %s is %s\n", filename, len == 0 ? "empty" : "too long" );
@@ -786,7 +786,7 @@ void CG_InitWeapons( void )
 {
   int   i;
 
-  Com_Memset( cg_weapons, 0, sizeof( cg_weapons ) );
+  Com_Memset( cg_weapons, 0, (int)sizeof( cg_weapons ) );
 
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
     CG_RegisterWeapon( i );
@@ -1012,9 +1012,9 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   }
 
   // add the weapon
-  Com_Memset( &gun, 0, sizeof( gun ) );
-  Com_Memset( &barrel, 0, sizeof( barrel ) );
-  Com_Memset( &flash, 0, sizeof( flash ) );
+  Com_Memset( &gun, 0, (int)sizeof( gun ) );
+  Com_Memset( &barrel, 0, (int)sizeof( barrel ) );
+  Com_Memset( &flash, 0, (int)sizeof( flash ) );
 
   VectorCopy( parent->lightingOrigin, gun.lightingOrigin );
   gun.shadowPlane = parent->shadowPlane;
@@ -1292,7 +1292,7 @@ void CG_AddViewWeapon( playerState_t *ps )
   else
     fovOffset = 0;
 
-  Com_Memset( &hand, 0, sizeof( hand ) );
+  Com_Memset( &hand, 0, (int)sizeof( hand ) );
 
   // set up gun position
   CG_CalculateWeaponPosition( hand.origin, angles );

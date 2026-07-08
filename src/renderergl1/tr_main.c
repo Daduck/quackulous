@@ -342,7 +342,7 @@ void R_RotateForViewer (void)
 	float	viewerMatrix[16];
 	vec3_t	origin;
 
-	Com_Memset (&tr.or, 0, sizeof(tr.or));
+	Com_Memset (&tr.or, 0, (int)sizeof(tr.or));
 	tr.or.axis[0][0] = 1;
 	tr.or.axis[1][1] = 1;
 	tr.or.axis[2][2] = 1;
@@ -627,7 +627,7 @@ void R_PlaneForSurface (surfaceType_t *surfType, cplane_t *plane) {
 	vec4_t			plane4;
 
 	if (!surfType) {
-		Com_Memset (plane, 0, sizeof(*plane));
+		Com_Memset (plane, 0, (int)sizeof(*plane));
 		plane->normal[0] = 1;
 		return;
 	}
@@ -651,7 +651,7 @@ void R_PlaneForSurface (surfaceType_t *surfType, cplane_t *plane) {
 		plane->dist = plane4[3];
 		return;
 	default:
-		Com_Memset (plane, 0, sizeof(*plane));
+		Com_Memset (plane, 0, (int)sizeof(*plane));
 		plane->normal[0] = 1;		
 		return;
 	}
@@ -1056,8 +1056,8 @@ static ID_INLINE void R_Radix( int byte, int size, drawSurf_t *source, drawSurf_
   unsigned char *end = NULL;
 
   sortKey = ( (unsigned char *)&source[ 0 ].sort ) + byte;
-  end = sortKey + ( size * sizeof( drawSurf_t ) );
-  for( ; sortKey < end; sortKey += sizeof( drawSurf_t ) )
+  end = sortKey + ( size * (int)sizeof( drawSurf_t ) );
+  for( ; sortKey < end; sortKey += (int)sizeof( drawSurf_t ) )
     ++count[ *sortKey ];
 
   index[ 0 ] = 0;
@@ -1066,7 +1066,7 @@ static ID_INLINE void R_Radix( int byte, int size, drawSurf_t *source, drawSurf_
     index[ i ] = index[ i - 1 ] + count[ i - 1 ];
 
   sortKey = ( (unsigned char *)&source[ 0 ].sort ) + byte;
-  for( i = 0; i < size; ++i, sortKey += sizeof( drawSurf_t ) )
+  for( i = 0; i < size; ++i, sortKey += (int)sizeof( drawSurf_t ) )
     dest[ index[ *sortKey ]++ ] = source[ i ];
 }
 
