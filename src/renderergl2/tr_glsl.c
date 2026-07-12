@@ -1269,7 +1269,8 @@ void GLSL_InitGPUShaders(void)
 
 	attribs = ATTR_POSITION | ATTR_TEXCOORD;
 	extradefines[0] = '\0';
-
+	Q_strcat(extradefines, 1024, va("#define NUM_SAMPLES %d\n", r_ssaoSamples->integer > 0 ? r_ssaoSamples->integer : 16));
+	Q_strcat(extradefines, 1024, va("#define SSAO_RADIUS %f\n", r_ssaoRadius->value > 0.0f ? r_ssaoRadius->value : 1.0f));
 	if (!GLSL_InitGPUShader(&tr.ssaoShader, "ssao", attribs, qtrue, extradefines, qtrue, fallbackShader_ssao_vp, fallbackShader_ssao_fp))
 	{
 		ri.Error(ERR_FATAL, "Could not load ssao shader!");

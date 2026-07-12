@@ -1903,6 +1903,8 @@ extern  cvar_t  *r_cameraExposure;
 
 extern  cvar_t  *r_depthPrepass;
 extern  cvar_t  *r_ssao;
+extern  cvar_t  *r_ssaoSamples;
+extern  cvar_t  *r_ssaoRadius;
 
 extern  cvar_t  *r_normalMapping;
 extern  cvar_t  *r_specularMapping;

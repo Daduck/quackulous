@@ -112,9 +112,10 @@
 - [x] HUD and UI pillarboxing for ultrawide aspect ratios
 - [x] Explicit `cg_fovBasis` (Horizontal vs Vertical) scaling logic
 - [ ] Visual/Performance comparison with pre/post M8 renderer quality defaults
-- [ ] Burn Down Compiler Warnings
+- [x] Burn Down Compiler Warnings
 
 2. **[Phase M] Quality defaults for modern hardware**
 - [x] Set `r_ext_multisample` default to 4 (4x MSAA)
 - [x] Set `r_ext_max_anisotropy` default to 16
 - [x] Set `r_shadowMapSize` default to 4096
+| M11 | Phase M5: Lighting & SSAO Tuning | done | SSAO 16-sample Poisson disc, radius control, r_shadowCascadeZFar extended to 4096. |

@@ -4,14 +4,32 @@ uniform vec4   u_ViewInfo; // zfar / znear, zfar, 1/width, 1/height
 
 varying vec2   var_ScreenTex;
 
-vec2 poissonDisc[9] = vec2[9](
-vec2(-0.7055767, 0.196515),    vec2(0.3524343, -0.7791386),
-vec2(0.2391056, 0.9189604),    vec2(-0.07580382, -0.09224417),
-vec2(0.5784913, -0.002528916), vec2(0.192888, 0.4064181),
-vec2(-0.6335801, -0.5247476),  vec2(-0.5579782, 0.7491854),
-vec2(0.7320465, 0.6317794)
+vec2 poissonDisc[16] = vec2[16](
+	vec2( -0.94201624, -0.39906216 ),
+	vec2( 0.94558609, -0.76890725 ),
+	vec2( -0.094184101, -0.92938870 ),
+	vec2( 0.34495938, 0.29387760 ),
+	vec2( -0.91588581, 0.45771432 ),
+	vec2( -0.81544232, -0.87912464 ),
+	vec2( -0.38277543, 0.27676845 ),
+	vec2( 0.97484398, 0.75648379 ),
+	vec2( 0.44323325, -0.97511554 ),
+	vec2( 0.53742981, -0.47373420 ),
+	vec2( -0.26496911, -0.41893023 ),
+	vec2( 0.79197514, 0.19090188 ),
+	vec2( -0.24188840, 0.99706507 ),
+	vec2( -0.81409955, 0.91437590 ),
+	vec2( 0.19984126, 0.78641367 ),
+	vec2( 0.14383161, -0.14100790 )
 );
-#define NUM_SAMPLES 3
+
+#ifndef NUM_SAMPLES
+#define NUM_SAMPLES 16
+#endif
+
+#ifndef SSAO_RADIUS
+#define SSAO_RADIUS 1.0
+#endif
 
 // Input: It uses texture coords as the random number seed.
 // Output: Random number: [0,1), that is between 0.0 and 0.999999... inclusive.
@@ -80,7 +98,7 @@ float ambientOcclusion(sampler2D depthMap, const vec2 tex, const float zFarDivZN
 
 void main()
 {
-	float result = ambientOcclusion(u_ScreenDepthMap, var_ScreenTex, u_ViewInfo.x, u_ViewInfo.y, u_ViewInfo.wz);
+	float result = ambientOcclusion(u_ScreenDepthMap, var_ScreenTex, u_ViewInfo.x, u_ViewInfo.y, u_ViewInfo.wz * SSAO_RADIUS);
 
 	gl_FragColor = vec4(vec3(result), 1.0);
 }
