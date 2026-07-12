@@ -1,1 +1,0 @@
-"C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\cdb.exe" -G -g -c "!analyze -v; q" .\build\windows-msvc\stage\Debug\tremded.x86_64.exe +set fs_basepath C:\dev\quackulous\build\windows-msvc\stage\Debug +set fs_homepath C:\dev\quackulous\build\windows-msvc\stage\Debug\testhome\server +set logfile 2 +set com_abnormalExit 0 +set dedicated 2 +map tremor

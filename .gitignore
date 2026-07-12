@@ -56,3 +56,14 @@ gh_job_logs.txt
 *.sdf
 *.opensdf
 *.suo
+
+# CTest temporaries
+####################
+Testing/
+
+# One-off scratch scripts & debug output
+####################
+*.out
+run_cdb.bat
+tremded_out.txt
+arb_usages.txt
