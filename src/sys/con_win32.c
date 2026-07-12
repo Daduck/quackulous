@@ -49,6 +49,7 @@ static int qconsole_cursor;
 
 static HANDLE qconsole_hout;
 static HANDLE qconsole_hin;
+static qboolean qconsole_is_console = qfalse;
 
 /*
 ==================
@@ -186,6 +187,10 @@ CON_Show
 static void CON_Show( void )
 {
 	CONSOLE_SCREEN_BUFFER_INFO binfo;
+
+	if (!qconsole_is_console)
+		return;
+
 	COORD writeSize = { MAX_EDIT_LINE, 1 };
 	COORD writePos = { 0, 0 };
 	SMALL_RECT writeArea = { 0, 0, 0, 0 };
@@ -256,6 +261,10 @@ static void CON_Hide( void )
 {
 	int realLen;
 
+	if (!qconsole_is_console)
+		return;
+
+
 	realLen = qconsole_linelen;
 
 	// remove input line from console output buffer
@@ -273,12 +282,19 @@ CON_Shutdown
 */
 void CON_Shutdown( void )
 {
-	CON_Hide( );
-	SetConsoleMode( qconsole_hin, qconsole_orig_mode );
-	SetConsoleCursorInfo( qconsole_hout, &qconsole_orig_cursorinfo );
-	SetConsoleTextAttribute( qconsole_hout, qconsole_attrib );
+	if (!qconsole_hout || qconsole_hout == INVALID_HANDLE_VALUE)
+		return;
+
+	if (qconsole_is_console) {
+		CON_Hide( );
+		SetConsoleMode( qconsole_hin, qconsole_orig_mode );
+		SetConsoleCursorInfo( qconsole_hout, &qconsole_orig_cursorinfo );
+		SetConsoleTextAttribute( qconsole_hout, qconsole_attrib );
+	}
 	CloseHandle( qconsole_hout );
 	CloseHandle( qconsole_hin );
+	qconsole_hout = NULL;
+	qconsole_hin = NULL;
 }
 
 /*
@@ -310,7 +326,12 @@ void CON_Init( void )
 
 	FlushConsoleInputBuffer( qconsole_hin ); 
 
-	GetConsoleScreenBufferInfo( qconsole_hout, &info );
+	if (!GetConsoleScreenBufferInfo( qconsole_hout, &info )) {
+		qconsole_is_console = qfalse;
+		return;
+	}
+	qconsole_is_console = qtrue;
+
 	qconsole_attrib = info.wAttributes;
 	qconsole_backgroundAttrib = qconsole_attrib & (BACKGROUND_BLUE|BACKGROUND_GREEN|BACKGROUND_RED|BACKGROUND_INTENSITY);
 
@@ -336,6 +357,9 @@ char *CON_Input( void )
 	WORD key = 0;
 	int i;
 	int newlinepos = -1;
+
+	if (!qconsole_is_console)
+		return NULL;
 
 	if( !GetNumberOfConsoleInputEvents( qconsole_hin, &events ) )
 		return NULL;
@@ -510,14 +534,16 @@ void CON_WindowsColorPrint( const char *msg )
 			if( *msg == '\n' )
 			{
 				// Reset color and then add the newline
-				SetConsoleTextAttribute( qconsole_hout, CON_ColorCharToAttrib( COLOR_WHITE ) );
+				if (qconsole_is_console)
+					SetConsoleTextAttribute( qconsole_hout, CON_ColorCharToAttrib( COLOR_WHITE ) );
 				fputs( "\n", stderr );
 				msg++;
 			}
 			else
 			{
 				// Set the color
-				SetConsoleTextAttribute( qconsole_hout, CON_ColorCharToAttrib( *( msg + 1 ) ) );
+				if (qconsole_is_console)
+					SetConsoleTextAttribute( qconsole_hout, CON_ColorCharToAttrib( *( msg + 1 ) ) );
 				msg += 2;
 			}
 		}

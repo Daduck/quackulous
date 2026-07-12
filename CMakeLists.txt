@@ -527,3 +527,17 @@ if(QUACK_BUILD_GAME_DLLS)
     RUNTIME DESTINATION "${QUACK_BASEGAME}"
   )
 endif()
+
+if(QUACK_BUILD_CLIENT AND QUACK_BUILD_SERVER AND BUILD_TESTING)
+  add_test(
+    NAME integration_multiplayer_handshake
+    COMMAND powershell
+      -ExecutionPolicy Bypass
+      -File "${CMAKE_CURRENT_SOURCE_DIR}/scripts/multiplayer-smoke.ps1"
+      -RuntimeRoot "$<TARGET_FILE_DIR:quackulous-client>"
+  )
+  set_tests_properties(integration_multiplayer_handshake PROPERTIES
+    LABELS "smoke;integration;interactive"
+    TIMEOUT 90
+  )
+endif()

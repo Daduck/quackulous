@@ -2100,6 +2100,13 @@ Adjusted for resolution and screen aspect ratio
 */
 void UI_AdjustFrom640( float *x, float *y, float *w, float *h )
 {
+  if ( *x == 0 && *y == 0 && *w == 640 && *h == 480 ) {
+    // fullscreen backgrounds stretch across the entire screen
+    *w = DC->glconfig.vidWidth;
+    *h = DC->glconfig.vidHeight;
+    return;
+  }
+  
   *x = *x * DC->xscale + DC->xoffset;
   *y = *y * DC->yscale + DC->yoffset;
   *w *= DC->xscale;
