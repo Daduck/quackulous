@@ -100,6 +100,8 @@
 | M8 | Quality defaults (anisotropic, MSAA, shadow res) | `done` | First-pass defaults tuned in renderer init: anisotropic filtering enabled by default (`r_ext_texture_filter_anisotropic=1`, `r_ext_max_anisotropy=8`), MSAA default raised to 2x (`r_ext_multisample=2`), and GL2 sun shadow map default raised to 2048 (`r_shadowMapSize=2048`). Rebuilt + smoke validated (7/7 pass). |
 | M9 | Add GL2 ultrawide display smoke coverage | `done` | Extended `scripts/client-module-smoke.ps1` with explicit display launch knobs (`-CustomWidth`, `-CustomHeight`, `-Fullscreen`) and mode assertion logic; added `client_display_ultrawide_windowed_opengl2` CTest (`3440x1440`, windowed, GL2). Rebuilt + `ctest --preset windows-msvc-debug-smoke` now passes 8/8. |
 | M10 | Add GL2 fullscreen display smoke coverage | `done` | Added flexible `-ModeRegex` assertion support in `scripts/client-module-smoke.ps1` for fullscreen mode validation when desktop sizing overrides requested dimensions; added `client_display_fullscreen_opengl2` CTest with GL2 + fullscreen and regex mode check (`MODE: -1, [0-9]+ x [0-9]+ fullscreen`). `ctest --preset windows-msvc-debug-smoke` now passes 9/9. |
+| M11 | Phase M5: Lighting & SSAO Tuning | `done` | SSAO 16-sample Poisson disc, radius control, r_shadowCascadeZFar extended to 4096. |
+| M12 | Implement AI Bots Integration Proof of Concept | `done` | Engine-side client slot reservation, network snapshot exclusion, and game-side AI think loops. Exposed bot settings in the host UI. |
 
 ## Current blockers
 
@@ -108,14 +110,5 @@
 ## Next actions
 
 1. **[Phase M] Display and Resolution Hardening**
-- [x] Retire `ARB` wrapper usage in `renderergl2`
-- [x] HUD and UI pillarboxing for ultrawide aspect ratios
-- [x] Explicit `cg_fovBasis` (Horizontal vs Vertical) scaling logic
 - [ ] Visual/Performance comparison with pre/post M8 renderer quality defaults
-- [x] Burn Down Compiler Warnings
 
-2. **[Phase M] Quality defaults for modern hardware**
-- [x] Set `r_ext_multisample` default to 4 (4x MSAA)
-- [x] Set `r_ext_max_anisotropy` default to 16
-- [x] Set `r_shadowMapSize` default to 4096
-| M11 | Phase M5: Lighting & SSAO Tuning | done | SSAO 16-sample Poisson disc, radius control, r_shadowCascadeZFar extended to 4096. |
