@@ -1180,8 +1180,13 @@ int SV_RateMsec(client_t *client)
 		messageSize += UDPIP6_HEADER_SIZE;
 	else
 		messageSize += UDPIP_HEADER_SIZE;
-		
-	rateMsec = messageSize * 1000 / ((int) (rate * com_timescale->value));
+	{
+		int divisor = (int)(rate * com_timescale->value);
+		if ( divisor <= 0 ) {
+			divisor = 1000;
+		}
+		rateMsec = messageSize * 1000 / divisor;
+	}
 	rate = Sys_Milliseconds() - client->netchan.lastSentTime;
 	
 	if(rate > rateMsec)

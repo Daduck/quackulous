@@ -247,9 +247,9 @@ static cvarTable_t   gameCvarTable[ ] =
 
   { &g_markDeconstruct, "g_markDeconstruct", "3", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
 
-  { &g_bot_count, "g_bot_count", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue },
-  { &g_bot_team, "g_bot_team", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue },
-  { &g_bot_skill, "g_bot_skill", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue },
+  { &g_bot_count, "g_bot_count", "0", CVAR_SERVERINFO, 0, qtrue },
+  { &g_bot_team, "g_bot_team", "0", CVAR_SERVERINFO, 0, qtrue },
+  { &g_bot_skill, "g_bot_skill", "1", CVAR_SERVERINFO, 0, qtrue },
 
   { &g_debugMapRotation, "g_debugMapRotation", "0", 0, 0, qfalse  },
   { &g_currentMapRotation, "g_currentMapRotation", "-1", 0, 0, qfalse  }, // -1 = NOT_ROTATING

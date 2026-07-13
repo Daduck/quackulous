@@ -1771,6 +1771,7 @@ int SV_BotAllocateClient( void ) {
 			cl->gentity = SV_GentityNum( i );
 			cl->state = CS_ACTIVE;
 			cl->netchan.remoteAddress.type = NA_BAD; // local virtual client
+			cl->rate = 25000; // default rate to avoid division by zero and rate limit issues
 			cl->lastPacketTime = svs.time;
 			cl->lastConnectTime = svs.time;
 			

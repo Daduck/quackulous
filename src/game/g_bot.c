@@ -187,6 +187,10 @@ void G_CheckBotCount( void ) {
   int current_bots = 0;
   int needed_bots = g_bot_count.integer;
 
+  if ( needed_bots > level.maxclients ) {
+    needed_bots = level.maxclients;
+  }
+
   // Count active bots
   for ( i = 0; i < level.maxclients; i++ ) {
     gentity_t *ent = &g_entities[i];

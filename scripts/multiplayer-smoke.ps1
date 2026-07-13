@@ -42,6 +42,7 @@ $serverArgs = @(
   "+set", "com_abnormalExit", "0",
   "+set", "sv_pure", "0",
   "+set", "vm_game", "0",
+  "+set", "g_bot_count", "0",
   "+set", "net_port", "27961",
   "+map", $Map
 )
