@@ -30,9 +30,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // in entityStates (level eType), so the game must explicitly flag
 // special server behaviors
 #define SVF_NOCLIENT            0x00000001  // don't send entity to clients, even if it has effects
-
-#define SVF_CLIENTMASK 0x00000002
-
+#define SVF_CLIENTMASK          0x00000002
+#define SVF_BOT                 0x00000010  // client is an AI bot
 #define SVF_BROADCAST           0x00000020  // send to all connected clients
 #define SVF_PORTAL              0x00000040  // merge a second pvs at origin2 into snapshots
 #define SVF_USE_CURRENT_ORIGIN  0x00000080  // entity->r.currentOrigin instead of entity->s.origin
@@ -225,7 +224,10 @@ typedef enum {
   G_SEND_GAMESTAT,
 
   G_ADDCOMMAND,
-  G_REMOVECOMMAND
+  G_REMOVECOMMAND,
+
+  G_BOT_ALLOCATE_CLIENT,
+  G_BOT_FREE_CLIENT
 } gameImport_t;
 
 

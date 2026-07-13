@@ -1117,6 +1117,10 @@ extern  vmCvar_t  g_smoothClients;
 extern  vmCvar_t  pmove_fixed;
 extern  vmCvar_t  pmove_msec;
 
+extern  vmCvar_t  g_bot_count;
+extern  vmCvar_t  g_bot_team;
+extern  vmCvar_t  g_bot_skill;
+
 extern  vmCvar_t  g_alienBuildPoints;
 extern  vmCvar_t  g_alienBuildQueueTime;
 extern  vmCvar_t  g_humanBuildPoints;
@@ -1230,3 +1234,10 @@ void      trap_SendGameStat( const char *data );
 
 void      trap_AddCommand( const char *cmdName );
 void      trap_RemoveCommand( const char *cmdName );
+
+// Bot AI functions
+void      ClientThink_real( gentity_t *ent );
+gentity_t *Bot_Spawn( const char *name, team_t team );
+void      Bot_Think( gentity_t *ent );
+void      G_CheckBotCount( void );
+

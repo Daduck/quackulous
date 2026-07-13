@@ -484,6 +484,12 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case TRAP_CEIL:
 		return FloatAsInt( ceil( VMF(1) ) );
 
+	case G_BOT_ALLOCATE_CLIENT:
+		return SV_BotAllocateClient();
+
+	case G_BOT_FREE_CLIENT:
+		SV_BotFreeClient( args[1] );
+		return 0;
 
 	default:
 		Com_Error( ERR_DROP, "Bad game system trap: %ld", (long int) args[0] );

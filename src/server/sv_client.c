@@ -1753,3 +1753,56 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 //		Com_Printf( "WARNING: Junk at end of packet for client %i\n", cl - svs.clients );
 //	}
 }
+
+/*
+====================
+SV_BotAllocateClient
+====================
+*/
+int SV_BotAllocateClient( void ) {
+	int			i;
+	client_t	*cl;
+
+	// Allocate from the back to avoid occupying front human slots
+	for ( i = sv_maxclients->integer - 1 ; i >= 0 ; i-- ) {
+		cl = &svs.clients[i];
+		if ( cl->state == CS_FREE ) {
+			Com_Memset( cl, 0, (int)sizeof(client_t) );
+			cl->gentity = SV_GentityNum( i );
+			cl->state = CS_ACTIVE;
+			cl->netchan.remoteAddress.type = NA_BAD; // local virtual client
+			cl->lastPacketTime = svs.time;
+			cl->lastConnectTime = svs.time;
+			
+			// Flag the entity shared flags as a bot
+			cl->gentity->r.svFlags |= SVF_BOT;
+			
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+/*
+====================
+SV_BotFreeClient
+====================
+*/
+void SV_BotFreeClient( int clientNum ) {
+	client_t	*cl;
+
+	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
+		return;
+	}
+
+	cl = &svs.clients[clientNum];
+	if ( cl->state == CS_FREE ) {
+		return;
+	}
+
+	SV_FreeClient( cl );
+	cl->state = CS_FREE;
+	cl->gentity->r.svFlags &= ~SVF_BOT;
+}
+

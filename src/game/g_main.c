@@ -107,6 +107,10 @@ vmCvar_t  g_disabledBuildables;
 
 vmCvar_t  g_markDeconstruct;
 
+vmCvar_t  g_bot_count;
+vmCvar_t  g_bot_team;
+vmCvar_t  g_bot_skill;
+
 vmCvar_t  g_debugMapRotation;
 vmCvar_t  g_currentMapRotation;
 vmCvar_t  g_mapRotationNodes;
@@ -242,6 +246,10 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_floodMinTime, "g_floodMinTime", "2000", CVAR_ARCHIVE, 0, qfalse  },
 
   { &g_markDeconstruct, "g_markDeconstruct", "3", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
+
+  { &g_bot_count, "g_bot_count", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue },
+  { &g_bot_team, "g_bot_team", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue },
+  { &g_bot_skill, "g_bot_skill", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue },
 
   { &g_debugMapRotation, "g_debugMapRotation", "0", 0, 0, qfalse  },
   { &g_currentMapRotation, "g_currentMapRotation", "-1", 0, 0, qfalse  }, // -1 = NOT_ROTATING
@@ -2372,6 +2380,7 @@ void G_RunFrame( int levelTime )
   // get any cvar changes
   G_UpdateCvars( );
   CheckCvars( );
+  G_CheckBotCount( );
   // now we are done spawning
   level.spawning = qfalse;
 
@@ -2450,7 +2459,11 @@ void G_RunFrame( int levelTime )
 
     if( i < MAX_CLIENTS )
     {
-      G_RunClient( ent );
+      if ( ent->r.svFlags & SVF_BOT ) {
+        Bot_Think( ent );
+      } else {
+        G_RunClient( ent );
+      }
       continue;
     }
 

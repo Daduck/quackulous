@@ -201,7 +201,21 @@
       visible MENU_TRUE
     }
 
-
+    itemDef
+    {
+      name normal
+      type ITEM_TYPE_NUMERICFIELD
+      text "Bot Count:"
+      cvar "g_bot_count"
+      rect (OPTIONS_X+BORDER) (OPTIONS_Y+ELEM_OFF_Y+(5*ELEM_H)) (OPTIONS_W-(2*BORDER)) ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx ELEM_OFF_X
+      maxchars 3
+      textscale .36
+      forecolor 1 1 1 1
+      visible MENU_TRUE
+    }
 
     itemDef
     {
@@ -282,7 +296,25 @@
       }
     }
 
-
+    itemDef
+    {
+      name normal
+      type ITEM_TYPE_MULTI
+      text "Bot Team:"
+      cvar "g_bot_team"
+      cvarFloatList { "Auto-Balance" 0 "Aliens Only" 1 "Humans Only" 2 }
+      rect (OPTIONS_X+BORDER) (OPTIONS_Y+ELEM_OFF_Y+(10*ELEM_H)) (OPTIONS_W-(2*BORDER)) ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx ELEM_OFF_X
+      textscale .36
+      forecolor 1 1 1 1
+      visible MENU_TRUE
+      action
+      {
+        play "sound/misc/menu1.wav"
+      }
+    }
 
     itemDef
     {

@@ -3073,8 +3073,73 @@ int G_FloodLimited( gentity_t *ent )
   return ms;
 }
 
+void Cmd_AddBot_f( gentity_t *ent ) {
+  char name[32];
+  char team_str[16];
+  team_t team = TEAM_HUMANS;
+
+  if ( trap_Argc() < 2 ) {
+    trap_SendServerCommand( ent - g_entities, "print \"usage: addbot <name> [humans|aliens]\n\"" );
+    return;
+  }
+
+  trap_Argv( 1, name, sizeof( name ) );
+
+  if ( trap_Argc() >= 3 ) {
+    trap_Argv( 2, team_str, sizeof( team_str ) );
+    if ( !Q_stricmp( team_str, "aliens" ) || !Q_stricmp( team_str, "alien" ) ) {
+      team = TEAM_ALIENS;
+    } else if ( !Q_stricmp( team_str, "humans" ) || !Q_stricmp( team_str, "human" ) ) {
+      team = TEAM_HUMANS;
+    }
+  } else {
+    int alien_count = 0, human_count = 0;
+    int i;
+    for ( i = 0; i < level.maxclients; i++ ) {
+      if ( g_entities[i].inuse && g_entities[i].client ) {
+        if ( g_entities[i].client->pers.teamSelection == TEAM_ALIENS ) {
+          alien_count++;
+        } else if ( g_entities[i].client->pers.teamSelection == TEAM_HUMANS ) {
+          human_count++;
+        }
+      }
+    }
+    if ( alien_count < human_count ) {
+      team = TEAM_ALIENS;
+    }
+  }
+
+  Bot_Spawn( name, team );
+}
+
+void Cmd_RemoveBot_f( gentity_t *ent ) {
+  char name[32];
+  int i;
+
+  if ( trap_Argc() < 2 ) {
+    trap_SendServerCommand( ent - g_entities, "print \"usage: removebot <name>\n\"" );
+    return;
+  }
+
+  trap_Argv( 1, name, sizeof( name ) );
+
+  for ( i = 0; i < level.maxclients; i++ ) {
+    gentity_t *bot = &g_entities[i];
+    if ( bot->inuse && bot->client && ( bot->r.svFlags & SVF_BOT ) ) {
+      if ( !Q_stricmp( bot->client->pers.netname, name ) ) {
+        trap_BotFreeClient( i );
+        G_Printf( "Removed bot %s\n", name );
+        return;
+      }
+    }
+  }
+
+  trap_SendServerCommand( ent - g_entities, va( "print \"bot %s not found\n\"", name ) );
+}
+
 commands_t cmds[ ] = {
   { "a", CMD_MESSAGE|CMD_INTERMISSION, Cmd_AdminMessage_f },
+  { "addbot", 0, Cmd_AddBot_f },
   { "build", CMD_TEAM|CMD_LIVING, Cmd_Build_f },
   { "buy", CMD_HUMAN|CMD_LIVING, Cmd_Buy_f },
   { "callteamvote", CMD_MESSAGE|CMD_TEAM, Cmd_CallVote_f },
@@ -3100,6 +3165,7 @@ commands_t cmds[ ] = {
   { "noclip", CMD_CHEAT_TEAM, Cmd_Noclip_f },
   { "notarget", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_Notarget_f },
   { "reload", CMD_HUMAN|CMD_LIVING, Cmd_Reload_f },
+  { "removebot", 0, Cmd_RemoveBot_f },
   { "say", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Say_f },
   { "say_area", CMD_MESSAGE|CMD_TEAM|CMD_LIVING, Cmd_SayArea_f },
   { "say_team", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Say_f },

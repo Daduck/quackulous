@@ -82,9 +82,24 @@
 
 ## AI players backlog
 
-- Add AI-controlled players so matches can be played or tested without a full set of human players.
-- Decide whether AI players should use existing botlib/navigation support, a modernized bot layer, or a new gameplay-specific AI system.
-- Cover basic use cases first: fill empty teams, join local practice matches, and provide predictable behavior for smoke/manual testing.
+- **Phase 1: Proof-of-Concept Bot Integration** (Active)
+  - Add basic virtual client allocation in the server engine (`SVF_BOT`).
+  - Implement a basic wander-and-steer movement and combat AI in the game logic.
+  - Expose bot count and basic parameters in the "Create Server" UI.
+  - Implement console commands (`/addbot`, `/removebot`) for manual control.
+- **Phase 2: Waypoint Navigation & Pathfinding**
+  - Implement an in-game editor to define, save, and load node networks (waypoints) for each map.
+  - Build an A* pathfinding module to calculate shortest paths between waypoints.
+  - Implement specific navigation actions: wall-climbing (aliens), jump-pads, ladders, and door triggers.
+- **Phase 3: Class Selection & Progression**
+  - **Humans:** AI for buying armor, upgrades, and weapons based on team stage and personal credits.
+  - **Aliens:** AI for evolving into different classes (e.g. Dretchen, Marauder, Tyrant) based on evolution points.
+- **Phase 4: Base Construction & Granger/Builder AI**
+  - Granger bot logic to place structures (overmind, eggs, acid tubes, barricades) in strategic spots.
+  - Construction/Repair bot logic for humans (constructing reactor, armouries, turrets, repeaters).
+- **Phase 5: Team Strategy & Coordination**
+  - Coordinate offense/defense cycles (e.g. grouping up for a base assault, defending reactor/overmind under attack).
+  - Direct communication using game-chat commands.
 
 ## Testing backlog for future conversion
 

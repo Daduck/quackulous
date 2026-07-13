@@ -577,6 +577,10 @@ Called by SV_SendClientSnapshot and SV_SendClientGameState
 */
 void SV_SendMessageToClient(msg_t *msg, client_t *client)
 {
+	if ( client->gentity && (client->gentity->r.svFlags & SVF_BOT) ) {
+		return;
+	}
+
 	// record information about the message
 	client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSize = msg->cursize;
 	client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSent = svs.time;

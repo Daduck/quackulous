@@ -297,3 +297,13 @@ void trap_RemoveCommand( const char *cmdName )
   syscall( G_REMOVECOMMAND, cmdName );
 }
 
+int trap_BotAllocateClient( void )
+{
+  return syscall( G_BOT_ALLOCATE_CLIENT );
+}
+
+void trap_BotFreeClient( int clientNum )
+{
+  syscall( G_BOT_FREE_CLIENT, clientNum );
+}
+
