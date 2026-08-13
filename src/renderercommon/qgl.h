@@ -44,8 +44,8 @@ extern void (APIENTRYP qglUnlockArraysEXT) (void);
 extern void     (APIENTRY * qglDrawRangeElementsEXT) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
 
 // GL_EXT_multi_draw_arrays
-extern void     (APIENTRY * qglMultiDrawArraysEXT) (GLenum, const GLint *, const GLsizei *, GLsizei);
-extern void     (APIENTRY * qglMultiDrawElementsEXT) (GLenum mode, const GLsizei *count, GLenum type, const void *const*indices, GLsizei primcount);
+extern PFNGLMULTIDRAWARRAYSEXTPROC qglMultiDrawArraysEXT;
+extern PFNGLMULTIDRAWELEMENTSEXTPROC qglMultiDrawElementsEXT;
 
 // GL_ARB_shading_language_100
 #ifndef GL_ARB_shading_language_100
@@ -632,8 +632,8 @@ extern void (APIENTRY * qglGetQueryObjectuivARB)(GLuint id, GLenum pname, GLuint
 extern void     (APIENTRY * qglDrawRangeElementsEXT) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
 
 // GL_EXT_multi_draw_arrays
-extern void     (APIENTRY * qglMultiDrawArraysEXT) (GLenum, const GLint *, const GLsizei *, GLsizei);
-extern void     (APIENTRY * qglMultiDrawElementsEXT) (GLenum mode, const GLsizei *count, GLenum type, const void *const*indices, GLsizei primcount);
+extern PFNGLMULTIDRAWARRAYSEXTPROC qglMultiDrawArraysEXT;
+extern PFNGLMULTIDRAWELEMENTSEXTPROC qglMultiDrawElementsEXT;
 
 // GL_ARB_shading_language_100
 #ifndef GL_ARB_shading_language_100

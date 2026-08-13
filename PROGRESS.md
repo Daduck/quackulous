@@ -85,6 +85,7 @@
 | P12 | Remove net_ip errno redefinition warnings | `done` | Guarded WinSock-to-errno mappings (`EAGAIN`, `EADDRNOTAVAIL`, `EAFNOSUPPORT`, `ECONNRESET`) with `#ifndef` in `src/qcommon/net_ip.c` so MSVC/UCRT predefines are not redefined (`C4005`). |
 | P13 | Stabilize smoke tests in CI/headless runners | `done` | Updated startup/module smoke scripts to force deterministic renderer selection (`cl_renderer=opengl1` except explicit GL2 test) and set `com_abnormalExit=0` to avoid non-interactive startup stalls before log creation; verified with `ctest --test-dir build/windows-msvc --build-config Debug -L smoke` (7/7 pass). |
 | P14 | Separate hosted CI smoke from interactive client launches | `done` | GitHub-hosted Windows runners can build and verify static runtime layout, but full SDL/OpenGL client launches may never create `qconsole.log`; CTest now labels those launches `interactive`, and CI excludes them with `-LE interactive`. |
+| P15 | Remove MSVC `/wd4113` and `/wd4244` warning suppressions | `done` | Removed global `/wd4113` and `/wd4244` flags from `CMakeLists.txt`; fixed OpenGL function pointer prototypes in `qgl.h`/`tr_extensions.c` and `ptrdiff_t` cast in `repacketizer.c`. All targets compile with zero warnings. |
 
 ## Active tasks (Phase M — graphics modernization)
 

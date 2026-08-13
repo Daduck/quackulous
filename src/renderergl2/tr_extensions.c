@@ -34,8 +34,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 void            (APIENTRY * qglDrawRangeElementsEXT) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
 
 // GL_EXT_multi_draw_arrays
-void            (APIENTRY * qglMultiDrawArraysEXT) (GLenum, const GLint *, const GLsizei *, GLsizei);
-void            (APIENTRY * qglMultiDrawElementsEXT) (GLenum mode, const GLsizei *count, GLenum type, const void *const*indices, GLsizei primcount);
+PFNGLMULTIDRAWARRAYSEXTPROC qglMultiDrawArraysEXT;
+PFNGLMULTIDRAWELEMENTSEXTPROC qglMultiDrawElementsEXT;
 
 // GL_ARB_vertex_shader
 void            (APIENTRY * qglBindAttribLocation) (GLuint programObj, GLuint index, const GLchar * name);

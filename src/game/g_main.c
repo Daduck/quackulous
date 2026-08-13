@@ -678,6 +678,13 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 
   G_UpdateTeamConfigStrings( );
 
+  // Initialize bot navigation graph
+  {
+    char map[ MAX_CVAR_VALUE_STRING ] = {""};
+    trap_Cvar_VariableStringBuffer( "mapname", map, (int)sizeof( map ) );
+    NAV_InitForMap( map );
+  }
+
   if( g_lockTeamsAtStart.integer )
   {
     level.alienTeamLocked = qtrue;

@@ -34,6 +34,12 @@ New-Item -ItemType Directory -Path (Join-Path $clientHomeRoot "base") -Force | O
 if (Test-Path -LiteralPath $serverLogPath) { Remove-Item -LiteralPath $serverLogPath -Force }
 if (Test-Path -LiteralPath $clientLogPath) { Remove-Item -LiteralPath $clientLogPath -Force }
 
+$serverPidPath = Join-Path $serverHomeRoot "tremulous.pid"
+$clientPidPath = Join-Path $clientHomeRoot "tremulous.pid"
+
+if (Test-Path -LiteralPath $serverPidPath) { Remove-Item -LiteralPath $serverPidPath -Force }
+if (Test-Path -LiteralPath $clientPidPath) { Remove-Item -LiteralPath $clientPidPath -Force }
+
 # Launch Dedicated Server
 $serverArgs = @(
   "+set", "fs_basepath", $runtimeRootPath,

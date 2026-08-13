@@ -31,6 +31,7 @@ typedef struct gentity_s gentity_t;
 typedef struct gclient_s gclient_t;
 
 #include "g_admin.h"
+#include "g_nav.h"
 
 //==================================================================
 
@@ -445,6 +446,16 @@ struct gclient_s
   int                 trampleBuildablesHit[ MAX_TRAMPLE_BUILDABLES_TRACKED ];
 
   int                 lastCrushTime;        // Tyrant crush
+
+  // AI Bot navigation state
+  int                 botState;
+  int                 currentGoalNode;
+  int                 currentPath[ NAV_PATH_MAX_NODES ];
+  int                 pathLength;
+  int                 pathIndex;
+  int                 lastPathRecalcTime;
+  int                 stuckCount;
+  vec3_t              lastOrigin;
 };
 
 

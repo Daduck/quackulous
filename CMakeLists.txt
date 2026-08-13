@@ -161,8 +161,6 @@ function(quackulous_target_defaults target)
   target_compile_definitions("${target}" PRIVATE ${QUACK_COMMON_DEFINES})
   target_compile_options("${target}" PRIVATE
     $<$<COMPILE_LANGUAGE:C>:/W3>
-    $<$<COMPILE_LANGUAGE:C>:/wd4113>
-    $<$<COMPILE_LANGUAGE:C>:/wd4244>
     $<$<COMPILE_LANGUAGE:C>:/wd4996>
   )
   target_link_options("${target}" PRIVATE /DEBUG:FULL)

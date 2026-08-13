@@ -129,3 +129,11 @@
 - **2026-07-08 GitHub-hosted Windows smoke scope**: `client_version` and `runtime_layout` are appropriate for hosted CI. Full SDL/OpenGL client launch tests (`client_startup_smoke`, renderer/module bootstraps, and display smoke tests) require an interactive graphics/runtime session and can hang on GitHub-hosted Windows runners without producing `qconsole.log`. Keep those tests labeled `interactive`; run them locally with the normal smoke preset, and exclude them from hosted CI with `ctest ... -L smoke -LE interactive`.
 
 - **Headless Console Subsystem Bug**: The Windows console subsystem (`src/sys/con_win32.c`) crashes on exit if `CON_Init` fails or has not been called. `GetStdHandle` and `GetConsoleScreenBufferInfo` fail when standard output is redirected (e.g. running from `ctest` or redirecting to a file). We patched `CON_Shutdown` to aggressively check that the console output handle is valid and the screen buffer info query succeeds before invoking console win32 APIs.
+
+- **2026-08-13 MSVC Warning Burn-Down & Prototype Cleanup**:
+  - Removed `/wd4113` (function pointer mismatch) and `/wd4244` (conversion / data loss) from global compiler flags in `CMakeLists.txt`.
+  - Fixed OpenGL extension function pointer declaration mismatch in `src/renderercommon/qgl.h` and `src/renderergl2/tr_extensions.c` by using `PFNGLMULTIDRAWARRAYSEXTPROC` and `PFNGLMULTIDRAWELEMENTSEXTPROC` prototype definitions.
+  - Fixed `ptrdiff_t` pointer subtraction warning (`C4244`) in `src/opus-1.1/src/repacketizer.c` with explicit `(int)(ptr - data)` cast.
+  - Rebuilt all targets and verified zero compiler warnings across client, dedicated server, renderers, UI, game, and cgame.
+  - Fixed `scripts/multiplayer-smoke.ps1` to clean up stale `$serverHomeRoot\tremulous.pid` and `$clientHomeRoot\tremulous.pid` before process launch so aborted test runs never leave PID files that trigger interactive safe-mode dialogs.
+
