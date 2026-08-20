@@ -103,6 +103,7 @@
 | M10 | Add GL2 fullscreen display smoke coverage | `done` | Added flexible `-ModeRegex` assertion support in `scripts/client-module-smoke.ps1` for fullscreen mode validation when desktop sizing overrides requested dimensions; added `client_display_fullscreen_opengl2` CTest with GL2 + fullscreen and regex mode check (`MODE: -1, [0-9]+ x [0-9]+ fullscreen`). `ctest --preset windows-msvc-debug-smoke` now passes 9/9. |
 | M11 | Phase M5: Lighting & SSAO Tuning | `done` | SSAO 16-sample Poisson disc, radius control, r_shadowCascadeZFar extended to 4096. |
 | M12 | Implement AI Bots Integration Proof of Concept | `done` | Engine-side client slot reservation, network snapshot exclusion, and game-side AI think loops. Exposed bot settings in the host UI. |
+| M13 | Phase 2 AI Bots: Waypoint Navigation & A* Pathfinding | `done` | Added graph data structures (`g_nav.h`/`g_nav.c`), level auto-generation from spawns/doors, `.wpt` disk serialization, asymmetric A* pathfinding, in-game console commands, and goal-directed bot behavior with combat strafing, objective attack, and anti-stuck detection. 10/10 tests pass. |
 
 ## Current blockers
 

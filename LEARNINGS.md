@@ -137,3 +137,11 @@
   - Rebuilt all targets and verified zero compiler warnings across client, dedicated server, renderers, UI, game, and cgame.
   - Fixed `scripts/multiplayer-smoke.ps1` to clean up stale `$serverHomeRoot\tremulous.pid` and `$clientHomeRoot\tremulous.pid` before process launch so aborted test runs never leave PID files that trigger interactive safe-mode dialogs.
 
+- **2026-08-13 AI Navigation & Asymmetric A\* Pathfinding System**:
+  - Implemented graph data structure `bot_nav_graph_t` supporting up to 2048 waypoints and 8 neighbors per node with distance caching and bitflags (`WPF_GROUND`, `WPF_JUMP`, `WPF_LADDER`, `WPF_DOOR`, `WPF_WALL`, `WPF_HUMAN_BASE`, `WPF_ALIEN_BASE`, `WPF_FLANK`).
+  - Added level startup auto-generation in `NAV_AutoGenerate`: extracts seed locations from `team_human_spawn`, `team_alien_spawn`, `info_player_deathmatch`, and `func_door`, traces to floor level, inserts midpoint bridge nodes, and runs hull visibility traces (`trap_Trace`) with `MASK_PLAYERSOLID` to autolink nodes.
+  - Built `.wpt` disk reader and writer in `src/game/g_nav.c` to load hand-tuned or saved navigation graphs from `maps/<mapname>.wpt`.
+  - Added in-game console commands (`/nav_add`, `/nav_del`, `/nav_link`, `/nav_autolink`, `/nav_save`, `/nav_load`, `/nav_stats`) for runtime graph tuning.
+  - Integrated team-asymmetric A\* pathfinding into `src/game/g_bot.c`: Aliens favor wall climbs and flanks, while humans stick to ground paths; bots target opposing players and key structures (Overmind/Reactor), execute combat strafing and pounces, use line-of-sight path shortcutting, and use stuck detection with jump/direction recovery.
+
+
