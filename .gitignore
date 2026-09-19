@@ -67,3 +67,7 @@ Testing/
 run_cdb.bat
 tremded_out.txt
 arb_usages.txt
+
+# Memtrace / MemDB local index and daemon state (machine-specific, never commit)
+.memdb/
+.memtrace/
