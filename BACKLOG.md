@@ -63,6 +63,15 @@
 - Evaluate any other high-performance runtime only if it has a concrete advantage over staying in C/C++ or moving to Rust.
 - Do not start a full rewrite before the build is stable, the runtime layout is repeatable, and behavior-locking tests exist.
 
+### Incremental Rust migration
+
+- Start with a bounded `nav-core` Rust crate extracted from `src/game/g_nav.c`: own the graph representation and A* implementation in Rust, while retaining a small C shim for engine traps, console commands, filesystem access, and `.wpt` compatibility.
+- Add Rust unit tests and golden `.wpt` fixtures for graph loading, saving, team-asymmetric pathfinding, nearest-node lookup, and invalid-input handling before replacing the C implementation in the game DLL.
+- Build standalone Rust tools for asset, map, and `.wpt` validation where no engine ABI is required; prefer these as the first production Rust deliverables if the navigation extraction is not yet ready.
+- Preserve the existing native module ABI during early experiments: keep `dllEntry`/`vmMain` and all shared data crossing the boundary in explicit `#[repr(C)]` types or C-owned shims.
+- Consider a Rust game DLL only after the syscall ABI, shared structure layouts, deterministic gameplay behavior, and module-level fixtures are formally documented and tested.
+- Defer Rust ports of `qcommon`, the client/UI, and the current OpenGL renderers until subsystem seams and behavior coverage justify their larger integration risk; do not rewrite vendored codecs in Rust when a maintained vcpkg replacement is sufficient.
+
 ## Browser and online platform backlog
 
 - Investigate whether the game can evolve into a browser-capable client using WebAssembly plus WebGL/WebGPU or a hybrid browser/native split.
