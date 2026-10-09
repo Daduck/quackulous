@@ -153,7 +153,7 @@ if (-not (Test-Path $vcpkgExe)) {
   & (Join-Path $vcpkgRoot "bootstrap-vcpkg.bat")
 }
 
-& $vcpkgExe install sdl2:x64-windows openal-soft:x64-windows
+& $vcpkgExe install sdl2:x64-windows openal-soft:x64-windows zlib:x64-windows
 
 $fullBuildDir = Join-Path $repoRoot $BuildDir
 $toolchain = Join-Path $vcpkgRoot "scripts\buildsystems\vcpkg.cmake"

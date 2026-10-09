@@ -145,3 +145,10 @@
   - Integrated team-asymmetric A\* pathfinding into `src/game/g_bot.c`: Aliens favor wall climbs and flanks, while humans stick to ground paths; bots target opposing players and key structures (Overmind/Reactor), execute combat strafing and pounces, use line-of-sight path shortcutting, and use stuck detection with jump/direction recovery.
 
 
+
+- **2026-09-19 D1: zlib moved from vendored 1.2.3 to vcpkg (1.3.1)**:
+  - The in-tree `src/zlib/` was zlib 1.2.3 (2005), inflate-only, with no version in the directory name, so it was easy to miss in dependency audits. It unpacks pk3 files that servers can push via autodownload, which made it the highest-exposure vendored library.
+  - Switch was mechanical because `src/qcommon/unzip.h` and `ioapi.c` already include `<zlib.h>` when `USE_LOCAL_HEADERS` is off (the default). CMake now does `find_package(ZLIB REQUIRED)` and links `ZLIB::ZLIB` into `quackulous-client` and `quackulous-dedicated`; the `src/zlib` include dir, the `QUACK_USE_INTERNAL_ZLIB` option, and the `NO_GZIP` define were removed along with the sources.
+  - The minizip pieces (`src/qcommon/unzip.c`, `ioapi.c`, minizip 1.01e) are engine code, not zlib, and stay in-tree. `NOUNCRYPT` is defined, so the `get_crc_table()` pointer-type change in newer zlib never compiles.
+  - vcpkg's `x64-windows` triplet is dynamic: the DLL is `zlibd1.dll` in Debug and `zlib1.dll` in Release. It is staged through `TARGET_RUNTIME_DLLS`, which required adding `quackulous_copy_runtime_dlls(quackulous-dedicated)` so a server-only build also gets the DLL. `scripts/smoke-runtime.ps1` accepts either name.
+  - Pattern for D2..D5 (opus, jpeg-turbo, curl, ogg/vorbis): add the port to the install line in both `scripts/bootstrap-windows.ps1` and `.github/workflows/windows-msvc.yml`, `find_package` + link the imported target, drop the include dir and the `QUACK_USE_INTERNAL_*` option, delete the vendored directory, rebuild, run the smoke preset.

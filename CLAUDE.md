@@ -102,7 +102,8 @@ src/
   sys/           platform code (Windows RC files, etc.)
   sdl/           SDL input/event handling
   AL/            OpenAL headers
-  (vendored: zlib, libjpeg, libogg, libvorbis, opus, opusfile, libcurl, libspeex)
+  (vendored: libjpeg, libogg, libvorbis, opus, opusfile, libcurl headers, libspeex)
+  (via vcpkg: SDL2, OpenAL-Soft, zlib)
 ```
 
 ---
@@ -124,8 +125,11 @@ src/
   `LEARNINGS.md`.
 - Legacy `Makefile` and `misc/msvc/tremulous.vcproj` are reference artifacts — do not
   modify or delete them.
-- Dependencies beyond SDL2 (zlib, jpeg, ogg, opus) are vendored under `src/` and built
-  inline by CMake. Do not add vcpkg packages without updating the bootstrap script.
+- SDL2, OpenAL-Soft and zlib come from vcpkg. The remaining C libraries (jpeg, ogg,
+  vorbis, opus, opusfile) are still vendored under `src/` and built inline by CMake;
+  they are being moved to vcpkg one at a time (see "Phase D" in `BACKLOG.md`). When you
+  add a vcpkg package, add it to the install line in BOTH `scripts/bootstrap-windows.ps1`
+  and `.github/workflows/windows-msvc.yml`.
 - Rust, C#, browser/WASM, and Cloudflare Workers are future tracks — do not start those
   during Phase 1.
 

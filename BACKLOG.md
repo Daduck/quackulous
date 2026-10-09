@@ -106,3 +106,35 @@
 - Add a larger automated test suite so the codebase can eventually be converted to another codebase with confidence.
 - Prioritize tests that lock observable behavior rather than internal implementation details.
 - Build enough safety rails that an engine or language migration can be done incrementally.
+
+## Dependency modernization backlog (Phase D)
+
+Vendored C libraries under `src/` are far behind upstream and are outside what
+Dependabot can see. Strategy: switch one library at a time from the in-tree copy
+to the vcpkg port (the `QUACK_USE_INTERNAL_*` switches already exist for this),
+verify the build and smoke tests, then delete the vendored sources. Pin versions
+with a `vcpkg.json` manifest + baseline so all C dependencies bump via one hash.
+
+Inventory as of 2026-09-19 (exposure = does it parse data from servers/players?):
+
+| Library | Vendored | Compiled? | Exposure | vcpkg port |
+|---|---|---|---|---|
+| zlib | 1.2.3 (2005) | yes, inflate only | high: unpacks pk3 from autodownload | `zlib` |
+| jpeg | 8c (2011) | yes | medium-high: textures from pk3 | `libjpeg-turbo` |
+| opus | 1.1 (2013) | yes | medium-high: VoIP packets from other players | `opus` |
+| opusfile | 0.5 (2013) | yes | medium: .opus files from pk3 | `opusfile` |
+| libogg | 1.3.1 (2013) | yes (Opus needs it) | medium | `libogg` |
+| libvorbis | 1.3.4 (2014) | no, codec OFF by default | low for now | `libvorbis` |
+| libcurl | 7.35.0 headers only | no, `libcurl-4.dll` dlopen'ed at runtime | n/a, no DLL is staged so download is non-functional | `curl` |
+| libspeex | ? | no, dead code | none | n/a, delete |
+| SDL12 | ? | no, 3 files | none | n/a, delete |
+
+Ordered steps:
+
+- D1: zlib via vcpkg; `src/qcommon/unzip.c` + `ioapi.c` (minizip) stay in-tree and build against it. ✓ in progress
+- D2: opus + opusfile via vcpkg (API-stable 1.x, near drop-in).
+- D3: libjpeg-turbo via vcpkg (same API subset as jpeg-8c incl. `jpeg_mem_src`).
+- D4: curl via vcpkg and stage `libcurl-4.dll` next to the client so HTTP autodownload actually works on Windows.
+- D5: libogg + libvorbis via vcpkg when/if the Vorbis codec is enabled.
+- D6: delete `src/libspeex/`, `src/SDL12/`, and each vendored directory as it is replaced.
+- D7: add `vcpkg.json` manifest with a pinned `builtin-baseline`; document the bump procedure and consider a scheduled CI job that opens a PR when the baseline moves.

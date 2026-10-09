@@ -28,7 +28,14 @@ if ($RequireOpenGL2 -eq "1") {
   $requiredFiles += Join-Path $RuntimeRoot "renderer_opengl2_${Arch}.dll"
 }
 
-$missing = $requiredFiles | Where-Object { -not (Test-Path $_) }
+$missing = @($requiredFiles | Where-Object { -not (Test-Path $_) })
+
+# zlib comes from vcpkg (dynamic triplet) and is staged via TARGET_RUNTIME_DLLS.
+# The DLL name depends on the configuration: zlibd1.dll (Debug) or zlib1.dll (Release).
+$zlibCandidates = @("zlibd1.dll", "zlib1.dll") | ForEach-Object { Join-Path $RuntimeRoot $_ }
+if (-not ($zlibCandidates | Where-Object { Test-Path $_ })) {
+  $missing += ($zlibCandidates -join " or ")
+}
 if ($missing.Count -gt 0) {
   Write-Error ("Missing runtime artifacts:`n" + ($missing -join "`n"))
 }

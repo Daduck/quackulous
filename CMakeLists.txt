@@ -32,7 +32,6 @@ option(QUACK_USE_CODEC_OPUS "Enable Opus codec support." ON)
 option(QUACK_USE_CODEC_VORBIS "Enable Vorbis codec support." OFF)
 option(QUACK_USE_VOIP "Enable VoIP support." ON)
 option(QUACK_USE_MUMBLE "Enable Mumble link support." ON)
-option(QUACK_USE_INTERNAL_ZLIB "Use the vendored zlib sources." ON)
 option(QUACK_USE_INTERNAL_JPEG "Use the vendored JPEG sources." ON)
 option(QUACK_USE_INTERNAL_OGG "Use the vendored Ogg sources." ON)
 option(QUACK_USE_INTERNAL_VORBIS "Use the vendored Vorbis sources." ON)
@@ -41,10 +40,6 @@ option(QUACK_USE_LOCAL_HEADERS "Use in-tree headers for SDL/OpenAL/cURL compatib
 
 if(NOT QUACK_USE_RENDERER_DLOPEN)
   message(FATAL_ERROR "The initial MSVC bring-up currently requires QUACK_USE_RENDERER_DLOPEN=ON.")
-endif()
-
-if(NOT QUACK_USE_INTERNAL_ZLIB)
-  message(FATAL_ERROR "The initial MSVC bring-up currently requires QUACK_USE_INTERNAL_ZLIB=ON.")
 endif()
 
 if(NOT QUACK_USE_INTERNAL_JPEG)
@@ -68,6 +63,7 @@ set(QUACK_RUNTIME_ROOT "${CMAKE_BINARY_DIR}/stage")
 set(QUACK_BASEGAME "base")
 
 find_package(SDL2 CONFIG REQUIRED)
+find_package(ZLIB REQUIRED)
 
 include(CTest)
 include(cmake/QuackulousSources.cmake)
@@ -126,7 +122,6 @@ set(QUACK_COMMON_INCLUDE_DIRS
   "${CMAKE_CURRENT_SOURCE_DIR}/src/opus-1.1/silk"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/opus-1.1/silk/float"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/opusfile-0.5/include"
-  "${CMAKE_CURRENT_SOURCE_DIR}/src/zlib"
 )
 
 list(REMOVE_DUPLICATES QUACK_COMMON_INCLUDE_DIRS)
@@ -142,10 +137,6 @@ set(QUACK_COMMON_DEFINES
 
 if(QUACK_USE_LOCAL_HEADERS)
   list(APPEND QUACK_COMMON_DEFINES USE_LOCAL_HEADERS)
-endif()
-
-if(QUACK_USE_INTERNAL_ZLIB)
-  list(APPEND QUACK_COMMON_DEFINES NO_GZIP)
 endif()
 
 if(QUACK_USE_INTERNAL_JPEG)
@@ -206,7 +197,6 @@ endfunction()
 if(QUACK_BUILD_CLIENT)
   add_executable(quackulous-client WIN32
     ${QUACK_CLIENT_SOURCES}
-    ${QUACK_CLIENT_ZLIB_SOURCES}
     ${QUACK_CLIENT_OGG_SOURCES}
     ${QUACK_CLIENT_OPUS_SOURCES}
     ${QUACK_CLIENT_OPUSFILE_SOURCES}
@@ -217,6 +207,7 @@ if(QUACK_BUILD_CLIENT)
   target_link_libraries(quackulous-client PRIVATE
     SDL2::SDL2main
     SDL2::SDL2
+    ZLIB::ZLIB
     gdi32
     ole32
     psapi
@@ -279,7 +270,6 @@ endif()
 if(QUACK_BUILD_SERVER)
   add_executable(quackulous-dedicated
     ${QUACK_DEDICATED_SOURCES}
-    ${QUACK_DEDICATED_ZLIB_SOURCES}
     "${CMAKE_CURRENT_SOURCE_DIR}/src/sys/win_resource.rc"
   )
   quackulous_target_defaults(quackulous-dedicated)
@@ -288,6 +278,7 @@ if(QUACK_BUILD_SERVER)
     target_compile_definitions(quackulous-dedicated PRIVATE USE_VOIP)
   endif()
   target_link_libraries(quackulous-dedicated PRIVATE
+    ZLIB::ZLIB
     psapi
     winmm
     ws2_32
@@ -298,6 +289,7 @@ if(QUACK_BUILD_SERVER)
     VS_DEBUGGER_WORKING_DIRECTORY "${QUACK_RUNTIME_ROOT}/$(Configuration)"
   )
   quackulous_copy_runtime_assets(quackulous-dedicated)
+  quackulous_copy_runtime_dlls(quackulous-dedicated)
 endif()
 
 if(QUACK_BUILD_CLIENT)
